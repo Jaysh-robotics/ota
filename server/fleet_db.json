@@ -1,0 +1,310 @@
+{
+  "robots": {
+    "CR-2026-00001": {
+      "name": "Chorerobot-00001",
+      "model": "ChoreBot X1",
+      "serial": "CR-2026-00001",
+      "hw_rev": "A",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.006154",
+      "last_seen": "2026-07-12T18:22:48.059147"
+    },
+    "CR-2026-00002": {
+      "name": "Chorerobot-00002",
+      "model": "ChoreBot X2",
+      "serial": "CR-2026-00002",
+      "hw_rev": "B",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.278374",
+      "last_seen": "2026-07-12T18:22:47.745430"
+    },
+    "CR-2026-00003": {
+      "name": "Chorerobot-00003",
+      "model": "ChoreBot X2 Pro",
+      "serial": "CR-2026-00003",
+      "hw_rev": "C",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.665893",
+      "last_seen": "2026-07-12T18:22:48.561725"
+    },
+    "CR-2026-00004": {
+      "name": "Chorerobot-00004",
+      "model": "ChoreBot X1",
+      "serial": "CR-2026-00004",
+      "hw_rev": "A",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.970307",
+      "last_seen": "2026-07-12T18:22:48.296888"
+    },
+    "CR-2026-00005": {
+      "name": "Chorerobot-00005",
+      "model": "ChoreBot X2",
+      "serial": "CR-2026-00005",
+      "hw_rev": "B",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.200910",
+      "last_seen": "2026-07-12T18:22:48.662186"
+    },
+    "CR-2026-00006": {
+      "name": "Chorerobot-00006",
+      "model": "ChoreBot X2 Pro",
+      "serial": "CR-2026-00006",
+      "hw_rev": "C",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.397232",
+      "last_seen": "2026-07-12T18:22:47.734304"
+    },
+    "CR-2026-00007": {
+      "name": "Chorerobot-00007",
+      "model": "ChoreBot X1",
+      "serial": "CR-2026-00007",
+      "hw_rev": "A",
+      "current_version": "1.2.4",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.607931",
+      "last_seen": "2026-07-12T18:22:48.622428"
+    },
+    "CR-2026-00008": {
+      "name": "Chorerobot-00008",
+      "model": "ChoreBot X2",
+      "serial": "CR-2026-00008",
+      "hw_rev": "B",
+      "current_version": "1.2.4",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.985672",
+      "last_seen": "2026-07-12T18:22:47.713195"
+    },
+    "CR-2026-00009": {
+      "name": "Chorerobot-00009",
+      "model": "ChoreBot X2 Pro",
+      "serial": "CR-2026-00009",
+      "hw_rev": "C",
+      "current_version": "1.2.4",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.330526",
+      "last_seen": "2026-07-12T18:22:48.355542"
+    },
+    "CR-2026-00010": {
+      "name": "Chorerobot-00010",
+      "model": "ChoreBot X1",
+      "serial": "CR-2026-00010",
+      "hw_rev": "A",
+      "current_version": "1.2.4",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.514480",
+      "last_seen": "2026-07-12T18:22:47.377086"
+    },
+    "CR-2026-00011": {
+      "name": "Chorerobot-00011",
+      "model": "ChoreBot X2",
+      "serial": "CR-2026-00011",
+      "hw_rev": "B",
+      "current_version": "1.2.4",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.784424",
+      "last_seen": "2026-07-12T18:22:48.259624"
+    },
+    "CR-2026-00012": {
+      "name": "Chorerobot-00012",
+      "model": "ChoreBot X2 Pro",
+      "serial": "CR-2026-00012",
+      "hw_rev": "C",
+      "current_version": "1.3.1",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:18.483288",
+      "last_seen": "2026-07-12T18:22:47.962325"
+    }
+  },
+  "attachments": {
+    "AT-SP-2026-00001": {
+      "type": "Snow Plower",
+      "type_code": "SP",
+      "serial": "AT-SP-2026-00001",
+      "attached_to": "CR-2026-00001",
+      "current_version": "1.1.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.144154",
+      "last_seen": "2026-07-12T18:22:48.096768"
+    },
+    "AT-SP-2026-00002": {
+      "type": "Snow Plower",
+      "type_code": "SP",
+      "serial": "AT-SP-2026-00002",
+      "attached_to": "CR-2026-00002",
+      "current_version": "1.1.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.475465",
+      "last_seen": "2026-07-12T18:22:47.887253"
+    },
+    "AT-LM-2026-00001": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00001",
+      "attached_to": "CR-2026-00003",
+      "current_version": "2.4.1",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:12.864306",
+      "last_seen": "2026-07-12T18:22:48.635330"
+    },
+    "AT-LM-2026-00002": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00002",
+      "attached_to": "CR-2026-00004",
+      "current_version": "2.4.1",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.089126",
+      "last_seen": "2026-07-12T18:22:48.353421"
+    },
+    "AT-LM-2026-00003": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00003",
+      "attached_to": "CR-2026-00005",
+      "current_version": "2.4.1",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.300278",
+      "last_seen": "2026-07-12T18:22:47.960078"
+    },
+    "AT-LM-2026-00004": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00004",
+      "attached_to": "CR-2026-00006",
+      "current_version": "2.4.1",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.500749",
+      "last_seen": "2026-07-12T18:22:48.165238"
+    },
+    "AT-SR-2026-00001": {
+      "type": "Snow Remover",
+      "type_code": "SR",
+      "serial": "AT-SR-2026-00001",
+      "attached_to": "CR-2026-00007",
+      "current_version": "1.0.2",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:13.793523",
+      "last_seen": "2026-07-12T18:22:48.426191"
+    },
+    "AT-SR-2026-00002": {
+      "type": "Snow Remover",
+      "type_code": "SR",
+      "serial": "AT-SR-2026-00002",
+      "attached_to": "CR-2026-00008",
+      "current_version": "1.0.2",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.159718",
+      "last_seen": "2026-07-12T18:22:47.487285"
+    },
+    "AT-LC-2026-00001": {
+      "type": "Leaf Collector",
+      "type_code": "LC",
+      "serial": "AT-LC-2026-00001",
+      "attached_to": "CR-2026-00010",
+      "current_version": "3.0.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.620670",
+      "last_seen": "2026-07-12T18:22:47.931835"
+    },
+    "AT-SP-2026-00003": {
+      "type": "Snow Plower",
+      "type_code": "SP",
+      "serial": "AT-SP-2026-00003",
+      "attached_to": null,
+      "current_version": "1.1.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:14.964773",
+      "last_seen": "2026-07-12T18:21:44.086996"
+    },
+    "AT-LC-2026-00003": {
+      "type": "Leaf Collector",
+      "type_code": "LC",
+      "serial": "AT-LC-2026-00003",
+      "attached_to": null,
+      "current_version": "3.0.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:15.060254",
+      "last_seen": "2026-07-12T18:21:44.217919"
+    },
+    "AT-LC-2026-00002": {
+      "type": "Leaf Collector",
+      "type_code": "LC",
+      "serial": "AT-LC-2026-00002",
+      "attached_to": "CR-2026-00012",
+      "current_version": "3.0.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "first_seen": "2026-07-12T15:41:18.946978",
+      "last_seen": "2026-07-12T18:22:47.963929"
+    }
+  },
+  "attachment_versions": [
+    {
+      "type_code": "SP",
+      "version": "1.1.0",
+      "filename": null,
+      "size": null,
+      "uploaded_at": "2026-07-12T00:00:00"
+    },
+    {
+      "type_code": "LM",
+      "version": "2.4.0",
+      "filename": null,
+      "size": null,
+      "uploaded_at": "2026-07-12T00:00:00"
+    },
+    {
+      "type_code": "LM",
+      "version": "2.4.1",
+      "filename": null,
+      "size": null,
+      "uploaded_at": "2026-07-12T00:00:00"
+    },
+    {
+      "type_code": "SR",
+      "version": "1.0.2",
+      "filename": null,
+      "size": null,
+      "uploaded_at": "2026-07-12T00:00:00"
+    },
+    {
+      "type_code": "LC",
+      "version": "3.0.0",
+      "filename": null,
+      "size": null,
+      "uploaded_at": "2026-07-12T00:00:00"
+    }
+  ],
+  "attachment_targets": {
+    "LM": "2.4.1"
+  }
+}

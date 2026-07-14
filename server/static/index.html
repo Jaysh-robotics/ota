@@ -1,0 +1,3437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chore Robotics — OTA Fleet Manager</title>
+<style>
+  /* ---------- Reset & Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #F7941D;
+    --orange-light: #FFF3E0;
+    --orange-dark: #d97c10;
+    --gold: #8B6914;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #f0f1f4;
+    --border: #e2e4ea;
+    --text: #111827;
+    --text2: #6b7280;
+    --text3: #9ca3af;
+    --radius: 12px;
+    --shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.10);
+    --sidebar: 240px;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    width: var(--sidebar);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo img { width: 160px; display: block; }
+  .sidebar-nav {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 8px;
+  }
+  .sidebar-nav::-webkit-scrollbar { width: 6px; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-section {
+    padding: 20px 12px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    margin: 1px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text2);
+    font-weight: 500;
+    transition: all .15s;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--orange-light); color: var(--orange); }
+  .nav-item svg { flex-shrink: 0; }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .server-status {
+    display: flex; align-items: center; gap: 6px;
+    font-weight: 600; color: var(--green); font-size: 12px;
+  }
+  .server-status::before {
+    content: '';
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 2px rgba(34,197,94,.2);
+  }
+
+  /* ---------- Main ---------- */
+  .main {
+    margin-left: var(--sidebar);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title { font-size: 16px; font-weight: 700; }
+  .topbar-subtitle { font-size: 12px; color: var(--text2); margin-top: 1px; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all .15s;
+  }
+  .btn-primary {
+    background: var(--orange);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--orange-dark); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--bg); color: var(--text); }
+  .btn-danger-ghost {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid #fecaca;
+  }
+  .btn-danger-ghost:hover { background: #fef2f2; border-color: var(--red); }
+
+  .content { padding: 28px; flex: 1; }
+
+  /* ---------- Stats row ---------- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-value.orange { color: var(--orange); }
+  .stat-sub { font-size: 12px; color: var(--text2); margin-top: 6px; }
+  .stat-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-red { background: #fee2e2; color: #b91c1c; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-gray { background: var(--surface2); color: var(--text2); }
+  .badge-orange { background: var(--orange-light); color: var(--orange-dark); }
+  .badge-blue { background: #eff6ff; color: #1d4ed8; }
+
+  /* ---------- Layout grid ---------- */
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  /* ---------- Charts row ---------- */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+
+  .chart-bar-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 64px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 12px;
+  }
+  .chart-bar-row:last-child { margin-bottom: 0; }
+  .chart-bar-label {
+    font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chart-bar-track { height: 8px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .chart-bar-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--orange), var(--orange-dark));
+    transition: width .3s ease;
+  }
+  .chart-bar-count { color: var(--text2); text-align: right; font-variant-numeric: tabular-nums; }
+
+  .donut {
+    width: 120px; height: 120px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background .3s ease;
+  }
+  .donut-hole {
+    width: 76px; height: 76px; border-radius: 50%;
+    background: var(--surface);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800;
+  }
+  .donut-hole span { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .04em; }
+  .donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .donut-legend { display: flex; flex-direction: column; gap: 9px; flex: 1; min-width: 140px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+  .legend-item strong { margin-left: auto; color: var(--text); font-weight: 700; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ---------- Fleet toolbar ---------- */
+  .fleet-toolbar {
+    display: flex; gap: 10px; padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-wrap: wrap;
+  }
+  .fleet-toolbar input, .fleet-toolbar select {
+    padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 12px; background: var(--surface); color: var(--text);
+    outline: none; transition: border .15s;
+  }
+  .fleet-toolbar input:focus, .fleet-toolbar select:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(247,148,29,.15); }
+  .fleet-toolbar input { flex: 1; min-width: 180px; }
+  .fleet-toolbar select { cursor: pointer; }
+
+  .sortable { cursor: pointer; user-select: none; }
+  .sortable:hover { color: var(--text); }
+  .sort-arrow { font-size: 9px; margin-left: 4px; color: var(--orange); }
+
+  /* ---------- Health dot on avatar ---------- */
+  .robot-icon { position: relative; }
+  .health-corner-dot {
+    position: absolute; bottom: -2px; right: -2px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--surface);
+  }
+  .robot-row { cursor: pointer; }
+
+  /* ---------- Drawer ---------- */
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(17,24,39,.32);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease;
+    z-index: 200;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .robot-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 420px; max-width: 92vw;
+    background: var(--surface); border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%); transition: transform .25s ease;
+    z-index: 201; display: flex; flex-direction: column;
+  }
+  .robot-drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  }
+  .drawer-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .drawer-section { margin-bottom: 22px; }
+  .drawer-section-title {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text3); margin-bottom: 10px;
+  }
+  .drawer-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .drawer-stat { background: var(--bg); border-radius: 8px; padding: 12px; }
+  .drawer-stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .drawer-stat-value { font-size: 15px; font-weight: 700; font-family: monospace; }
+  .timeline-item { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); margin-top: 5px; flex-shrink: 0; }
+  .timeline-time { color: var(--text3); font-family: monospace; font-size: 11px; }
+
+  /* ---------- Section card ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-weight: 700; font-size: 14px; }
+  .card-subtitle { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .card-body { padding: 20px; }
+
+  /* ---------- Fleet table ---------- */
+  .fleet-table { width: 100%; border-collapse: collapse; }
+  .fleet-table th {
+    text-align: left;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .06em;
+    color: var(--text3);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .fleet-table td {
+    padding: 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .fleet-table tr:last-child td { border-bottom: none; }
+  .fleet-table tr:hover td { background: var(--bg); }
+
+  .robot-row td { padding: 14px 16px; }
+
+  .robot-identity { display: flex; align-items: center; gap: 12px; }
+  .robot-icon {
+    width: 38px; height: 38px;
+    background: var(--orange-light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .robot-icon svg { color: var(--orange); }
+  .robot-name { font-weight: 700; font-size: 13px; }
+  .robot-meta { font-size: 11px; color: var(--text2); margin-top: 1px; }
+  .robot-id { font-family: monospace; font-size: 10px; color: var(--text3); }
+
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%; display: inline-block;
+    margin-right: 5px;
+  }
+  .dot-online { background: var(--green); box-shadow: 0 0 0 2px rgba(34,197,94,.2); }
+  .dot-offline { background: var(--text3); }
+  .dot-updating { background: var(--blue); box-shadow: 0 0 0 2px rgba(59,130,246,.2); }
+
+  .action-btn {
+    padding: 5px 12px;
+    font-size: 12px; font-weight: 600;
+    border-radius: 6px; cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text2);
+    transition: all .15s;
+  }
+  .action-btn:hover:not(:disabled) { border-color: var(--orange); color: var(--orange); }
+  .action-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ---------- Right panel ---------- */
+  .panel-stack { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ---------- Upload zone ---------- */
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+    background: var(--bg);
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--orange); background: var(--orange-light); }
+  .upload-zone svg { color: var(--text3); margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: var(--text2); }
+  .upload-zone strong { color: var(--orange); }
+  #fileInput { display: none; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text2); }
+  .form-input {
+    width: 100%; padding: 8px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 13px; color: var(--text);
+    outline: none; transition: border .15s;
+    background: var(--surface);
+  }
+  .form-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(247,148,29,.15); }
+
+  /* ---------- Versions list ---------- */
+  .version-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .version-item:last-child { border-bottom: none; }
+  .version-name { font-weight: 700; font-size: 13px; }
+  .version-meta { font-size: 11px; color: var(--text2); }
+
+  /* ---------- Deploy section ---------- */
+  .deploy-target {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .deploy-target:hover { border-color: var(--orange); }
+  .deploy-target input[type=checkbox] { accent-color: var(--orange); width: 15px; height: 15px; }
+
+  /* ---------- Activity log ---------- */
+  .log-entry {
+    display: flex; gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .log-time { color: var(--text3); white-space: nowrap; font-family: monospace; }
+  .log-msg { color: var(--text2); }
+  .log-msg strong { color: var(--text); }
+
+  /* ---------- Toast ---------- */
+  #toast-container {
+    position: fixed; bottom: 24px; right: 24px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 9999;
+  }
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow-lg);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 500;
+    animation: slideIn .25s ease;
+    max-width: 320px;
+  }
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error { border-left: 3px solid var(--red); }
+  .toast.info { border-left: 3px solid var(--blue); }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ---------- Empty state ---------- */
+  .empty { text-align: center; padding: 32px 16px; color: var(--text3); font-size: 13px; }
+  .empty code {
+    display: inline-block; margin-top: 10px;
+    background: var(--surface2); color: var(--text);
+    padding: 8px 12px; border-radius: 6px;
+    font-size: 12px; font-family: monospace;
+  }
+
+  select.form-input { cursor: pointer; }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 99px;
+    font-size: 11px; font-weight: 600;
+  }
+
+  /* ---------- Toggle switch ---------- */
+  .toggle { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface2); border-radius: 99px; transition: .2s; }
+  .toggle-slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .toggle input:checked + .toggle-slider { background: var(--orange); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+  .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-row-label { font-weight: 600; font-size: 13px; }
+  .setting-row-desc { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  /* ---------- Phased rollout steps ---------- */
+  .progress-steps { display: flex; align-items: flex-start; gap: 0; margin: 16px 0; }
+  .progress-step { flex: 1; text-align: center; position: relative; }
+  .progress-step-dot {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--surface2); color: var(--text3);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
+    margin: 0 auto 6px; border: 2px solid var(--surface2); position: relative; z-index: 1;
+  }
+  .progress-step.done .progress-step-dot { background: var(--green); color: #fff; border-color: var(--green); }
+  .progress-step.active .progress-step-dot { background: var(--orange); color: #fff; border-color: var(--orange); }
+  .progress-step-label { font-size: 11px; color: var(--text2); font-weight: 600; }
+  .progress-step:not(:last-child)::after {
+    content: ''; position: absolute; top: 14px; left: 50%; width: 100%; height: 2px; background: var(--surface2);
+  }
+  .progress-step.done:not(:last-child)::after { background: var(--green); }
+
+  /* ---------- Mini bits ---------- */
+  .mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .mini-table th { text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text3); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .mini-table td { padding: 10px; border-bottom: 1px solid var(--border); }
+  .mini-table tr:last-child td { border-bottom: none; }
+  .severity-critical { background: #fee2e2; color: #b91c1c; }
+  .severity-warning { background: #fef3c7; color: #92400e; }
+  .severity-info { background: #eff6ff; color: #1d4ed8; }
+
+  /* ---------- Grafana-style telemetry dashboard ---------- */
+  .gf-wrap { background: #0f1115; border-radius: 12px; padding: 20px; margin-top: 20px; }
+  .gf-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+  .gf-title { color: #e5e7eb; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+  .gf-range-buttons { display: flex; gap: 6px; }
+  .gf-range-btn {
+    background: #1f2329; border: 1px solid #2c3138; color: #9ca3af;
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .gf-range-btn.active { background: var(--orange); color: #0f1115; border-color: var(--orange); }
+  .gf-range-btn:hover:not(.active) { border-color: #4b5563; color: #d1d5db; }
+  .gf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  .gf-panel { background: #181b1f; border: 1px solid #2c3138; border-radius: 8px; padding: 14px; min-width: 0; }
+  .gf-panel-title { font-size: 10px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+  .gf-stat-value { font-size: 26px; font-weight: 800; color: #e5e7eb; }
+  .gf-stat-value.good { color: #73bf69; }
+  .gf-stat-value.warn { color: #fade2a; }
+  .gf-stat-value.crit { color: #f2495c; }
+  .gf-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; font-size: 11px; color: #9ca3af; }
+  .gf-legend-item { display: flex; align-items: center; gap: 5px; }
+  .gf-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+  .gf-heatmap-row { display: flex; gap: 2px; align-items: center; margin-bottom: 2px; }
+  .gf-heatmap-label { width: 100px; font-size: 10px; color: #9ca3af; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gf-heatmap-cell { flex: 1; height: 16px; border-radius: 2px; }
+  .gf-table { width: 100%; border-collapse: collapse; font-size: 11px; color: #d1d5db; }
+  .gf-table th { text-align: left; color: #6b7280; font-weight: 600; padding: 6px 8px; border-bottom: 1px solid #2c3138; text-transform: uppercase; font-size: 9px; letter-spacing: .05em; }
+  .gf-table td { padding: 6px 8px; border-bottom: 1px solid #22262c; }
+  .gf-log { background: #0f1115; border: 1px solid #2c3138; border-radius: 6px; padding: 10px; font-family: monospace; font-size: 11px; color: #9ca3af; height: 180px; overflow-y: auto; }
+  .gf-log-line { padding: 2px 0; }
+  .gf-log-time { color: #4b5563; margin-right: 8px; }
+  .gf-gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* ---------- Virtual cursor (demo choreography) ---------- */
+  #virtual-cursor {
+    position: fixed; top: 0; left: 0; width: 22px; height: 22px;
+    pointer-events: none; z-index: 99999;
+    opacity: 0; transition: opacity .3s ease;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,.35));
+    will-change: transform;
+  }
+  #virtual-cursor.vc-dip svg { transform: scale(.88); }
+  #virtual-cursor svg { transition: transform .12s ease; display: block; }
+  .vc-ripple {
+    position: fixed; width: 10px; height: 10px; margin: -5px 0 0 -5px;
+    border-radius: 50%; border: 2px solid var(--orange);
+    pointer-events: none; z-index: 99998;
+    animation: vcRipple .5s ease-out forwards;
+  }
+  @keyframes vcRipple { from { transform: scale(.3); opacity: .9; } to { transform: scale(3.4); opacity: 0; } }
+  .vc-hover td { background: var(--bg) !important; }
+
+  /* ---------- Data Flywheel ---------- */
+  .flywheel-arrow { fill: none; stroke: var(--orange); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; animation: flywheelFlow 1.1s linear infinite; opacity: .85; }
+  @keyframes flywheelFlow { to { stroke-dashoffset: -32; } }
+  .flywheel-node-circle { fill: url(#flywheelNodeGrad); stroke: var(--orange); stroke-width: 2; filter: drop-shadow(0 4px 10px rgba(247,148,29,.25)); }
+  .flywheel-node-label { font-size: 12px; font-weight: 700; fill: var(--text); }
+  .flywheel-node-sub { font-size: 9px; font-weight: 600; fill: var(--text2); letter-spacing: .03em; }
+  .flywheel-node-counter { font-size: 20px; font-weight: 800; fill: var(--orange-dark); }
+  .flywheel-center-label { font-size: 13px; font-weight: 800; fill: var(--text); }
+  .flywheel-center-sub { font-size: 10px; font-weight: 600; fill: var(--text3); }
+  .flywheel-hub { animation: flywheelSpin 40s linear infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes flywheelSpin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="/static/logo.png" alt="Chore Robotics">
+  </div>
+  <nav class="sidebar-nav">
+  <div class="sidebar-section">Fleet</div>
+  <a class="nav-item active" id="nav-fleet" onclick="showSection('fleet')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+    Fleet Overview
+  </a>
+  <a class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Fleet Analytics
+  </a>
+  <a class="nav-item" id="nav-devices" onclick="showSection('devices')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
+    Device Registry
+  </a>
+  <a class="nav-item" id="nav-connectivity" onclick="showSection('connectivity')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+    Connectivity
+  </a>
+  <div class="sidebar-section">OTA &amp; Updates</div>
+  <a class="nav-item" id="nav-deploy" onclick="showSection('deploy')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    Deploy Updates
+  </a>
+  <a class="nav-item" id="nav-campaigns" onclick="showSection('campaigns')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    Campaigns
+  </a>
+  <a class="nav-item" id="nav-uploads" onclick="showSection('uploads')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Upload Firmware
+  </a>
+  <a class="nav-item" id="nav-remoteops" onclick="showSection('remoteops')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+    Remote Operations
+  </a>
+  <div class="sidebar-section">Diagnostics</div>
+  <a class="nav-item" id="nav-telemetry" onclick="showSection('telemetry')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    Telemetry
+  </a>
+  <a class="nav-item" id="nav-faults" onclick="showSection('faults')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Fault Codes
+  </a>
+  <a class="nav-item" id="nav-predictive" onclick="showSection('predictive')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+    Predictive Maintenance
+  </a>
+  <div class="sidebar-section">Operations</div>
+  <a class="nav-item" id="nav-alerts" onclick="showSection('alerts')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    Alerts
+  </a>
+  <a class="nav-item" id="nav-support" onclick="showSection('support')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+    Support Console
+  </a>
+  <a class="nav-item" id="nav-automation" onclick="showSection('automation')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+    Automation
+  </a>
+  <div class="sidebar-section">Platform</div>
+  <a class="nav-item" id="nav-access" onclick="showSection('access')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    Access &amp; Audit
+  </a>
+  <a class="nav-item" id="nav-enterprise" onclick="showSection('enterprise')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
+    Enterprise &amp; Ecosystem
+  </a>
+  <a class="nav-item" id="nav-flywheel" onclick="showSection('flywheel')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M21 12h-4M12 21v-4M3 12h4"/><circle cx="12" cy="12" r="2.5"/></svg>
+    Data Flywheel
+  </a>
+  <div class="sidebar-section">System</div>
+  <a class="nav-item" id="nav-activity" onclick="showSection('activity')">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Activity Log
+  </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="server-status">Server Online</div>
+    <div style="margin-top:4px">OTA Manager v1.0.0</div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="page-title">Fleet Overview</div>
+      <div class="topbar-subtitle" id="page-sub">Monitor and manage your robot fleet</div>
+    </div>
+    <div class="topbar-right">
+      <span class="chip badge-gray" id="target-version-chip">No target set</span>
+      <button class="btn btn-danger-ghost" onclick="clearDatabase()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Clear Database
+      </button>
+      <button class="btn btn-primary" onclick="showSection('deploy')">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Push Update
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== FLEET SECTION ===== -->
+    <div id="section-fleet">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Robots</div>
+          <div class="stat-value orange" id="stat-total">0</div>
+          <div class="stat-sub">Registered in fleet</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Online</div>
+          <div class="stat-value" id="stat-online" style="color:var(--green)">0</div>
+          <div class="stat-sub"><span class="stat-badge badge-gray" id="stat-online-pct">—</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Up to Date</div>
+          <div class="stat-value" id="stat-uptodate" style="color:var(--blue)">0</div>
+          <div class="stat-sub"><span class="stat-badge badge-gray" id="stat-uptodate-pct">—</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Update Pending</div>
+          <div class="stat-value" id="stat-updating" style="color:var(--orange)">0</div>
+          <div class="stat-sub">Awaiting check-in</div>
+        </div>
+      </div>
+
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Firmware Version Distribution</div>
+              <div class="card-subtitle">Robots grouped by installed version</div>
+            </div>
+          </div>
+          <div class="card-body" id="version-chart"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Fleet Health</div>
+              <div class="card-subtitle">Computed from connectivity + update state</div>
+            </div>
+          </div>
+          <div class="card-body" id="health-chart"><div class="empty">No data yet</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Robot Fleet</div>
+            <div class="card-subtitle" id="fleet-count">0 robots registered</div>
+          </div>
+          <button class="btn btn-ghost" onclick="refreshFleet()">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+        <div class="fleet-toolbar">
+          <input type="text" id="filter-search" placeholder="Search by name, ID, or model..." oninput="fleetFilter.search=this.value; renderFleet();">
+          <select id="filter-health" onchange="fleetFilter.health=this.value; renderFleet();">
+            <option value="all">All Health</option>
+            <option value="healthy">Healthy</option>
+            <option value="updating">Updating</option>
+            <option value="outdated">Outdated</option>
+            <option value="offline">Offline</option>
+          </select>
+          <select id="filter-version" onchange="fleetFilter.version=this.value; renderFleet();">
+            <option value="all">All Versions</option>
+          </select>
+        </div>
+        <table class="fleet-table">
+          <thead>
+            <tr>
+              <th class="sortable" onclick="setSort('name')">Robot <span class="sort-arrow" id="arrow-name"></span></th>
+              <th class="sortable" onclick="setSort('status')">Status <span class="sort-arrow" id="arrow-status"></span></th>
+              <th class="sortable" onclick="setSort('version')">Firmware <span class="sort-arrow" id="arrow-version"></span></th>
+              <th>Update</th>
+              <th class="sortable" onclick="setSort('last_seen')">Last Seen <span class="sort-arrow" id="arrow-last_seen"></span></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="fleet-tbody">
+            <tr><td colspan="6" class="empty">Loading fleet...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== ANALYTICS SECTION ===== -->
+    <div id="section-analytics" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-body" style="display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+          <div style="flex:1;min-width:260px">
+            <div class="stat-label">OTA Rollout Progress</div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin:6px 0 10px">
+              <div style="font-size:36px;font-weight:800;color:var(--blue)" id="an-rollout-pct">0%</div>
+              <div class="stat-sub" id="an-rollout-sub" style="margin:0">of fleet on target version</div>
+            </div>
+            <div class="chart-bar-track" style="height:10px">
+              <div class="chart-bar-fill" id="an-rollout-bar" style="width:0%;background:linear-gradient(90deg,var(--blue),#1d4ed8)"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:32px">
+            <div><div class="stat-label">Avg Tenure</div><div style="font-size:20px;font-weight:800;margin-top:4px" id="an-avg-tenure">0d</div></div>
+            <div><div class="stat-label">Connectivity</div><div style="font-size:20px;font-weight:800;margin-top:4px;color:var(--green)" id="an-online-pct">0%</div><div class="stat-sub" id="an-online-sub"></div></div>
+            <div><div class="stat-label">Models</div><div style="font-size:20px;font-weight:800;margin-top:4px;color:var(--gold)" id="an-model-count">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-grid" style="grid-template-columns:1.3fr 1fr;margin-bottom:20px">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Robots by Model</div>
+              <div class="card-subtitle">Hardware mix across the fleet</div>
+            </div>
+          </div>
+          <div class="card-body" id="an-model-chart"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Update Compliance</div>
+          </div>
+          <div class="card-body" id="an-compliance-chart"><div class="empty">No data yet</div></div>
+        </div>
+      </div>
+
+      <div class="layout-grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Longest-Serving Robots</div></div>
+          <div class="card-body" id="an-oldest-list"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Newest Additions</div></div>
+          <div class="card-body" id="an-newest-list"><div class="empty">No data yet</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DEPLOY SECTION ===== -->
+    <div id="section-deploy" style="display:none">
+      <div class="card" id="rollout-progress-card" style="margin-bottom:20px;display:none">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Active Rollout</div>
+            <div class="card-subtitle">Live progress across in-flight firmware campaigns</div>
+          </div>
+        </div>
+        <div class="card-body" id="rollout-progress-body"></div>
+      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Deploy Firmware Update</div>
+              <div class="card-subtitle">Select a version and target robots</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Firmware Version to Deploy</label>
+              <select class="form-input" id="deploy-version-select">
+                <option value="">— Select a version —</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="form-label" style="margin-bottom:10px">Target Robots</div>
+            <div style="margin-bottom:10px;display:flex;gap:8px">
+              <button class="btn btn-ghost" id="select-all-robots-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(true)">Select All Available</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(false)">Deselect All</button>
+            </div>
+            <div id="deploy-robot-list"></div>
+            <div class="divider"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:13px;color:var(--text2)">
+                Current target: <strong id="current-target-display">none</strong>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="deploy-btn" onclick="deployUpdate()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Push Update to Fleet
+            </button>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Deployment Status</div>
+            </div>
+            <div class="card-body" id="deploy-status-list">
+              <div class="empty">No pending deployments</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Available Versions</div>
+            </div>
+            <div class="card-body" id="deploy-versions-sidebar">
+              <div class="empty">No firmware uploaded yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout-grid" style="margin-top:20px">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Deploy Attachment Firmware</div>
+              <div class="card-subtitle">Select an attachment type, version, and target attachments</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Attachment Type</label>
+              <select class="form-input" id="deploy-attachment-type" onchange="renderAttachmentVersionOptions();renderDeployAttachmentList();">
+                <option value="">— Select a type —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Firmware Version</label>
+              <select class="form-input" id="deploy-attachment-version">
+                <option value="">— Select a type first —</option>
+              </select>
+            </div>
+            <div class="divider"></div>
+            <div class="form-label" style="margin-bottom:10px">Target Attachments</div>
+            <div style="margin-bottom:10px;display:flex;gap:8px">
+              <button class="btn btn-ghost" id="select-all-attachments-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(true)">Select All Available</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(false)">Deselect All</button>
+            </div>
+            <div id="deploy-attachment-list"><div class="empty">Select an attachment type above</div></div>
+            <div class="divider"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div style="font-size:13px;color:var(--text2)">
+                Current target: <strong id="current-attachment-target-display">none</strong>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="deploy-attachment-btn" onclick="deployAttachmentUpdate()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              Push Update to Attachments
+            </button>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Attachment Firmware Targets</div>
+            </div>
+            <div class="card-body" id="attachment-targets-list">
+              <div class="empty">No targets set</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== UPLOADS SECTION ===== -->
+    <div id="section-uploads" style="display:none">
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Uploaded Firmware</div>
+          </div>
+          <div class="card-body" id="uploads-list">
+            <div class="empty">No firmware uploaded yet</div>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Upload Firmware Package</div>
+              <div class="card-subtitle">.tar.gz files only</div>
+            </div>
+            <div class="card-body">
+              <div class="upload-zone" id="upload-zone" onclick="document.getElementById('fileInput').click()"
+                ondragover="event.preventDefault();this.classList.add('drag')"
+                ondragleave="this.classList.remove('drag')"
+                ondrop="handleDrop(event)">
+                <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p><strong>Click to upload</strong> or drag & drop</p>
+                <p style="margin-top:4px;font-size:11px">.tar.gz firmware packages</p>
+                <div id="file-name" style="margin-top:10px;font-size:12px;font-weight:600;color:var(--orange)"></div>
+              </div>
+              <input type="file" id="fileInput" accept=".tar.gz,.gz" onchange="fileSelected(this)">
+              <div class="form-group" style="margin-top:16px">
+                <label class="form-label">Version Number</label>
+                <input type="text" class="form-input" id="versionInput" placeholder="e.g. 1.0.2">
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="uploadFile()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Package
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DEVICE REGISTRY SECTION ===== -->
+    <div id="section-devices" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Device &amp; Attachment Registry</div>
+            <div class="card-subtitle">Identity, hardware revision, lifecycle state, and attached attachment per robot</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="devices-table">
+            <thead><tr>
+              <th>Robot</th><th>Serial</th><th>HW Rev</th><th>Manufactured</th><th>Lifecycle</th><th>Attachment</th><th>Group / Tag</th>
+            </tr></thead>
+            <tbody id="devices-tbody"><tr><td colspan="7" class="empty">No data yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Attachment Registry</div>
+            <div class="card-subtitle">Snow Plowers, Lawn Mowers, Snow Removers, and Leaf Collectors across the fleet</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="attachments-table">
+            <thead><tr>
+              <th>Serial</th><th>Type</th><th>Firmware</th><th>Attached To</th><th>Status</th><th>Update</th>
+            </tr></thead>
+            <tbody id="attachments-tbody"><tr><td colspan="6" class="empty">No data yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="layout-grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Compatibility Matrix</div><div class="card-subtitle">Attachment firmware ↔ base hardware revision</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="mini-table">
+              <thead><tr><th>Attachment FW</th><th>HW Rev A</th><th>HW Rev B</th><th>HW Rev C</th></tr></thead>
+              <tbody>
+                <tr><td>Snow Plower 1.1</td><td>✅</td><td>✅</td><td>❌</td></tr>
+                <tr><td>Lawn Mower 2.4</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Snow Remover 1.0</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Leaf Collector 3.0</td><td>✅</td><td>✅</td><td>✅</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Device Groups &amp; Tags</div></div>
+          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+            <span class="chip badge-orange">beta-channel</span>
+            <span class="chip badge-blue">region:us-west</span>
+            <span class="chip badge-green">cohort:pilot-2026</span>
+            <span class="chip badge-gray">hw-rev:b</span>
+            <span class="chip badge-yellow">warranty:active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONNECTIVITY SECTION ===== -->
+    <div id="section-connectivity" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Device Shadow</div>
+            <div class="card-subtitle">Cloud-cached reported state vs. desired state — works even while a robot is offline</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="shadow-table">
+            <thead><tr><th>Robot</th><th>Reported Version</th><th>Desired Version</th><th>Sync</th></tr></thead>
+            <tbody id="shadow-tbody"><tr><td colspan="4" class="empty">No data yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Connection Diagnostics</div>
+            <div class="card-subtitle">Wi-Fi signal, IP, and drop history per robot</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="conn-table">
+            <thead><tr><th>Robot</th><th>SSID</th><th>Signal</th><th>IP Address</th><th>Drops (7d)</th></tr></thead>
+            <tbody id="conn-tbody"><tr><td colspan="5" class="empty">No data yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CAMPAIGNS SECTION ===== -->
+    <div id="section-campaigns" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Active Rollout</div>
+            <div class="card-subtitle" id="camp-sub">Phased campaign progress toward the current target version</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="progress-steps" id="camp-steps"></div>
+          <div class="divider"></div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-row-label">Forced vs. User-Consented</div>
+              <div class="setting-row-desc">Critical/security updates install automatically; feature updates wait for consent or a maintenance window</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="camp-forced" onchange="showToast(this.checked ? 'Campaign set to Forced install' : 'Campaign set to User-Consented', 'info')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-row-label">Automatic Rollout Halt</div>
+              <div class="setting-row-desc">Auto-pause this campaign if failure rate crosses 5%</div>
+            </div>
+            <label class="toggle"><input type="checkbox" checked onchange="showToast(this.checked ? 'Auto-halt armed at 5% failure rate' : 'Auto-halt disabled', 'info')"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="setting-row">
+            <div>
+              <div class="setting-row-label">Update Preconditions</div>
+              <div class="setting-row-desc">Robot must satisfy all before install is allowed</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <span class="stat-badge badge-green">Battery ≥ 20%</span>
+              <span class="stat-badge badge-green">Docked</span>
+              <span class="stat-badge badge-green">Idle</span>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <button class="btn btn-danger-ghost" onclick="triggerRollback()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Rollback Campaign
+          </button>
+        </div>
+      </div>
+      <div class="layout-grid" style="grid-template-columns:1fr 1fr">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Release Channels</div></div>
+          <div class="card-body" id="channels-body"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">OTA Quality Scorecard</div></div>
+          <div class="card-body">
+            <div class="chart-bar-row"><div class="chart-bar-label">Adoption</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:78%"></div></div><div class="chart-bar-count">78%</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Success Rate</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:96%"></div></div><div class="chart-bar-count">96%</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Rollback Rate</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%"></div></div><div class="chart-bar-count">2%</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">Crash Δ post-update</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:4%"></div></div><div class="chart-bar-count">-4%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REMOTE OPS SECTION ===== -->
+    <div id="section-remoteops" style="display:none">
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Send Remote Command</div>
+              <div class="card-subtitle">Command status is tracked sent → acked → executed</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Target Robot</label>
+              <select class="form-input" id="remoteops-robot"></select>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+              <button class="btn btn-ghost" onclick="sendCommand('Reboot')">Reboot</button>
+              <button class="btn btn-ghost" onclick="sendCommand('Return to Dock')">Return to Dock</button>
+              <button class="btn btn-ghost" onclick="sendCommand('Stop Chore')">Stop Chore</button>
+              <button class="btn btn-ghost" id="self-test-btn" onclick="sendCommand('Run Self-Test')">Run Self-Test</button>
+              <button class="btn btn-ghost" onclick="sendCommand('Blink LED (Identify)')">Blink LED</button>
+              <button class="btn btn-danger-ghost" onclick="sendCommand('Factory Reset')">Factory Reset</button>
+            </div>
+            <div class="divider"></div>
+            <div class="setting-row">
+              <div>
+                <div class="setting-row-label">Remote Diagnostics Mode</div>
+                <div class="setting-row-desc">Raises telemetry/log verbosity; auto-reverts after 4 hours</div>
+              </div>
+              <label class="toggle"><input type="checkbox" id="diag-mode-toggle" onchange="showToast(this.checked ? 'Diagnostics mode enabled — auto-revert in 4h' : 'Diagnostics mode disabled', 'info')"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Remote Configuration</div></div>
+            <div class="card-body">
+              <div class="form-group"><label class="form-label">Default Cleaning Schedule</label><input class="form-input" value="Daily · 09:00" readonly></div>
+              <div class="form-group"><label class="form-label">Log Verbosity</label>
+                <select class="form-input"><option>Normal</option><option>Verbose</option><option>Debug</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Telemetry Rate</label>
+                <select class="form-input"><option>Standard (60s)</option><option>Reduced (5min)</option><option>High-Rate (5s)</option></select>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showToast('Configuration saved (demo)', 'success')">Save Configuration</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Command History</div></div>
+            <div class="card-body" id="command-history"><div class="empty">No commands sent yet</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== TELEMETRY SECTION ===== -->
+    <div id="section-telemetry" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Fleet Telemetry</div>
+            <div class="card-subtitle">Time-series health metrics, last 24h (sample data)</div>
+          </div>
+          <select class="form-input" id="telemetry-robot" style="width:auto" onchange="renderTelemetry()"></select>
+        </div>
+        <div class="card-body">
+          <div class="layout-grid" style="grid-template-columns:1fr 1fr 1fr">
+            <div><div class="stat-label" style="margin-bottom:8px">Battery Voltage</div><div id="spark-battery"></div></div>
+            <div><div class="stat-label" style="margin-bottom:8px">Motor Current</div><div id="spark-motor"></div></div>
+            <div><div class="stat-label" style="margin-bottom:8px">CPU Temp</div><div id="spark-temp"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Event Log</div><div class="card-subtitle">Chore started/finished, docked, attachment attached, errors</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="events-table">
+            <thead><tr><th>Time</th><th>Robot</th><th>Event</th><th>Detail</th></tr></thead>
+            <tbody id="events-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="gf-wrap">
+        <div class="gf-toolbar">
+          <div class="gf-title">
+            <svg width="16" height="16" fill="none" stroke="#F7941D" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Live Fleet Telemetry — Grafana View
+          </div>
+          <div class="gf-range-buttons">
+            <button class="gf-range-btn" data-range="1h" onclick="setGfRange('1h')">1h</button>
+            <button class="gf-range-btn" data-range="6h" onclick="setGfRange('6h')">6h</button>
+            <button class="gf-range-btn active" data-range="24h" onclick="setGfRange('24h')">24h</button>
+            <button class="gf-range-btn" data-range="7d" onclick="setGfRange('7d')">7d</button>
+          </div>
+        </div>
+
+        <div class="gf-grid">
+          <div class="gf-panel"><div class="gf-panel-title">Avg Battery Voltage</div><div class="gf-stat-value" id="gf-stat-battery">—</div><div id="gf-spark-battery"></div></div>
+          <div class="gf-panel"><div class="gf-panel-title">Avg Motor Current</div><div class="gf-stat-value" id="gf-stat-motor">—</div><div id="gf-spark-motor"></div></div>
+          <div class="gf-panel"><div class="gf-panel-title">Avg CPU Temp</div><div class="gf-stat-value" id="gf-stat-temp">—</div><div id="gf-spark-temp"></div></div>
+          <div class="gf-panel"><div class="gf-panel-title">Ingestion Rate</div><div class="gf-stat-value good" id="gf-stat-ingest">—</div><div style="font-size:10px;color:#6b7280;margin-top:4px">points/sec, fleet-wide</div></div>
+        </div>
+
+        <div class="gf-grid" style="grid-template-columns:1fr 1fr">
+          <div class="gf-panel">
+            <div class="gf-panel-title">Battery Voltage — Per Robot</div>
+            <div id="gf-graph-battery"></div>
+            <div class="gf-legend" id="gf-legend-battery"></div>
+          </div>
+          <div class="gf-panel">
+            <div class="gf-panel-title">Motor Current — Per Robot</div>
+            <div id="gf-graph-motor"></div>
+            <div class="gf-legend" id="gf-legend-motor"></div>
+          </div>
+        </div>
+
+        <div class="gf-grid" style="grid-template-columns:1.2fr 1fr">
+          <div class="gf-panel">
+            <div class="gf-panel-title">CPU Temperature Heatmap</div>
+            <div id="gf-heatmap"></div>
+          </div>
+          <div class="gf-panel">
+            <div class="gf-panel-title">Fault Rate by Hour</div>
+            <div id="gf-error-bars" style="display:flex;align-items:flex-end;gap:4px;height:120px"></div>
+          </div>
+        </div>
+
+        <div class="gf-grid" style="grid-template-columns:1fr 1fr 1.4fr">
+          <div class="gf-panel gf-gauge-wrap"><div class="gf-panel-title">Fleet Online</div><div id="gf-gauge-online"></div></div>
+          <div class="gf-panel gf-gauge-wrap"><div class="gf-panel-title">Avg Battery</div><div id="gf-gauge-battery"></div></div>
+          <div class="gf-panel"><div class="gf-panel-title">Top Anomalies</div><div id="gf-anomaly-table"></div></div>
+        </div>
+
+        <div class="gf-panel">
+          <div class="gf-panel-title">Live Event Stream</div>
+          <div class="gf-log" id="gf-log"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FAULT CODES SECTION ===== -->
+    <div id="section-faults" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Fault Code Browser</div>
+            <div class="card-subtitle">Fleet-wide frequency, severity, and firmware correlation (sample data)</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="mini-table" id="faults-table">
+            <thead><tr><th>Code</th><th>Description</th><th>Severity</th><th>Occurrences (30d)</th><th>Robots Affected</th><th>Linked Firmware</th></tr></thead>
+            <tbody id="faults-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PREDICTIVE MAINTENANCE SECTION ===== -->
+    <div id="section-predictive" style="display:none">
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Fleet Health Score</div><div class="card-subtitle">Composite score from connectivity + update compliance</div></div>
+          <div class="card-body" id="predictive-score"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Consumables Wear (sample)</div><div class="card-subtitle">Blade &amp; belt remaining life on attached attachments</div></div>
+          <div class="card-body" id="wear-chart"><div class="empty">No data yet</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Per-Robot Risk Scores</div><div class="card-subtitle">Predicted failure risk from telemetry trends (sample model output)</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="fleet-table" id="risk-table">
+            <thead><tr><th>Robot</th><th>Risk Score</th><th>Predicted Component</th><th>Est. Time to Failure</th></tr></thead>
+            <tbody id="risk-tbody"><tr><td colspan="4" class="empty">No data yet</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ALERTS SECTION ===== -->
+    <div id="section-alerts" style="display:none">
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Active Alerts</div><div class="card-subtitle">Computed live from current fleet state</div></div>
+          <div class="card-body" id="active-alerts"><div class="empty">No data yet</div></div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Alert Rules</div></div>
+            <div class="card-body">
+              <div class="setting-row"><div><div class="setting-row-label">Battery health &lt; 20%</div><div class="setting-row-desc">Warning severity</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div><div class="setting-row-label">Robot offline &gt; 24h</div><div class="setting-row-desc">Warning severity</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div><div class="setting-row-label">OTA failure rate &gt; 5%</div><div class="setting-row-desc">Critical → pages on-call</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div><div class="setting-row-label">Fleet-wide fault spike</div><div class="setting-row-desc">e.g. "5% of fleet reporting E42 in 1h"</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Alert Channels</div></div>
+            <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
+              <span class="chip badge-blue">Email</span>
+              <span class="chip badge-blue">Slack</span>
+              <span class="chip badge-gray">PagerDuty</span>
+              <span class="chip badge-gray">Webhook</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SUPPORT CONSOLE SECTION ===== -->
+    <div id="section-support" style="display:none">
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><div class="card-title">Look Up a Robot</div></div>
+        <div class="card-body">
+          <input type="text" class="form-input" id="support-search" placeholder="Search by robot name, ID, or customer..." oninput="renderSupportSearch(this.value)">
+          <div id="support-search-results" style="margin-top:12px"></div>
+        </div>
+      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent Cases</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="mini-table">
+              <thead><tr><th>Case</th><th>Robot</th><th>Issue</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>#1042</td><td>Chorerobot-00004</td><td>Snow Plower attachment not detected</td><td><span class="stat-badge badge-yellow">Open</span></td></tr>
+                <tr><td>#1039</td><td>Chorerobot-00007</td><td>Failed OTA to v1.3.1</td><td><span class="stat-badge badge-blue">In Progress</span></td></tr>
+                <tr><td>#1031</td><td>Chorerobot-00009</td><td>Offline 6 days — RMA requested</td><td><span class="stat-badge badge-gray">Closed</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Quick Actions</div></div>
+            <div class="card-body" style="font-size:12px;color:var(--text2)">
+              Select a robot above to jump to its detail drawer, or use <strong>Remote Operations</strong> for reboot / pull logs / self-test / diagnostic snapshot.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AUTOMATION SECTION ===== -->
+    <div id="section-automation" style="display:none">
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Automation Rules</div><div class="card-subtitle">If-this-then-that fleet operations</div></div>
+          <div class="card-body">
+            <div class="setting-row"><div><div class="setting-row-label">Fault E17 twice in a week → open diagnostics mode + notify support</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="setting-row"><div><div class="setting-row-label">New activation → auto-enroll in Stable channel</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="setting-row"><div><div class="setting-row-label">Nightly config sync across fleet</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+            <div class="setting-row"><div><div class="setting-row-label">Weekly self-test campaign, sample cohort</div></div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Feature Flags</div></div>
+            <div class="card-body">
+              <div class="setting-row"><div class="setting-row-label">Adaptive mapping v2</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div class="setting-row-label">Quiet-hours scheduling</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div class="setting-row-label">Experimental edge detection</div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">A/B Cohorts</div></div>
+            <div class="card-body">
+              <div class="chart-bar-row"><div class="chart-bar-label">A — v1.3.0</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:91%"></div></div><div class="chart-bar-count">91% succ.</div></div>
+              <div class="chart-bar-row"><div class="chart-bar-label">B — v1.3.0-exp</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:87%"></div></div><div class="chart-bar-count">87% succ.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ACCESS & AUDIT SECTION ===== -->
+    <div id="section-access" style="display:none">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Environment</div><div class="stat-value" style="font-size:18px;color:var(--blue)">Local / Dev</div><div class="stat-sub">This instance</div></div>
+        <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-value orange">4</div><div class="stat-sub">Internal team</div></div>
+        <div class="stat-card"><div class="stat-label">Roles Defined</div><div class="stat-value" style="color:var(--green)">4</div><div class="stat-sub">Admin/Engineer/Support/Read-only</div></div>
+        <div class="stat-card"><div class="stat-label">API</div><div class="stat-value" style="font-size:16px;color:var(--gold)"><a href="/docs" target="_blank" style="color:inherit">/docs ↗</a></div><div class="stat-sub">Live FastAPI schema</div></div>
+      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Audit Log</div><div class="card-subtitle">Every action taken this session</div></div>
+          <div class="card-body" id="audit-log"><div class="empty">No actions yet this session</div></div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">User Accounts</div></div>
+            <div class="card-body" style="padding:0">
+              <table class="mini-table">
+                <thead><tr><th>Name</th><th>Role</th></tr></thead>
+                <tbody>
+                  <tr><td>Jay Shah</td><td><span class="stat-badge badge-orange">Admin</span></td></tr>
+                  <tr><td>M. Alvarez</td><td><span class="stat-badge badge-blue">Engineer</span></td></tr>
+                  <tr><td>R. Chen</td><td><span class="stat-badge badge-green">Support</span></td></tr>
+                  <tr><td>S. Patel</td><td><span class="stat-badge badge-gray">Read-only</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Security &amp; Compliance</div></div>
+            <div class="card-body">
+              <div class="setting-row"><div class="setting-row-label">Telemetry anonymization</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div class="setting-row-label">Device cert auto-rotation</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
+              <div class="setting-row"><div class="setting-row-label">Emergency security-patch fast-track</div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ENTERPRISE & ECOSYSTEM SECTION ===== -->
+    <div id="section-enterprise" style="display:none">
+      <div class="layout-grid" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Enterprise Fleet Portal</div><div class="card-subtitle">B2B customers managing their own robot fleets</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="mini-table">
+              <thead><tr><th>Organization</th><th>Robots</th><th>Plan</th><th>SLA Uptime</th></tr></thead>
+              <tbody>
+                <tr><td>Meridian Property Group</td><td>142</td><td>Enterprise</td><td><span class="stat-badge badge-green">99.4%</span></td></tr>
+                <tr><td>BrightClean Services</td><td>58</td><td>Business</td><td><span class="stat-badge badge-green">99.1%</span></td></tr>
+                <tr><td>Harbor Office Suites</td><td>21</td><td>Business</td><td><span class="stat-badge badge-yellow">97.8%</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel-stack">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Fleet Insights Report</div></div>
+            <div class="card-body">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:12px">Auto-generated for leadership: growth, reliability, top issues, OTA velocity.</div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="exportFleetCSV()">Download Fleet Report (CSV)</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Warranty &amp; Financials</div></div>
+            <div class="card-body" style="font-size:12px;color:var(--text2)">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px"><span>Robots under warranty</span><strong style="color:var(--text)">82%</strong></div>
+              <div style="display:flex;justify-content:space-between"><span>Predicted claims (Q3)</span><strong style="color:var(--text)">$4,200</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layout-grid">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Attachment Developer Program</div><div class="card-subtitle">Third-party attachment partners</div></div>
+          <div class="card-body" style="padding:0">
+            <table class="mini-table">
+              <thead><tr><th>Partner</th><th>Attachment Type</th><th>Certification</th></tr></thead>
+              <tbody>
+                <tr><td>ChoreTech Attachments Inc.</td><td>Snow Plower</td><td><span class="stat-badge badge-green">Certified</span></td></tr>
+                <tr><td>GrabWorks Robotics</td><td>Leaf Collector</td><td><span class="stat-badge badge-yellow">In Review</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Public API &amp; Integrations</div></div>
+          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+            <a class="chip badge-orange" href="/docs" target="_blank" style="text-decoration:none">Live API Docs (/docs) ↗</a>
+            <span class="chip badge-gray">Google Home</span>
+            <span class="chip badge-gray">Alexa</span>
+            <span class="chip badge-gray">Home Assistant</span>
+            <span class="chip badge-gray">Power BI</span>
+            <span class="chip badge-gray">Tableau</span>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Data Platform &amp; Cost Control</div>
+            <div class="card-subtitle">Cloud cost per robot/month (sample) — the metric that keeps the platform sustainable at scale</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="chart-bar-row"><div class="chart-bar-label">Ingest</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:32%"></div></div><div class="chart-bar-count">$0.14</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Storage</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:21%"></div></div><div class="chart-bar-count">$0.09</div></div>
+          <div class="chart-bar-row"><div class="chart-bar-label">Compute</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:47%"></div></div><div class="chart-bar-count">$0.21</div></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="chip badge-green">Adaptive telemetry rate: on</span>
+            <span class="chip badge-gray">Downsampling after 30d</span>
+            <span class="chip badge-gray">Cold storage after 1y</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DATA FLYWHEEL SECTION ===== -->
+    <div id="section-flywheel" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">The Data Flywheel</div>
+            <div class="card-subtitle">How fleet telemetry compounds into better robots — live counters, fed from real fleet state</div>
+          </div>
+        </div>
+        <div class="card-body" style="display:flex;justify-content:center;padding:32px 20px">
+          <div id="flywheel-wrap" style="width:100%;max-width:640px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ACTIVITY SECTION ===== -->
+    <div id="section-activity" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Activity Log</div>
+          <button class="btn btn-ghost" onclick="clearLog()" style="font-size:12px;padding:5px 12px">Clear</button>
+        </div>
+        <div class="card-body" id="activity-log">
+          <div class="empty">No activity yet</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Robot detail drawer -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<aside class="robot-drawer" id="robot-drawer">
+  <div class="drawer-header">
+    <div class="robot-identity">
+      <div class="robot-icon">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2a3 3 0 00-3 3v6h6V5a3 3 0 00-3-3z"/><circle cx="8.5" cy="16" r="1"/><circle cx="15.5" cy="16" r="1"/><path d="M12 11v2"/></svg>
+      </div>
+      <div>
+        <div class="robot-name" id="drawer-name">—</div>
+        <div class="robot-meta" id="drawer-model">—</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" id="drawer-close-btn" onclick="closeDrawer()">Close</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Virtual cursor (demo choreography) -->
+<div id="virtual-cursor">
+  <svg width="22" height="22" viewBox="0 0 24 24">
+    <path d="M4 2 L4 20 L9 16 L12 22.5 L15.2 21 L12.2 14.5 L19 14.2 Z" fill="#111827" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<script>
+// ---- State ----
+let fleet = {};
+let attachments = {};
+let versions = [];
+let attachmentVersions = [];
+let targetVersion = '';
+let attachmentTargets = {};
+let activityLog = [];
+let ws;
+let fleetFilter = { search: '', health: 'all', version: 'all' };
+let sortState = { key: 'name', dir: 'asc' };
+let drawerRobotId = null;
+let robotTimelines = {};
+let prevFleetSnapshot = null;
+
+// ---- Active rollout tracking (§6.4) ----
+// Two independent tracker slots: robot rollouts and attachment rollouts can overlap.
+let rolloutTrackers = { robot: null, attachment: null };
+
+const ATTACHMENT_TYPES = [
+  { code: 'SP', name: 'Snow Plower' },
+  { code: 'LM', name: 'Lawn Mower' },
+  { code: 'SR', name: 'Snow Remover' },
+  { code: 'LC', name: 'Leaf Collector' },
+];
+const ATTACHMENT_TYPE_NAME = Object.fromEntries(ATTACHMENT_TYPES.map(t => [t.code, t.name]));
+
+function findAttachmentForRobot(robotId) {
+  return Object.values(attachments).find(a => a.attached_to === robotId);
+}
+
+const healthMeta = {
+  healthy:  { label: 'Healthy',  dot: '#22c55e', bg: '#dcfce7', fg: '#15803d' },
+  updating: { label: 'Updating', dot: '#3b82f6', bg: '#eff6ff', fg: '#1d4ed8' },
+  outdated: { label: 'Outdated', dot: '#f59e0b', bg: '#fef3c7', fg: '#92400e' },
+  offline:  { label: 'Offline',  dot: '#9ca3af', bg: '#f3f4f6', fg: '#6b7280' },
+};
+
+function robotHealth(r) {
+  if (r.status === 'offline') return 'offline';
+  if (r.update_status === 'pending' || r.update_status === 'triggered') return 'updating';
+  if (targetVersion && r.current_version !== targetVersion) return 'outdated';
+  return 'healthy';
+}
+
+// ---- Sample data (shown until real robots connect) ----
+function daysAgo(n) { return new Date(Date.now() - n * 86400000).toISOString(); }
+function secondsAgo(n) { return new Date(Date.now() - n * 1000).toISOString(); }
+const MOCK_TARGET = '1.3.1';
+const MOCK_VERSIONS = [
+  { version: '1.3.1', filename: 'update_1.3.1.tar.gz', size: 5912300, uploaded_at: daysAgo(1) },
+  { version: '1.3.0', filename: 'update_1.3.0.tar.gz', size: 5843200, uploaded_at: daysAgo(28) },
+  { version: '1.2.4', filename: 'update_1.2.4.tar.gz', size: 5610000, uploaded_at: daysAgo(70) },
+];
+const MOCK_FLEET = {
+  'CR-2026-00001': { name: 'Chorerobot-00001', model: 'ChoreBot X1',     serial: 'CR-2026-00001', hw_rev: 'A', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(180), last_seen: secondsAgo(3),  status: 'online' },
+  'CR-2026-00002': { name: 'Chorerobot-00002', model: 'ChoreBot X1',     serial: 'CR-2026-00002', hw_rev: 'B', current_version: '1.3.0', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(150), last_seen: secondsAgo(5),  status: 'online' },
+  'CR-2026-00003': { name: 'Chorerobot-00003', model: 'ChoreBot X2',     serial: 'CR-2026-00003', hw_rev: 'B', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(120), last_seen: secondsAgo(2),  status: 'online' },
+  'CR-2026-00004': { name: 'Chorerobot-00004', model: 'ChoreBot X2',     serial: 'CR-2026-00004', hw_rev: 'A', current_version: '1.2.4', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(200), last_seen: daysAgo(3),     status: 'offline' },
+  'CR-2026-00005': { name: 'Chorerobot-00005', model: 'ChoreBot X2 Pro', serial: 'CR-2026-00005', hw_rev: 'C', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(60),  last_seen: secondsAgo(9),  status: 'online' },
+  'CR-2026-00006': { name: 'Chorerobot-00006', model: 'ChoreBot X1',     serial: 'CR-2026-00006', hw_rev: 'B', current_version: '1.3.0', pending_version: '1.3.1', update_status: 'triggered', first_seen: daysAgo(90), last_seen: secondsAgo(4),  status: 'online' },
+  'CR-2026-00007': { name: 'Chorerobot-00007', model: 'ChoreBot X2',     serial: 'CR-2026-00007', hw_rev: 'A', current_version: '1.2.4', pending_version: '1.3.1', update_status: 'pending',   first_seen: daysAgo(45), last_seen: secondsAgo(12), status: 'online' },
+  'CR-2026-00008': { name: 'Chorerobot-00008', model: 'ChoreBot X2 Pro', serial: 'CR-2026-00008', hw_rev: 'C', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(30),  last_seen: secondsAgo(6),  status: 'online' },
+  'CR-2026-00009': { name: 'Chorerobot-00009', model: 'ChoreBot X1',     serial: 'CR-2026-00009', hw_rev: 'B', current_version: '1.3.0', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(75),  last_seen: daysAgo(1),     status: 'offline' },
+  'CR-2026-00010': { name: 'Chorerobot-00010', model: 'ChoreBot X2',     serial: 'CR-2026-00010', hw_rev: 'A', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(20),  last_seen: secondsAgo(7),  status: 'online' },
+  'CR-2026-00011': { name: 'Chorerobot-00011', model: 'ChoreBot X2 Pro', serial: 'CR-2026-00011', hw_rev: 'C', current_version: '1.2.4', pending_version: '1.3.1', update_status: 'pending',   first_seen: daysAgo(10), last_seen: secondsAgo(15), status: 'online' },
+  'CR-2026-00012': { name: 'Chorerobot-00012', model: 'ChoreBot X1',     serial: 'CR-2026-00012', hw_rev: 'B', current_version: '1.3.1', pending_version: null,    update_status: 'idle',      first_seen: daysAgo(1),  last_seen: secondsAgo(2),  status: 'online' },
+};
+const MOCK_ATTACHMENTS = {
+  'AT-SP-2026-00001': { type: 'Snow Plower',    type_code: 'SP', serial: 'AT-SP-2026-00001', attached_to: 'CR-2026-00001', current_version: '1.1.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(150), last_seen: secondsAgo(3),  status: 'online' },
+  'AT-SP-2026-00002': { type: 'Snow Plower',    type_code: 'SP', serial: 'AT-SP-2026-00002', attached_to: 'CR-2026-00004', current_version: '1.1.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(200), last_seen: daysAgo(3),     status: 'offline' },
+  'AT-SP-2026-00003': { type: 'Snow Plower',    type_code: 'SP', serial: 'AT-SP-2026-00003', attached_to: null,            current_version: '1.1.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(80),  last_seen: daysAgo(9),     status: 'inventory' },
+  'AT-LM-2026-00001': { type: 'Lawn Mower',     type_code: 'LM', serial: 'AT-LM-2026-00001', attached_to: 'CR-2026-00002', current_version: '2.4.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(150), last_seen: secondsAgo(5),  status: 'online' },
+  'AT-LM-2026-00002': { type: 'Lawn Mower',     type_code: 'LM', serial: 'AT-LM-2026-00002', attached_to: 'CR-2026-00003', current_version: '2.4.0', pending_version: '2.4.1', update_status: 'triggered', first_seen: daysAgo(120), last_seen: secondsAgo(2), status: 'online' },
+  'AT-LM-2026-00003': { type: 'Lawn Mower',     type_code: 'LM', serial: 'AT-LM-2026-00003', attached_to: 'CR-2026-00006', current_version: '2.4.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(90),  last_seen: secondsAgo(4),  status: 'online' },
+  'AT-LM-2026-00004': { type: 'Lawn Mower',     type_code: 'LM', serial: 'AT-LM-2026-00004', attached_to: null,            current_version: '2.4.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(60),  last_seen: daysAgo(14),    status: 'inventory' },
+  'AT-SR-2026-00001': { type: 'Snow Remover',   type_code: 'SR', serial: 'AT-SR-2026-00001', attached_to: 'CR-2026-00005', current_version: '1.0.2', pending_version: null, update_status: 'idle', first_seen: daysAgo(60),  last_seen: secondsAgo(9),  status: 'online' },
+  'AT-SR-2026-00002': { type: 'Snow Remover',   type_code: 'SR', serial: 'AT-SR-2026-00002', attached_to: 'CR-2026-00009', current_version: '1.0.2', pending_version: null, update_status: 'idle', first_seen: daysAgo(75),  last_seen: daysAgo(1),     status: 'offline' },
+  'AT-LC-2026-00001': { type: 'Leaf Collector', type_code: 'LC', serial: 'AT-LC-2026-00001', attached_to: 'CR-2026-00007', current_version: '3.0.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(45),  last_seen: secondsAgo(12), status: 'online' },
+  'AT-LC-2026-00002': { type: 'Leaf Collector', type_code: 'LC', serial: 'AT-LC-2026-00002', attached_to: 'CR-2026-00010', current_version: '3.0.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(20),  last_seen: secondsAgo(7),  status: 'online' },
+  'AT-LC-2026-00003': { type: 'Leaf Collector', type_code: 'LC', serial: 'AT-LC-2026-00003', attached_to: null,            current_version: '3.0.0', pending_version: null, update_status: 'idle', first_seen: daysAgo(25),  last_seen: daysAgo(4),     status: 'inventory' },
+};
+const MOCK_ATTACHMENT_VERSIONS = [
+  { type_code: 'SP', version: '1.1.0', filename: 'sp_1.1.0.tar.gz', size: 1240000, uploaded_at: daysAgo(50) },
+  { type_code: 'SP', version: '1.0.5', filename: 'sp_1.0.5.tar.gz', size: 1180000, uploaded_at: daysAgo(140) },
+  { type_code: 'LM', version: '2.4.1', filename: 'lm_2.4.1.tar.gz', size: 2040000, uploaded_at: daysAgo(1) },
+  { type_code: 'LM', version: '2.4.0', filename: 'lm_2.4.0.tar.gz', size: 2010000, uploaded_at: daysAgo(20) },
+  { type_code: 'SR', version: '1.0.2', filename: 'sr_1.0.2.tar.gz', size: 990000, uploaded_at: daysAgo(35) },
+  { type_code: 'SR', version: '1.0.0', filename: 'sr_1.0.0.tar.gz', size: 960000, uploaded_at: daysAgo(100) },
+  { type_code: 'LC', version: '3.0.0', filename: 'lc_3.0.0.tar.gz', size: 1520000, uploaded_at: daysAgo(15) },
+  { type_code: 'LC', version: '2.9.0', filename: 'lc_2.9.0.tar.gz', size: 1490000, uploaded_at: daysAgo(90) },
+];
+const MOCK_ATTACHMENT_TARGETS = { LM: '2.4.1' };
+
+// ---- WebSocket ----
+function connectWS() {
+  ws = new WebSocket(`ws://${location.host}/ws`);
+  ws.onmessage = (e) => handleMessage(JSON.parse(e.data));
+  ws.onclose = () => setTimeout(connectWS, 2000);
+}
+
+function handleMessage(msg) {
+  if (msg.type === 'init') {
+    const robots = (msg.fleet && msg.fleet.robots) || {};
+    const hasReal = Object.keys(robots).length > 0;
+    fleet = hasReal ? robots : MOCK_FLEET;
+    attachments = hasReal ? ((msg.fleet && msg.fleet.attachments) || {}) : MOCK_ATTACHMENTS;
+    versions = (msg.versions && msg.versions.length) ? msg.versions : MOCK_VERSIONS;
+    attachmentVersions = (msg.attachment_versions && msg.attachment_versions.length) ? msg.attachment_versions : (hasReal ? [] : MOCK_ATTACHMENT_VERSIONS);
+    targetVersion = msg.target_version || (hasReal ? '' : MOCK_TARGET);
+    attachmentTargets = (msg.attachment_targets && Object.keys(msg.attachment_targets).length) ? msg.attachment_targets : (hasReal ? {} : MOCK_ATTACHMENT_TARGETS);
+    prevFleetSnapshot = JSON.parse(JSON.stringify(fleet));
+    if (!hasReal) showToast('Showing sample fleet data — connect a robot to replace it', 'info');
+    renderAll();
+  } else if (msg.type === 'fleet_update') {
+    const robots = msg.fleet.robots || {};
+    trackFleetChanges(robots);
+    fleet = robots;
+    attachments = msg.fleet.attachments || {};
+    renderFleet();
+    renderDeployStatus();
+    renderStats();
+    renderCharts();
+    renderVersionFilterOptions();
+    if (drawerRobotId) renderDrawer(drawerRobotId);
+    if (document.getElementById('section-deploy').style.display !== 'none') {
+      renderDeployRobotList();
+      renderDeployAttachmentList();
+      renderAttachmentTargetsList();
+    }
+    if (document.getElementById('section-flywheel').style.display !== 'none') {
+      renderFlywheel();
+    }
+    renderRolloutProgress();
+  } else if (msg.type === 'versions_update') {
+    versions = msg.versions;
+    renderVersions();
+    renderUploadsList();
+  } else if (msg.type === 'target_update') {
+    targetVersion = msg.target_version;
+    document.getElementById('target-version-chip').textContent = targetVersion ? `Target: v${targetVersion}` : 'No target set';
+    document.getElementById('current-target-display').textContent = targetVersion ? `v${targetVersion}` : 'none';
+  } else if (msg.type === 'attachment_target_update') {
+    attachmentTargets = msg.targets || {};
+    renderAttachmentTargetsList();
+    if (document.getElementById('section-devices').style.display !== 'none') renderAttachmentRegistry();
+  } else if (msg.type === 'toast') {
+    showToast(msg.message, msg.kind || 'info');
+    addLog(msg.message);
+  } else if (msg.type === 'demo_stage') {
+    handleDemoStage(msg);
+  }
+}
+
+// ---- Virtual cursor engine (§6.2) ----
+// demo_stage WS messages render NOTHING visible themselves — they only trigger
+// cursor choreography. The cursor performs REAL clicks/selects on the page.
+const cursorState = { x: 60, y: 60, visible: false };
+let cursorFadeTimer = null;
+
+function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+function ensureCursorVisible() {
+  clearTimeout(cursorFadeTimer);
+  const el = document.getElementById('virtual-cursor');
+  if (!cursorState.visible) {
+    // First appearance: start from a natural resting spot in the content area,
+    // not the (0,0) corner the fixed element defaults to.
+    setCursorPos(window.innerWidth * 0.55, window.innerHeight * 0.38);
+  }
+  if (el) el.style.opacity = '1';
+  cursorState.visible = true;
+}
+
+function scheduleCursorFade(delayMs) {
+  clearTimeout(cursorFadeTimer);
+  cursorFadeTimer = setTimeout(() => {
+    const el = document.getElementById('virtual-cursor');
+    if (el) el.style.opacity = '0';
+    cursorState.visible = false;
+  }, delayMs);
+}
+
+function setCursorPos(x, y) {
+  cursorState.x = x; cursorState.y = y;
+  const el = document.getElementById('virtual-cursor');
+  if (el) el.style.transform = `translate(${x - 2}px, ${y - 2}px)`;
+}
+
+function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+function elCenter(el) {
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}
+
+// Quadratic-bezier move with a slight perpendicular curve offset, human-ish timing.
+function cursorMoveTo(targetX, targetY) {
+  const startX = cursorState.x, startY = cursorState.y;
+  const dist = Math.hypot(targetX - startX, targetY - startY);
+  if (dist < 2) { setCursorPos(targetX, targetY); return Promise.resolve(); }
+  const duration = Math.min(1200, Math.max(600, dist * 2.2));
+  const dx = targetX - startX, dy = targetY - startY;
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = -dy / len, ny = dx / len; // perpendicular unit vector
+  const offset = (6 + Math.random() * 14) * (Math.random() < 0.5 ? -1 : 1);
+  const midX = (startX + targetX) / 2 + nx * offset;
+  const midY = (startY + targetY) / 2 + ny * offset;
+  return new Promise(resolve => {
+    const t0 = performanceNow();
+    function frame() {
+      const now = performanceNow();
+      const t = Math.min(1, (now - t0) / duration);
+      const et = easeInOutCubic(t);
+      const x = (1 - et) * (1 - et) * startX + 2 * (1 - et) * et * midX + et * et * targetX;
+      const y = (1 - et) * (1 - et) * startY + 2 * (1 - et) * et * midY + et * et * targetY;
+      setCursorPos(x, y);
+      if (t < 1) requestAnimationFrame(frame);
+      else resolve();
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+function performanceNow() {
+  return (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+}
+
+async function cursorClickEffect() {
+  const el = document.getElementById('virtual-cursor');
+  if (el) el.classList.add('vc-dip');
+  const ring = document.createElement('div');
+  ring.className = 'vc-ripple';
+  ring.style.left = cursorState.x + 'px';
+  ring.style.top = cursorState.y + 'px';
+  document.body.appendChild(ring);
+  setTimeout(() => ring.remove(), 550);
+  await sleep(120);
+  if (el) el.classList.remove('vc-dip');
+}
+
+function resolveTarget(selector) {
+  try { return document.querySelector(selector); } catch (e) { return null; }
+}
+
+async function travelTo(selector) {
+  const el = resolveTarget(selector);
+  if (!el) return null;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  await sleep(320); // let smooth scroll settle before re-measuring
+  const c = elCenter(el);
+  await cursorMoveTo(c.x, c.y);
+  return el;
+}
+
+// Engine API: async runner over steps like
+// [{move:'#sel'},{click:'#sel'},{selectValue:['#sel','1.3.1']},{pause:800},{scrollTo:'#sel'},{hover:'#sel'}]
+// Selectors resolve at execution time; a missing selector logs a warning and is skipped —
+// choreography must never throw mid-demo.
+async function runCursorSteps(steps) {
+  ensureCursorVisible();
+  for (const step of steps) {
+    try {
+      if (step.pause) {
+        await sleep(step.pause);
+      } else if (step.move) {
+        const el = await travelTo(step.move);
+        if (!el) console.warn('[demo-cursor] move: selector not found —', step.move);
+      } else if (step.scrollTo) {
+        const el = await travelTo(step.scrollTo);
+        if (!el) console.warn('[demo-cursor] scrollTo: selector not found —', step.scrollTo);
+      } else if (step.hover) {
+        const el = await travelTo(step.hover);
+        if (!el) { console.warn('[demo-cursor] hover: selector not found —', step.hover); continue; }
+        el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+        el.classList.add('vc-hover');
+        await sleep(step.duration || 700);
+        el.classList.remove('vc-hover');
+      } else if (step.click) {
+        const el = await travelTo(step.click);
+        if (!el) { console.warn('[demo-cursor] click: selector not found —', step.click); continue; }
+        await sleep(150 + Math.random() * 250);
+        await cursorClickEffect();
+        el.click();
+      } else if (step.selectValue) {
+        const [selector, value] = step.selectValue;
+        const el = await travelTo(selector);
+        if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); continue; }
+        await sleep(150 + Math.random() * 250);
+        await cursorClickEffect();
+        el.value = value;
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        console.warn('[demo-cursor] unknown step, skipping:', step);
+      }
+    } catch (err) {
+      console.warn('[demo-cursor] step failed, skipping:', step, err);
+    }
+  }
+}
+
+// ---- Choreography (§6.3), keyed by demo_stage.stage ----
+const CHOREOGRAPHY = {
+  // 1. Fleet Overview while robots register: drift, hover two rows (fleet rows have
+  //    no click handler in this view — don't fabricate one), then move on.
+  1: [
+    { pause: 1200 },
+    { move: '#stat-total' },
+    { pause: 2200 },
+    { move: '#stat-online' },
+    { pause: 2000 },
+    { move: '#health-chart' },
+    { pause: 2600 },
+    { hover: '#fleet-tbody tr.robot-row:nth-child(1)', duration: 1100 },
+    { pause: 350 },
+    { hover: '#fleet-tbody tr.robot-row:nth-child(3)', duration: 1100 },
+  ],
+  // 2. Device Registry: nav, pause, scroll to Attachment Registry, hover a row,
+  //    open a robot drawer, linger, close it.
+  2: [
+    { click: '#nav-devices' },
+    { pause: 4000 },
+    { scrollTo: '#attachments-table' },
+    { hover: '#attachments-tbody tr:nth-child(1)', duration: 900 },
+    { pause: 400 },
+    { click: '#devices-tbody tr.robot-row:nth-child(1)' },
+    { pause: 3000 },
+    { click: '#drawer-close-btn' },
+  ],
+  // 3. Deploy Updates: nav, pick version, select all, push.
+  3: [
+    { click: '#nav-deploy' },
+    { pause: 700 },
+    { selectValue: ['#deploy-version-select', '1.3.1'] },
+    { pause: 500 },
+    { click: '#select-all-robots-btn' },
+    { pause: 700 },
+    { click: '#deploy-btn' },
+  ],
+  // 4. Attachment OTA: pick type + version, select all, push.
+  4: [
+    { pause: 500 },
+    { selectValue: ['#deploy-attachment-type', 'LM'] },
+    { pause: 600 },
+    { selectValue: ['#deploy-attachment-version', '2.4.1'] },
+    { pause: 500 },
+    { click: '#select-all-attachments-btn' },
+    { pause: 700 },
+    { click: '#deploy-attachment-btn' },
+  ],
+  // 5. Remote Operations: nav, pick the robot, run self-test.
+  5: [
+    { click: '#nav-remoteops' },
+    { pause: 800 },
+    { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
+    { pause: 600 },
+    { click: '#self-test-btn' },
+  ],
+  // 6. Data Flywheel: nav, drift to center, end (cursor fades 3s after this stage).
+  6: [
+    { click: '#nav-flywheel' },
+    { pause: 900 },
+    { move: '#flywheel-wrap svg' },
+    { pause: 1800 },
+  ],
+};
+
+let choreoQueue = Promise.resolve();
+function handleDemoStage(msg) {
+  const stage = msg.stage;
+  const steps = CHOREOGRAPHY[stage];
+  if (!steps) { console.warn('[demo-cursor] no choreography registered for stage', stage); return; }
+  // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
+  // the cursor always finishes what it's doing before starting the next act.
+  choreoQueue = choreoQueue
+    .then(() => runCursorSteps(steps))
+    .then(() => { if (stage === 6) scheduleCursorFade(3000); })
+    .catch(err => console.warn('[demo-cursor] choreography error on stage', stage, err));
+}
+
+// ---- Navigation ----
+const sections = ['fleet', 'analytics', 'devices', 'connectivity', 'deploy', 'campaigns', 'uploads', 'remoteops', 'telemetry', 'faults', 'predictive', 'alerts', 'support', 'automation', 'access', 'enterprise', 'flywheel', 'activity'];
+const titles = {
+  fleet: ['Fleet Overview', 'Monitor and manage your robot fleet'],
+  analytics: ['Fleet Analytics', 'Rollout, hardware, and tenure insights'],
+  devices: ['Device Registry', 'Identity, hardware revision, and lifecycle per device'],
+  connectivity: ['Connectivity', 'Device shadow and connection diagnostics'],
+  deploy: ['Deploy Updates', 'Push firmware to selected robots and attachments'],
+  campaigns: ['Campaigns', 'Rollout phases, channels, and OTA quality'],
+  uploads: ['Upload Firmware', 'Manage firmware packages'],
+  remoteops: ['Remote Operations', 'Send commands and manage configuration'],
+  telemetry: ['Telemetry', 'Time-series health metrics and event log'],
+  faults: ['Fault Codes', 'Fleet-wide fault frequency and severity'],
+  predictive: ['Predictive Maintenance', 'Health scoring and failure risk'],
+  alerts: ['Alerts', 'Rules, channels, and live fleet alerts'],
+  support: ['Support Console', 'Look up robots and manage cases'],
+  automation: ['Automation', 'Rules, feature flags, and A/B cohorts'],
+  access: ['Access & Audit', 'Users, roles, and the audit trail'],
+  enterprise: ['Enterprise & Ecosystem', 'B2B portal, partners, and integrations'],
+  flywheel: ['Data Flywheel', 'Telemetry in, better robots out'],
+  activity: ['Activity Log', 'System events and update history'],
+};
+
+function showSection(name) {
+  sections.forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s === name ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach((el, i) => {
+    el.classList.toggle('active', sections[i] === name);
+  });
+  document.getElementById('page-title').textContent = titles[name][0];
+  document.getElementById('page-sub').textContent = titles[name][1];
+  if (name === 'deploy') renderDeployPage();
+  if (name === 'analytics') renderAnalytics();
+  if (name === 'devices') renderDeviceRegistry();
+  if (name === 'connectivity') renderConnectivity();
+  if (name === 'campaigns') renderCampaigns();
+  if (name === 'remoteops') renderRemoteOps();
+  if (name === 'telemetry') renderTelemetry();
+  if (name === 'faults') renderFaults();
+  if (name === 'predictive') renderPredictive();
+  if (name === 'alerts') renderAlerts();
+  if (name === 'access') renderAuditLog();
+  if (name === 'flywheel') renderFlywheel();
+}
+
+function renderAnalytics() {
+  const robots = Object.values(fleet);
+  const total = robots.length;
+  const el = (id) => document.getElementById(id);
+  if (!total) {
+    ['an-model-chart', 'an-compliance-chart', 'an-oldest-list', 'an-newest-list'].forEach(id => el(id).innerHTML = '<div class="empty">No data yet</div>');
+    el('an-rollout-pct').textContent = '0%';
+    el('an-rollout-bar').style.width = '0%';
+    el('an-avg-tenure').textContent = '0d';
+    el('an-online-pct').textContent = '0%';
+    el('an-model-count').textContent = '0';
+    return;
+  }
+
+  // Rollout progress
+  const onTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
+  const rolloutPct = targetVersion ? Math.round(onTarget / total * 100) : 0;
+  el('an-rollout-pct').textContent = targetVersion ? `${rolloutPct}%` : '—';
+  el('an-rollout-bar').style.width = `${rolloutPct}%`;
+  el('an-rollout-sub').textContent = targetVersion ? `${onTarget}/${total} on v${targetVersion}` : 'No target set';
+
+  // Avg tenure
+  const avgTenureDays = Math.round(robots.reduce((sum, r) => sum + (Date.now() - new Date(r.first_seen)) / 86400000, 0) / total);
+  el('an-avg-tenure').textContent = `${avgTenureDays}d`;
+
+  // Connectivity
+  const online = robots.filter(r => r.status === 'online').length;
+  el('an-online-pct').textContent = `${Math.round(online / total * 100)}%`;
+  el('an-online-sub').textContent = `${online}/${total} robots reachable now`;
+
+  // Model count
+  const modelCounts = {};
+  robots.forEach(r => { modelCounts[r.model] = (modelCounts[r.model] || 0) + 1; });
+  el('an-model-count').textContent = Object.keys(modelCounts).length;
+
+  // Robots by model chart
+  const modelRows = Object.entries(modelCounts).sort((a, b) => b[1] - a[1]);
+  el('an-model-chart').innerHTML = modelRows.map(([m, c]) => {
+    const pct = Math.round(c / total * 100);
+    return `<div class="chart-bar-row">
+      <div class="chart-bar-label">${m}</div>
+      <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
+      <div class="chart-bar-count">${c} · ${pct}%</div>
+    </div>`;
+  }).join('');
+
+  // Update compliance donut: on-target-idle / updating / lagging(outdated) / offline
+  const compCounts = { healthy: 0, updating: 0, outdated: 0, offline: 0 };
+  robots.forEach(r => compCounts[robotHealth(r)]++);
+  const compLabels = { healthy: 'On Target', updating: 'Updating', outdated: 'Lagging', offline: 'Unreachable' };
+  let acc = 0;
+  const segments = [];
+  Object.entries(compCounts).forEach(([k, c]) => {
+    if (!c) return;
+    const start = acc / total * 100;
+    acc += c;
+    segments.push(`${healthMeta[k].dot} ${start}% ${acc / total * 100}%`);
+  });
+  el('an-compliance-chart').innerHTML = `
+    <div class="donut-wrap">
+      <div class="donut" style="background:conic-gradient(${segments.length ? segments.join(', ') : '#e2e4ea 0% 100%'})">
+        <div class="donut-hole">${total}<span>robots</span></div>
+      </div>
+      <div class="donut-legend">
+        ${Object.entries(compCounts).filter(([, c]) => c > 0).map(([k, c]) => `
+          <div class="legend-item"><span class="legend-dot" style="background:${healthMeta[k].dot}"></span>${compLabels[k]}<strong>${c}</strong></div>`).join('')}
+      </div>
+    </div>`;
+
+  // Oldest / newest lists
+  const byTenure = Object.entries(fleet).sort(([, a], [, b]) => new Date(a.first_seen) - new Date(b.first_seen));
+  const listItem = ([id, r]) => `<div class="version-item"><div><div class="version-name">${r.name}</div><div class="version-meta">${r.model} · ${id}</div></div><span class="stat-badge badge-gray">${Math.floor((Date.now() - new Date(r.first_seen)) / 86400000)}d</span></div>`;
+  el('an-oldest-list').innerHTML = byTenure.slice(0, 5).map(listItem).join('') || '<div class="empty">No data yet</div>';
+  el('an-newest-list').innerHTML = byTenure.slice(-5).reverse().map(listItem).join('') || '<div class="empty">No data yet</div>';
+}
+
+// ---- Deterministic pseudo-random helpers (stable mock data derived from robot id) ----
+function hashStr(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = (h * 31 + s.charCodeAt(i)) >>> 0; }
+  return (h % 1000) / 1000;
+}
+function pseudoInt(seed, min, max) { return min + Math.floor(hashStr(seed) * (max - min + 1)); }
+function genSeries(seed, n, base, amp) {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(base + Math.sin(i / 2 + hashStr(seed + i) * 6) * amp + (hashStr(seed + 'x' + i) - 0.5) * amp * 0.6);
+  return out;
+}
+function sparkline(values, color) {
+  const w = 160, h = 40, pad = 4;
+  const min = Math.min(...values), max = Math.max(...values);
+  const range = (max - min) || 1;
+  const pts = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (w - pad * 2);
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+// ---- Device Registry ----
+const HW_REVS = ['A', 'B', 'C'];
+const GROUPS = ['beta-channel', 'region:us-west', 'cohort:pilot-2026', 'hw-rev:b', 'warranty:active'];
+
+function renderDeviceRegistry() {
+  const tbody = document.getElementById('devices-tbody');
+  const entries = Object.entries(fleet);
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No data yet</td></tr>'; return; }
+  tbody.innerHTML = entries.map(([id, r]) => {
+    const hw = r.hw_rev || HW_REVS[Math.floor(hashStr(id) * HW_REVS.length)];
+    const serial = r.serial || id;
+    const att = findAttachmentForRobot(id);
+    const attHtml = att ? `<span class="chip badge-gray">⚙ ${att.type} · ${att.serial}</span>` : `<span style="color:var(--text3);font-size:12px">None</span>`;
+    const mfg = new Date(new Date(r.first_seen).getTime() - 30 * 86400000).toLocaleDateString();
+    const health = robotHealth(r);
+    const lifecycle = health === 'offline' ? 'Active (Unreachable)' : (health === 'outdated' ? 'Active (Update Due)' : 'Active');
+    const group = GROUPS[Math.floor(hashStr(id + 'g') * GROUPS.length)];
+    return `<tr class="robot-row" onclick="openDrawer('${id}')">
+      <td><div class="robot-name">${r.name}</div><div class="robot-id">${id}</div></td>
+      <td style="font-family:monospace;font-size:12px;font-weight:700">${serial}</td>
+      <td>Rev ${hw}</td>
+      <td style="font-size:12px;color:var(--text2)">${mfg}</td>
+      <td><span class="stat-badge ${health === 'offline' ? 'badge-gray' : 'badge-green'}">${lifecycle}</span></td>
+      <td style="font-size:12px">${attHtml}</td>
+      <td><span class="chip badge-gray">${group}</span></td>
+    </tr>`;
+  }).join('');
+  renderAttachmentRegistry();
+}
+
+function attachmentUpdateCell(a) {
+  if (a.update_status === 'pending') return `<span class="stat-badge badge-yellow">Pending v${a.pending_version}</span>`;
+  if (a.update_status === 'triggered') return `<span class="stat-badge badge-blue"><span class="status-dot dot-updating"></span>Triggered v${a.pending_version}</span>`;
+  const target = attachmentTargets[a.type_code];
+  if (!target) return `<span class="stat-badge badge-gray">No deployment yet</span>`;
+  if (a.current_version !== target) return `<span class="stat-badge badge-yellow">Needs update</span>`;
+  return `<span class="stat-badge badge-green">Up to date</span>`;
+}
+
+function attachmentStatusBadge(a) {
+  if (a.status === 'inventory') return `<span class="stat-badge badge-gray"><span class="status-dot dot-offline"></span>Inventory</span>`;
+  if (a.status === 'online') return `<span class="stat-badge badge-green"><span class="status-dot dot-online"></span>Online</span>`;
+  return `<span class="stat-badge badge-gray"><span class="status-dot dot-offline"></span>Offline</span>`;
+}
+
+function renderAttachmentRegistry() {
+  const tbody = document.getElementById('attachments-tbody');
+  if (!tbody) return;
+  const entries = Object.values(attachments);
+  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No data yet</td></tr>'; return; }
+  tbody.innerHTML = entries.map(a => {
+    const robot = a.attached_to ? fleet[a.attached_to] : null;
+    const attachedTo = a.attached_to ? (robot ? robot.name : a.attached_to) : '<span style="color:var(--text3)">In inventory</span>';
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;font-weight:700">${a.serial}</td>
+      <td>${a.type}</td>
+      <td style="font-family:monospace">v${a.current_version}</td>
+      <td style="font-size:12px">${attachedTo}</td>
+      <td>${attachmentStatusBadge(a)}</td>
+      <td style="min-width:160px">${attachmentUpdateCell(a)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- Connectivity ----
+function renderConnectivity() {
+  const entries = Object.entries(fleet);
+  const shadowBody = document.getElementById('shadow-tbody');
+  const connBody = document.getElementById('conn-tbody');
+  if (!entries.length) {
+    shadowBody.innerHTML = '<tr><td colspan="4" class="empty">No data yet</td></tr>';
+    connBody.innerHTML = '<tr><td colspan="5" class="empty">No data yet</td></tr>';
+    return;
+  }
+  shadowBody.innerHTML = entries.map(([id, r]) => {
+    const inSync = !targetVersion || r.current_version === targetVersion;
+    return `<tr class="robot-row"><td><div class="robot-name">${r.name}</div><div class="robot-id">${id}</div></td>
+      <td style="font-family:monospace">v${r.current_version}</td>
+      <td style="font-family:monospace">${targetVersion ? 'v' + targetVersion : '—'}</td>
+      <td>${inSync ? '<span class="stat-badge badge-green">Synced</span>' : '<span class="stat-badge badge-yellow">Drift</span>'}</td>
+    </tr>`;
+  }).join('');
+  const SSIDS = ['ChoreNet-5G', 'ChoreNet-2.4G', 'Office-Guest', 'Warehouse-IoT'];
+  connBody.innerHTML = entries.map(([id, r]) => {
+    const ssid = SSIDS[Math.floor(hashStr(id + 's') * SSIDS.length)];
+    const rssi = -1 * pseudoInt(id + 'r', 38, 78);
+    const ip = `10.${pseudoInt(id + 'a', 0, 255)}.${pseudoInt(id + 'b', 0, 255)}.${pseudoInt(id + 'c', 2, 254)}`;
+    const drops = r.status === 'offline' ? pseudoInt(id + 'd', 3, 9) : pseudoInt(id + 'd', 0, 2);
+    const sigCls = rssi > -60 ? 'badge-green' : (rssi > -70 ? 'badge-yellow' : 'badge-red');
+    return `<tr class="robot-row"><td><div class="robot-name">${r.name}</div><div class="robot-id">${id}</div></td>
+      <td>${ssid}</td>
+      <td><span class="stat-badge ${sigCls}">${rssi} dBm</span></td>
+      <td style="font-family:monospace;font-size:12px">${ip}</td>
+      <td>${drops}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ---- Campaigns ----
+function renderCampaigns() {
+  const robots = Object.values(fleet);
+  const total = robots.length;
+  const onTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
+  const pct = total ? Math.round(onTarget / total * 100) : 0;
+  const stages = [1, 10, 50, 100];
+  document.getElementById('camp-steps').innerHTML = stages.map((s, i) => {
+    let cls = '';
+    if (pct >= s) cls = 'done';
+    else if (pct > 0 && (i === 0 || pct >= stages[i - 1])) cls = 'active';
+    return `<div class="progress-step ${cls}"><div class="progress-step-dot">${s}%</div><div class="progress-step-label">${s}% Rollout</div></div>`;
+  }).join('');
+  document.getElementById('camp-sub').textContent = targetVersion
+    ? `v${targetVersion} — ${onTarget}/${total} robots (${pct}%) on target`
+    : 'No active campaign — deploy a version to start one';
+
+  const channelsEl = document.getElementById('channels-body');
+  if (!total) { channelsEl.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const channels = { dev: 0, beta: 0, stable: 0 };
+  const names = { dev: 'Dev', beta: 'Beta', stable: 'Stable' };
+  Object.keys(fleet).forEach(id => { channels[['dev', 'beta', 'stable'][Math.floor(hashStr(id + 'ch') * 3)]]++; });
+  channelsEl.innerHTML = Object.entries(channels).map(([k, c]) => {
+    const pctc = total ? Math.round(c / total * 100) : 0;
+    return `<div class="chart-bar-row"><div class="chart-bar-label">${names[k]}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pctc}%"></div></div><div class="chart-bar-count">${c} · ${pctc}%</div></div>`;
+  }).join('');
+}
+
+function triggerRollback() {
+  if (!confirm('Roll back the active campaign to the previous stable version?')) return;
+  showToast('Rollback triggered — robots will revert to the last known-good version', 'info');
+  addLog('Campaign rollback triggered');
+}
+
+// ---- Remote Operations ----
+let commandHistory = [];
+function renderRemoteOps() {
+  const sel = document.getElementById('remoteops-robot');
+  const entries = Object.entries(fleet);
+  const prev = sel.value;
+  sel.innerHTML = entries.map(([id, r]) => `<option value="${id}">${r.name} (${id})</option>`).join('') || '<option value="">No robots</option>';
+  if (entries.some(([id]) => id === prev)) sel.value = prev;
+  renderCommandHistory();
+}
+
+function sendCommand(cmd) {
+  const sel = document.getElementById('remoteops-robot');
+  const id = sel.value;
+  const r = fleet[id];
+  if (!r) { showToast('Select a robot first', 'error'); return; }
+  const entry = { time: new Date().toLocaleTimeString(), robot: r.name, cmd, status: 'sent' };
+  commandHistory.unshift(entry);
+  if (commandHistory.length > 20) commandHistory.pop();
+  renderCommandHistory();
+  // No toast here — the Command History panel already shows sent → acked → executed.
+  addLog(`Remote command "${cmd}" sent to ${r.name}`);
+  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, 900);
+  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, 1900);
+}
+
+function renderCommandHistory() {
+  const el = document.getElementById('command-history');
+  if (!commandHistory.length) { el.innerHTML = '<div class="empty">No commands sent yet</div>'; return; }
+  const statusCls = { sent: 'badge-gray', acked: 'badge-blue', executed: 'badge-green' };
+  el.innerHTML = commandHistory.map(e => `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div><div style="font-weight:600;font-size:12px">${e.cmd}</div><div style="font-size:11px;color:var(--text2)">${e.robot} · ${e.time}</div></div>
+      <span class="stat-badge ${statusCls[e.status]}">${e.status}</span>
+    </div>`).join('');
+}
+
+// ---- Telemetry ----
+function renderTelemetry() {
+  const sel = document.getElementById('telemetry-robot');
+  const entries = Object.entries(fleet);
+  const prev = sel.value;
+  sel.innerHTML = entries.map(([id, r]) => `<option value="${id}">${r.name}</option>`).join('');
+  if (entries.some(([id]) => id === prev)) sel.value = prev;
+  const id = sel.value || (entries[0] && entries[0][0]);
+  if (!id) return;
+  document.getElementById('spark-battery').innerHTML = sparkline(genSeries(id + 'batt', 24, 13.2, 0.6), '#22c55e') + `<div class="stat-sub">~13.1V avg</div>`;
+  document.getElementById('spark-motor').innerHTML = sparkline(genSeries(id + 'motor', 24, 1.8, 0.5), '#3b82f6') + `<div class="stat-sub">~1.7A avg</div>`;
+  document.getElementById('spark-temp').innerHTML = sparkline(genSeries(id + 'temp', 24, 42, 4), '#f59e0b') + `<div class="stat-sub">~41°C avg</div>`;
+
+  const EVENTS = ['Chore started', 'Chore finished', 'Docked', 'Attachment attached', 'Left dock', 'Error cleared'];
+  const rows = [];
+  for (let i = 0; i < 8; i++) {
+    const t = new Date(Date.now() - i * 47 * 60000);
+    const pair = entries[Math.floor(hashStr(id + 'ev' + i) * entries.length)] || entries[0];
+    const r = pair ? pair[1] : null;
+    rows.push(`<tr><td style="font-size:11px;color:var(--text2);font-family:monospace">${t.toLocaleTimeString()}</td><td>${r ? r.name : '—'}</td><td>${EVENTS[i % EVENTS.length]}</td><td style="font-size:12px;color:var(--text2)">—</td></tr>`);
+  }
+  document.getElementById('events-tbody').innerHTML = rows.join('');
+  renderGrafanaDash();
+}
+
+// ---- Grafana-style telemetry panel grid ----
+let gfRange = '24h';
+const GF_COLORS = ['#F7941D', '#5794f2', '#73bf69', '#f2495c', '#a78bfa', '#fade2a', '#33b1e8', '#f472b6', '#84cc16', '#fb923c'];
+const RANGE_BUCKETS = { '1h': 12, '6h': 18, '24h': 24, '7d': 28 };
+
+function setGfRange(r) {
+  gfRange = r;
+  document.querySelectorAll('.gf-range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === r));
+  renderGrafanaDash();
+}
+
+function gfMultiLine(seriesList, colors) {
+  const width = 480, height = 150, pad = 8;
+  const allVals = seriesList.flatMap(s => s.values);
+  const min = Math.min(...allVals), max = Math.max(...allVals);
+  const range = (max - min) || 1;
+  const n = seriesList[0].values.length;
+  const xStep = (width - pad * 2) / (n - 1);
+  let grid = '';
+  for (let i = 0; i <= 3; i++) {
+    const y = pad + (height - pad * 2) * i / 3;
+    grid += `<line x1="${pad}" y1="${y.toFixed(1)}" x2="${width - pad}" y2="${y.toFixed(1)}" stroke="#2c3138" stroke-width="1"/>`;
+  }
+  const lines = seriesList.map((s, si) => {
+    const pts = s.values.map((v, i) => {
+      const x = pad + i * xStep;
+      const y = pad + (height - pad * 2) * (1 - (v - min) / range);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${colors[si % colors.length]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  }).join('');
+  return `<svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" style="display:block">${grid}${lines}</svg>`;
+}
+
+function gfGauge(pct, color) {
+  const size = 140, r = size / 2 - 12, cx = size / 2, cy = size / 2 - 4;
+  const circumference = Math.PI * r;
+  const dash = circumference * Math.min(Math.max(pct, 0), 100) / 100;
+  return `<svg width="${size}" height="${size / 2 + 24}" viewBox="0 0 ${size} ${size / 2 + 24}">
+    <path d="M12,${cy} A${r},${r} 0 0 1 ${size - 12},${cy}" fill="none" stroke="#2c3138" stroke-width="12" stroke-linecap="round"/>
+    <path d="M12,${cy} A${r},${r} 0 0 1 ${size - 12},${cy}" fill="none" stroke="${color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${dash.toFixed(1)} ${circumference.toFixed(1)}"/>
+    <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="24" font-weight="800" fill="#e5e7eb">${Math.round(pct)}%</text>
+  </svg>`;
+}
+
+function tempColor(t) {
+  if (t < 38) return '#5794f2';
+  if (t < 42) return '#26a641';
+  if (t < 46) return '#fade2a';
+  if (t < 50) return '#f2a71b';
+  return '#f2495c';
+}
+
+function renderGrafanaDash() {
+  const entries = Object.entries(fleet);
+  if (!entries.length) return;
+  const n = RANGE_BUCKETS[gfRange] || 24;
+
+  const battSeries = entries.map(([id]) => genSeries(id + 'batt' + gfRange, n, 13.2, 0.6));
+  const motorSeries = entries.map(([id]) => genSeries(id + 'motor' + gfRange, n, 1.8, 0.5));
+  const tempSeries = entries.map(([id]) => genSeries(id + 'temp' + gfRange, n, 42, 4));
+
+  const avgLast = arr => arr.reduce((s, v) => s + v[v.length - 1], 0) / arr.length;
+  const avgBatt = avgLast(battSeries), avgMotor = avgLast(motorSeries), avgTemp = avgLast(tempSeries);
+
+  const battEl = document.getElementById('gf-stat-battery');
+  battEl.textContent = avgBatt.toFixed(1) + 'V';
+  battEl.className = 'gf-stat-value ' + (avgBatt > 12.5 ? 'good' : avgBatt > 11.8 ? 'warn' : 'crit');
+  const motorEl = document.getElementById('gf-stat-motor');
+  motorEl.textContent = avgMotor.toFixed(2) + 'A';
+  motorEl.className = 'gf-stat-value ' + (avgMotor < 2.2 ? 'good' : avgMotor < 2.8 ? 'warn' : 'crit');
+  const tempEl = document.getElementById('gf-stat-temp');
+  tempEl.textContent = avgTemp.toFixed(0) + '°C';
+  tempEl.className = 'gf-stat-value ' + (avgTemp < 46 ? 'good' : avgTemp < 50 ? 'warn' : 'crit');
+  document.getElementById('gf-stat-ingest').textContent = (entries.length * 4) + '/s';
+
+  document.getElementById('gf-spark-battery').innerHTML = sparkline(battSeries[0], '#73bf69');
+  document.getElementById('gf-spark-motor').innerHTML = sparkline(motorSeries[0], '#5794f2');
+  document.getElementById('gf-spark-temp').innerHTML = sparkline(tempSeries[0], '#fade2a');
+
+  const shown = entries.slice(0, 6);
+  const battShown = shown.map(([id], i) => ({ label: fleet[id].name, values: battSeries[i] }));
+  const motorShown = shown.map(([id], i) => ({ label: fleet[id].name, values: motorSeries[i] }));
+  document.getElementById('gf-graph-battery').innerHTML = gfMultiLine(battShown, GF_COLORS);
+  document.getElementById('gf-graph-motor').innerHTML = gfMultiLine(motorShown, GF_COLORS);
+  document.getElementById('gf-legend-battery').innerHTML = shown.map((_, i) => `<div class="gf-legend-item"><span class="gf-legend-dot" style="background:${GF_COLORS[i]}"></span>${battShown[i].label}</div>`).join('');
+  document.getElementById('gf-legend-motor').innerHTML = shown.map((_, i) => `<div class="gf-legend-item"><span class="gf-legend-dot" style="background:${GF_COLORS[i]}"></span>${motorShown[i].label}</div>`).join('');
+
+  const heatRobots = entries.slice(0, 8);
+  const heatCols = Math.min(n, 16);
+  document.getElementById('gf-heatmap').innerHTML = heatRobots.map(([id, r]) => {
+    const series = genSeries(id + 'temp' + gfRange, heatCols, 42, 5);
+    const cells = series.map(t => `<div class="gf-heatmap-cell" style="background:${tempColor(t)}" title="${r.name}: ${t.toFixed(1)}°C"></div>`).join('');
+    return `<div class="gf-heatmap-row"><div class="gf-heatmap-label">${r.name}</div>${cells}</div>`;
+  }).join('');
+
+  const barCount = Math.min(n, 20);
+  let bars = '';
+  for (let i = 0; i < barCount; i++) {
+    const h = 10 + hashStr('fault' + gfRange + i) * 100;
+    const color = h > 80 ? '#f2495c' : h > 45 ? '#fade2a' : '#26a641';
+    bars += `<div style="flex:1;background:${color};height:${h.toFixed(0)}%;border-radius:2px 2px 0 0" title="${Math.round(h / 10)} faults"></div>`;
+  }
+  document.getElementById('gf-error-bars').innerHTML = bars;
+
+  const onlinePct = entries.filter(([, r]) => r.status === 'online').length / entries.length * 100;
+  document.getElementById('gf-gauge-online').innerHTML = gfGauge(onlinePct, onlinePct > 80 ? '#73bf69' : onlinePct > 50 ? '#fade2a' : '#f2495c');
+  const battPct = Math.min(100, Math.max(0, (avgBatt - 10) / (14 - 10) * 100));
+  document.getElementById('gf-gauge-battery').innerHTML = gfGauge(battPct, battPct > 60 ? '#73bf69' : battPct > 30 ? '#fade2a' : '#f2495c');
+
+  const anomalies = entries.map(([id, r], i) => ({ r, temp: tempSeries[i][n - 1], motor: motorSeries[i][n - 1] }))
+    .sort((a, b) => b.temp - a.temp).slice(0, 6);
+  document.getElementById('gf-anomaly-table').innerHTML = `<table class="gf-table"><thead><tr><th>Robot</th><th>Temp</th><th>Motor A</th></tr></thead><tbody>
+    ${anomalies.map(a => `<tr><td>${a.r.name}</td><td style="color:${tempColor(a.temp)}">${a.temp.toFixed(1)}°C</td><td>${a.motor.toFixed(2)}A</td></tr>`).join('')}
+  </tbody></table>`;
+
+  const LOG_EVENTS = ['chore.started', 'chore.finished', 'telemetry.batch', 'dock.connected', 'sensor.warning', 'update.check'];
+  let logLines = '';
+  for (let i = 0; i < 14; i++) {
+    const t = new Date(Date.now() - i * 8000);
+    const pair = entries[Math.floor(hashStr('log' + gfRange + i) * entries.length)];
+    const ev = LOG_EVENTS[Math.floor(hashStr('logev' + gfRange + i) * LOG_EVENTS.length)];
+    logLines += `<div class="gf-log-line"><span class="gf-log-time">${t.toLocaleTimeString()}</span><span style="color:#5794f2">${pair ? pair[1].name : '—'}</span> <span style="color:#6b7280">${ev}</span></div>`;
+  }
+  document.getElementById('gf-log').innerHTML = logLines;
+}
+
+// ---- Fault Codes ----
+const FAULT_CODES = [
+  { code: 'E01', desc: 'Battery undervoltage', sev: 'critical', count: 12, robots: 3, fw: 'v1.2.4' },
+  { code: 'E17', desc: 'Drive motor stall', sev: 'warning', count: 34, robots: 7, fw: 'v1.1.0' },
+  { code: 'E22', desc: 'Sensor obstruction (bump/IR)', sev: 'info', count: 89, robots: 9, fw: 'all' },
+  { code: 'E29', desc: 'Mop module water tank empty', sev: 'info', count: 56, robots: 5, fw: 'all' },
+  { code: 'E42', desc: 'Wi-Fi check-in timeout', sev: 'warning', count: 21, robots: 4, fw: 'v1.3.0' },
+  { code: 'E58', desc: 'Dock alignment failure', sev: 'warning', count: 15, robots: 3, fw: 'all' },
+  { code: 'E63', desc: 'Firmware signature mismatch', sev: 'critical', count: 2, robots: 1, fw: 'v1.0.5' },
+];
+function renderFaults() {
+  const tbody = document.getElementById('faults-tbody');
+  const sevCls = { critical: 'severity-critical', warning: 'severity-warning', info: 'severity-info' };
+  tbody.innerHTML = [...FAULT_CODES].sort((a, b) => b.count - a.count).map(f => `
+    <tr>
+      <td style="font-family:monospace;font-weight:700">${f.code}</td>
+      <td>${f.desc}</td>
+      <td><span class="stat-badge ${sevCls[f.sev]}">${f.sev}</span></td>
+      <td>${f.count}</td>
+      <td>${f.robots}</td>
+      <td style="font-family:monospace;font-size:11px">${f.fw}</td>
+    </tr>`).join('');
+}
+
+// ---- Predictive Maintenance ----
+function renderPredictive() {
+  const entries = Object.entries(fleet);
+  const scoreEl = document.getElementById('predictive-score');
+  const wearEl = document.getElementById('wear-chart');
+  const riskBody = document.getElementById('risk-tbody');
+  if (!entries.length) {
+    scoreEl.innerHTML = '<div class="empty">No data yet</div>';
+    wearEl.innerHTML = '<div class="empty">No data yet</div>';
+    riskBody.innerHTML = '<tr><td colspan="4" class="empty">No data yet</td></tr>';
+    return;
+  }
+  const weights = { healthy: 100, updating: 70, outdated: 50, offline: 0 };
+  const avgScore = Math.round(entries.reduce((s, [, r]) => s + weights[robotHealth(r)], 0) / entries.length);
+  const scoreColor = avgScore >= 80 ? 'var(--green)' : avgScore >= 50 ? 'var(--yellow)' : 'var(--red)';
+  scoreEl.innerHTML = `<div style="display:flex;align-items:center;gap:20px">
+    <div style="font-size:44px;font-weight:800;color:${scoreColor}">${avgScore}</div>
+    <div style="font-size:12px;color:var(--text2)">Composite fleet health score (0-100), rolled up from connectivity + update compliance across ${entries.length} robots.</div>
+  </div>`;
+
+  wearEl.innerHTML = entries.slice(0, 5).map(([id, r]) => {
+    const pct = pseudoInt(id + 'wear', 15, 95);
+    const grad = pct < 25 ? 'linear-gradient(90deg,var(--red),#dc2626)' : (pct < 50 ? 'linear-gradient(90deg,var(--yellow),#d97706)' : 'linear-gradient(90deg,var(--orange),var(--orange-dark))');
+    return `<div class="chart-bar-row"><div class="chart-bar-label">${r.name}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%;background:${grad}"></div></div><div class="chart-bar-count">${pct}%</div></div>`;
+  }).join('');
+
+  const COMPONENTS = ['Drive motor bearing', 'Battery cell pack', 'Main brush motor', 'Wheel encoder', 'Dock charging contacts'];
+  const risk = entries.map(([id, r]) => ({ id, r, score: pseudoInt(id + 'risk', 2, 96) })).sort((a, b) => b.score - a.score);
+  riskBody.innerHTML = risk.slice(0, 8).map(({ id, r, score }) => {
+    const cls = score > 70 ? 'badge-red' : score > 40 ? 'badge-yellow' : 'badge-green';
+    const comp = COMPONENTS[Math.floor(hashStr(id + 'comp') * COMPONENTS.length)];
+    const eta = score > 70 ? `${pseudoInt(id + 'eta', 3, 14)} days` : score > 40 ? `${pseudoInt(id + 'eta', 3, 10)} weeks` : `${pseudoInt(id + 'eta', 3, 9)} months`;
+    return `<tr class="robot-row" onclick="openDrawer('${id}')"><td><div class="robot-name">${r.name}</div><div class="robot-id">${id}</div></td><td><span class="stat-badge ${cls}">${score}/100</span></td><td>${comp}</td><td style="font-size:12px;color:var(--text2)">${eta}</td></tr>`;
+  }).join('');
+}
+
+// ---- Alerts (computed live from fleet state) ----
+function renderAlerts() {
+  const entries = Object.entries(fleet);
+  const el = document.getElementById('active-alerts');
+  if (!entries.length) { el.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const alerts = [];
+  entries.forEach(([id, r]) => {
+    const health = robotHealth(r);
+    if (health === 'offline') {
+      const hoursOffline = Math.round((Date.now() - new Date(r.last_seen)) / 3600000);
+      if (hoursOffline >= 1) alerts.push({ sev: hoursOffline > 24 ? 'critical' : 'warning', msg: `${r.name} offline for ${hoursOffline}h` });
+    }
+    if (health === 'outdated') alerts.push({ sev: 'warning', msg: `${r.name} lagging on v${r.current_version} (target v${targetVersion})` });
+  });
+  const total = entries.length;
+  const offlineCount = entries.filter(([, r]) => r.status === 'offline').length;
+  if (total && offlineCount / total > 0.3) alerts.unshift({ sev: 'critical', msg: `${Math.round(offlineCount / total * 100)}% of fleet offline — possible network/backend issue` });
+
+  if (!alerts.length) { el.innerHTML = '<div class="empty">No active alerts — fleet is healthy</div>'; return; }
+  const sevCls = { critical: 'severity-critical', warning: 'severity-warning' };
+  el.innerHTML = alerts.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="stat-badge ${sevCls[a.sev]}">${a.sev}</span>
+        <span style="font-size:13px">${a.msg}</span>
+      </div>
+      <button class="action-btn" onclick="showToast('Alert acknowledged', 'success')">Acknowledge</button>
+    </div>`).join('');
+}
+
+// ---- Support Console ----
+function renderSupportSearch(q) {
+  const el = document.getElementById('support-search-results');
+  if (!q) { el.innerHTML = ''; return; }
+  const lower = q.toLowerCase();
+  const matches = Object.entries(fleet).filter(([id, r]) => r.name.toLowerCase().includes(lower) || id.toLowerCase().includes(lower));
+  if (!matches.length) { el.innerHTML = '<div class="empty">No matches</div>'; return; }
+  el.innerHTML = matches.slice(0, 5).map(([id, r]) => `
+    <div class="version-item" style="cursor:pointer" onclick="openDrawer('${id}')">
+      <div><div class="version-name">${r.name}</div><div class="version-meta">${r.model} · ${id} · ${robotHealth(r)}</div></div>
+      ${statusBadge(r)}
+    </div>`).join('');
+}
+
+// ---- Access & Audit ----
+function renderAuditLog() {
+  const el = document.getElementById('audit-log');
+  if (!activityLog.length) { el.innerHTML = '<div class="empty">No actions yet this session</div>'; return; }
+  el.innerHTML = activityLog.map(e => `<div class="log-entry"><span class="log-time">${e.time}</span><span class="log-msg"><strong>you</strong> — ${e.msg}</span></div>`).join('');
+}
+
+// ---- Fleet report export ----
+function exportFleetCSV() {
+  const rows = [['robot_id', 'name', 'model', 'current_version', 'pending_version', 'update_status', 'status', 'first_seen', 'last_seen']];
+  Object.entries(fleet).forEach(([id, r]) => {
+    rows.push([id, r.name, r.model, r.current_version, r.pending_version || '', r.update_status, r.status, r.first_seen, r.last_seen]);
+  });
+  const csv = rows.map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `fleet-report-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Fleet report downloaded', 'success');
+  addLog('Fleet report exported (CSV)');
+}
+
+// ---- Data Flywheel ----
+const FLYWHEEL_NODES = [
+  { lines: ['Robots in', 'the Field'], sub: 'online now' },
+  { lines: ['Telemetry', '& Faults'], sub: 'pts/sec' },
+  { lines: ['Fleet', 'Insights'], sub: 'faults tracked' },
+  { lines: ['Firmware', 'Improvements'], sub: 'versions shipped' },
+  { lines: ['OTA', 'Deployment'], sub: 'updates delivered' },
+  { lines: ['Better', 'Robots'], sub: 'attachments active' },
+];
+
+function flywheelPoint(angleDeg, radius, cx, cy) {
+  const rad = angleDeg * Math.PI / 180;
+  return { x: cx + radius * Math.sin(rad), y: cy - radius * Math.cos(rad) };
+}
+
+function renderFlywheel() {
+  const wrap = document.getElementById('flywheel-wrap');
+  if (!wrap) return;
+  const robots = Object.values(fleet);
+  const atts = Object.values(attachments);
+
+  const robotsOnline = robots.filter(r => r.status === 'online').length;
+  const telemetryRate = robots.length * 4;
+  const faultsTracked = FAULT_CODES.reduce((s, f) => s + f.count, 0);
+  const versionsShipped = versions.length + attachmentVersions.length;
+  const robotsOnTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
+  const attachmentsOnTarget = atts.filter(a => attachmentTargets[a.type_code] && a.current_version === attachmentTargets[a.type_code]).length;
+  const updatesDelivered = robotsOnTarget + attachmentsOnTarget;
+  const attachmentsActive = atts.filter(a => a.status === 'online').length;
+
+  const values = [robotsOnline, telemetryRate, faultsTracked, versionsShipped, updatesDelivered, attachmentsActive];
+
+  const cx = 300, cy = 280, R = 180, nodeR = 48, pad = 17;
+  let arcs = '';
+  for (let i = 0; i < 6; i++) {
+    const a1 = i * 60 + pad;
+    const a2 = (i + 1) * 60 - pad;
+    const p1 = flywheelPoint(a1, R, cx, cy);
+    const p2 = flywheelPoint(a2, R, cx, cy);
+    arcs += `<path class="flywheel-arrow" marker-end="url(#flywheelArrowHead)" d="M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}"/>`;
+  }
+
+  let nodes = '';
+  for (let i = 0; i < 6; i++) {
+    const p = flywheelPoint(i * 60, R, cx, cy);
+    const n = FLYWHEEL_NODES[i];
+    const titleLines = n.lines.map((line, li) => `<tspan x="0" dy="${li === 0 ? 0 : 13}">${line}</tspan>`).join('');
+    nodes += `
+      <g transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
+        <circle class="flywheel-node-circle" r="${nodeR}"/>
+        <text class="flywheel-node-counter" text-anchor="middle" y="-4">${values[i]}</text>
+        <text class="flywheel-node-sub" text-anchor="middle" y="13">${n.sub}</text>
+        <text class="flywheel-node-label" text-anchor="middle" y="${nodeR + 20}">${titleLines}</text>
+      </g>`;
+  }
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 600 560" width="100%" style="display:block">
+      <defs>
+        <radialGradient id="flywheelNodeGrad" cx="35%" cy="30%" r="80%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#FFF3E0"/>
+        </radialGradient>
+        <marker id="flywheelArrowHead" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+          <path d="M0,0 L9,4.5 L0,9 Z" fill="#F7941D"/>
+        </marker>
+      </defs>
+      <circle class="flywheel-hub" cx="${cx}" cy="${cy}" r="${R - nodeR - 6}" fill="none" stroke="#F7941D" stroke-width="1.5" stroke-dasharray="3 7" opacity=".35"/>
+      <text x="${cx}" y="${cy - 6}" text-anchor="middle" class="flywheel-center-label">The Data Flywheel</text>
+      <text x="${cx}" y="${cy + 12}" text-anchor="middle" class="flywheel-center-sub">Every loop ships a better robot</text>
+      ${arcs}
+      ${nodes}
+    </svg>`;
+}
+
+// ---- Render ----
+function renderAll() {
+  renderStats();
+  renderFleet();
+  renderVersions();
+  renderUploadsList();
+  renderDeployStatus();
+  renderCharts();
+  renderVersionFilterOptions();
+  document.getElementById('target-version-chip').textContent = targetVersion ? `Target: v${targetVersion}` : 'No target set';
+  document.getElementById('current-target-display').textContent = targetVersion ? `v${targetVersion}` : 'none';
+  renderRolloutProgress();
+}
+
+// ---- Charts ----
+function renderCharts() {
+  renderVersionChart();
+  renderHealthChart();
+}
+
+function renderVersionChart() {
+  const el = document.getElementById('version-chart');
+  const robots = Object.values(fleet);
+  if (!robots.length) { el.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const counts = {};
+  robots.forEach(r => { counts[r.current_version] = (counts[r.current_version] || 0) + 1; });
+  const total = robots.length;
+  const rows = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  el.innerHTML = rows.map(([v, c]) => {
+    const pct = Math.round(c / total * 100);
+    const isTarget = v === targetVersion;
+    return `
+      <div class="chart-bar-row">
+        <div class="chart-bar-label">v${v}${isTarget ? ' <span class="stat-badge badge-orange">Target</span>' : ''}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%"></div></div>
+        <div class="chart-bar-count">${c} · ${pct}%</div>
+      </div>`;
+  }).join('');
+}
+
+function renderHealthChart() {
+  const el = document.getElementById('health-chart');
+  const robots = Object.values(fleet);
+  if (!robots.length) { el.innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const counts = { healthy: 0, updating: 0, outdated: 0, offline: 0 };
+  robots.forEach(r => counts[robotHealth(r)]++);
+  const total = robots.length;
+  let acc = 0;
+  const segments = [];
+  Object.entries(counts).forEach(([k, c]) => {
+    if (!c) return;
+    const start = acc / total * 100;
+    acc += c;
+    const end = acc / total * 100;
+    segments.push(`${healthMeta[k].dot} ${start}% ${end}%`);
+  });
+  const gradient = segments.length ? segments.join(', ') : '#e2e4ea 0% 100%';
+  el.innerHTML = `
+    <div class="donut-wrap">
+      <div class="donut" style="background:conic-gradient(${gradient})">
+        <div class="donut-hole">${total}<span>robots</span></div>
+      </div>
+      <div class="donut-legend">
+        ${Object.entries(counts).filter(([, c]) => c > 0).map(([k, c]) => `
+          <div class="legend-item">
+            <span class="legend-dot" style="background:${healthMeta[k].dot}"></span>
+            ${healthMeta[k].label}
+            <strong>${c}</strong>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ---- Fleet filtering / sorting ----
+function applyFleetFilters(entries) {
+  return entries.filter(([id, r]) => {
+    if (fleetFilter.health !== 'all' && robotHealth(r) !== fleetFilter.health) return false;
+    if (fleetFilter.version !== 'all' && r.current_version !== fleetFilter.version) return false;
+    if (fleetFilter.search) {
+      const q = fleetFilter.search.toLowerCase();
+      if (!(r.name.toLowerCase().includes(q) || id.toLowerCase().includes(q) || r.model.toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+}
+
+function sortEntries(entries) {
+  const { key, dir } = sortState;
+  const mul = dir === 'asc' ? 1 : -1;
+  return entries.sort(([, a], [, b]) => {
+    let va, vb;
+    switch (key) {
+      case 'status': va = a.status; vb = b.status; break;
+      case 'version': va = a.current_version; vb = b.current_version; break;
+      case 'last_seen': va = new Date(a.last_seen).getTime(); vb = new Date(b.last_seen).getTime(); break;
+      default: va = a.name.toLowerCase(); vb = b.name.toLowerCase();
+    }
+    if (va < vb) return -1 * mul;
+    if (va > vb) return 1 * mul;
+    return 0;
+  });
+}
+
+function setSort(key) {
+  if (sortState.key === key) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+  else { sortState.key = key; sortState.dir = 'asc'; }
+  renderFleet();
+}
+
+function updateSortArrows() {
+  ['name', 'status', 'version', 'last_seen'].forEach(k => {
+    const el = document.getElementById(`arrow-${k}`);
+    if (!el) return;
+    el.textContent = sortState.key === k ? (sortState.dir === 'asc' ? '▲' : '▼') : '';
+  });
+}
+
+function renderVersionFilterOptions() {
+  const sel = document.getElementById('filter-version');
+  if (!sel) return;
+  const versionsSet = [...new Set(Object.values(fleet).map(r => r.current_version))].sort();
+  const prev = sel.value;
+  sel.innerHTML = '<option value="all">All Versions</option>' + versionsSet.map(v => `<option value="${v}">v${v}</option>`).join('');
+  sel.value = versionsSet.includes(prev) ? prev : 'all';
+  fleetFilter.version = sel.value;
+}
+
+// ---- Robot detail drawer ----
+function trackFleetChanges(newFleet) {
+  if (!prevFleetSnapshot) { prevFleetSnapshot = JSON.parse(JSON.stringify(newFleet)); return; }
+  for (const [id, r] of Object.entries(newFleet)) {
+    const prev = prevFleetSnapshot[id];
+    if (!prev) {
+      pushTimeline(id, `Registered — v${r.current_version}`);
+    } else {
+      if (prev.status !== r.status) pushTimeline(id, r.status === 'online' ? 'Came online' : 'Went offline');
+      if (prev.update_status !== r.update_status) {
+        if (r.update_status === 'pending') pushTimeline(id, `Update queued → v${r.pending_version}`);
+        else if (r.update_status === 'triggered') pushTimeline(id, `Update triggered → v${r.pending_version}`);
+        else if (r.update_status === 'idle' && prev.update_status !== 'idle') pushTimeline(id, 'Update completed');
+      }
+      if (prev.current_version !== r.current_version) pushTimeline(id, `Firmware now v${r.current_version}`);
+    }
+  }
+  prevFleetSnapshot = JSON.parse(JSON.stringify(newFleet));
+}
+
+function pushTimeline(id, msg) {
+  if (!robotTimelines[id]) robotTimelines[id] = [];
+  robotTimelines[id].unshift({ time: new Date().toLocaleTimeString(), msg });
+  if (robotTimelines[id].length > 25) robotTimelines[id].pop();
+}
+
+function openDrawer(id) {
+  drawerRobotId = id;
+  renderDrawer(id);
+  document.getElementById('robot-drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('robot-drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+  drawerRobotId = null;
+}
+
+function renderDrawer(id) {
+  const r = fleet[id];
+  if (!r) { closeDrawer(); return; }
+  document.getElementById('drawer-name').textContent = r.name;
+  document.getElementById('drawer-model').textContent = `${r.model} · ${id}`;
+  const health = robotHealth(r);
+  const hm = healthMeta[health];
+  const firstSeen = new Date(r.first_seen);
+  const tenureDays = Math.max(0, Math.floor((Date.now() - firstSeen) / 86400000));
+  const timeline = robotTimelines[id] || [];
+  const att = findAttachmentForRobot(id);
+  const body = document.getElementById('drawer-body');
+  body.innerHTML = `
+    <div class="drawer-section" style="display:flex;gap:8px">
+      <span class="stat-badge" style="background:${hm.bg};color:${hm.fg}"><span class="status-dot" style="background:${hm.dot}"></span>${hm.label}</span>
+      ${statusBadge(r)}
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Identity</div>
+      <div class="drawer-stat-grid">
+        <div class="drawer-stat"><div class="drawer-stat-label">Serial</div><div class="drawer-stat-value" style="font-family:monospace">${r.serial || id}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">HW Rev</div><div class="drawer-stat-value">${r.hw_rev || '—'}</div></div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Firmware</div>
+      <div class="drawer-stat-grid">
+        <div class="drawer-stat"><div class="drawer-stat-label">Current Version</div><div class="drawer-stat-value">v${r.current_version}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">Target Version</div><div class="drawer-stat-value">${targetVersion ? 'v' + targetVersion : '—'}</div></div>
+      </div>
+    </div>
+    <div class="drawer-section">
+      <div class="drawer-section-title">Connectivity</div>
+      <div class="drawer-stat-grid">
+        <div class="drawer-stat"><div class="drawer-stat-label">Last Check-in</div><div class="drawer-stat-value">${timeAgo(r.last_seen)}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">Fleet Tenure</div><div class="drawer-stat-value">${tenureDays}d</div></div>
+      </div>
+    </div>
+    ${att ? `
+    <div class="drawer-section">
+      <div class="drawer-section-title">Attached Attachment</div>
+      <div class="drawer-stat-grid">
+        <div class="drawer-stat"><div class="drawer-stat-label">Type</div><div class="drawer-stat-value" style="font-family:inherit">${att.type}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">Serial</div><div class="drawer-stat-value" style="font-family:monospace">${att.serial}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">Firmware</div><div class="drawer-stat-value">v${att.current_version}</div></div>
+        <div class="drawer-stat"><div class="drawer-stat-label">Update State</div><div class="drawer-stat-value" style="font-family:inherit;text-transform:capitalize">${att.update_status}</div></div>
+      </div>
+    </div>` : ''}
+    <div class="drawer-section">
+      <div class="drawer-section-title">Session Timeline</div>
+      ${timeline.length ? timeline.map(e => `<div class="timeline-item"><span class="timeline-dot"></span><div><span class="timeline-time">${e.time}</span><br>${e.msg}</div></div>`).join('') : '<div class="empty">No events observed yet this session</div>'}
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center"
+      ${r.update_status !== 'idle' || r.status === 'offline' || !targetVersion || r.current_version === targetVersion ? 'disabled' : ''}
+      onclick="deploySingle('${id}')">
+      Push Update
+    </button>
+  `;
+}
+
+function renderStats() {
+  const robots = Object.values(fleet);
+  const total = robots.length;
+  const online = robots.filter(r => r.status === 'online').length;
+  const uptodate = targetVersion ? robots.filter(r => r.update_status === 'idle' && r.current_version === targetVersion).length : 0;
+  const pending = robots.filter(r => r.update_status === 'pending' || r.update_status === 'triggered').length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-online').textContent = online;
+  document.getElementById('stat-online-pct').textContent = total ? `${Math.round(online/total*100)}% of fleet` : '—';
+  document.getElementById('stat-uptodate').textContent = uptodate;
+  document.getElementById('stat-uptodate-pct').textContent = !targetVersion ? 'No target set' : (uptodate === total ? '100% current' : `${uptodate}/${total} current`);
+  document.getElementById('stat-updating').textContent = pending;
+  document.getElementById('fleet-count').textContent = `${total} robot${total === 1 ? '' : 's'} registered`;
+}
+
+function statusBadge(robot) {
+  const map = {
+    online: ['badge-green', 'dot-online', 'Online'],
+    offline: ['badge-gray', 'dot-offline', 'Offline'],
+  };
+  const [cls, dot, label] = map[robot.status] || ['badge-gray', 'dot-offline', robot.status];
+  return `<span class="stat-badge ${cls}"><span class="status-dot ${dot}"></span>${label}</span>`;
+}
+
+function updateCell(robot) {
+  if (robot.update_status === 'pending') {
+    return `<span class="stat-badge badge-yellow">Pending v${robot.pending_version}</span>`;
+  }
+  if (robot.update_status === 'triggered') {
+    return `<span class="stat-badge badge-blue"><span class="status-dot dot-updating"></span>Triggered v${robot.pending_version}</span>`;
+  }
+  if (!targetVersion) {
+    return `<span class="stat-badge badge-gray">No deployment yet</span>`;
+  }
+  if (robot.current_version !== targetVersion) {
+    return `<span class="stat-badge badge-yellow">Needs update</span>`;
+  }
+  return `<span class="stat-badge badge-green">Up to date</span>`;
+}
+
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso)) / 1000;
+  if (diff < 5) return 'just now';
+  if (diff < 60) return `${Math.floor(diff)}s ago`;
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  return `${Math.floor(diff/3600)}h ago`;
+}
+
+function renderFleet() {
+  const tbody = document.getElementById('fleet-tbody');
+  const robots = Object.entries(fleet);
+  if (!robots.length) {
+    const origin = location.origin;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">
+      No robots connected yet.<br>Run the client script on a device to see it appear here:
+      <br><code>python3 robot_client.py --server ${origin}</code>
+    </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = robots.map(([id, r]) => {
+    const att = findAttachmentForRobot(id);
+    return `
+    <tr class="robot-row">
+      <td>
+        <div class="robot-identity">
+          <div class="robot-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2a3 3 0 00-3 3v6h6V5a3 3 0 00-3-3z"/><circle cx="8.5" cy="16" r="1"/><circle cx="15.5" cy="16" r="1"/><path d="M12 11v2"/></svg>
+          </div>
+          <div>
+            <div class="robot-name">${r.name}</div>
+            <div class="robot-meta">${r.model}</div>
+            ${att ? `<div class="chip badge-gray" style="margin-top:3px">⚙ ${att.type} · ${att.serial}</div>` : ''}
+            <div class="robot-id">${id}</div>
+          </div>
+        </div>
+      </td>
+      <td>${statusBadge(r)}</td>
+      <td><span style="font-weight:600;font-family:monospace">v${r.current_version}</span></td>
+      <td style="min-width:160px">${updateCell(r)}</td>
+      <td style="font-size:12px;color:var(--text2)">${timeAgo(r.last_seen)}</td>
+      <td>
+        <button class="action-btn"
+          ${r.update_status !== 'idle' || r.status === 'offline' || !targetVersion || r.current_version === targetVersion ? 'disabled' : ''}
+          onclick="deploySingle('${id}')">
+          Update
+        </button>
+      </td>
+    </tr>
+  `;
+  }).join('');
+}
+
+function renderVersions() {
+  const sel = document.getElementById('deploy-version-select');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Select a version —</option>' +
+    versions.map(v => `<option value="${v.version}">${v.version}</option>`).join('');
+  if (prev) sel.value = prev;
+}
+
+function renderUploadsList() {
+  const el = document.getElementById('uploads-list');
+  if (!versions.length) { el.innerHTML = '<div class="empty">No firmware uploaded yet</div>'; return; }
+  el.innerHTML = versions.map(v => `
+    <div class="version-item">
+      <div>
+        <div class="version-name">v${v.version}</div>
+        <div class="version-meta">${(v.size/1024).toFixed(1)} KB · ${new Date(v.uploaded_at).toLocaleString()}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${v.version === targetVersion ? '<span class="stat-badge badge-orange">Target</span>' : ''}
+        <button class="action-btn" onclick="goDeployWith('${v.version}')">Deploy</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function goDeployWith(version) {
+  showSection('deploy');
+  setTimeout(() => { document.getElementById('deploy-version-select').value = version; }, 0);
+}
+
+function renderDeployPage() {
+  renderVersions();
+  renderDeployRobotList();
+  renderDeployStatus();
+  renderDeploySidebar();
+  renderAttachmentTypeOptions();
+  renderAttachmentVersionOptions();
+  renderDeployAttachmentList();
+  renderAttachmentTargetsList();
+  renderRolloutProgress();
+}
+
+// ---- Attachment deploy ----
+function renderAttachmentTypeOptions() {
+  const sel = document.getElementById('deploy-attachment-type');
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">— Select a type —</option>' +
+    ATTACHMENT_TYPES.map(t => `<option value="${t.code}">${t.name}</option>`).join('');
+  if (prev) sel.value = prev;
+}
+
+function renderAttachmentVersionOptions() {
+  const typeSel = document.getElementById('deploy-attachment-type');
+  const sel = document.getElementById('deploy-attachment-version');
+  if (!typeSel || !sel) return;
+  const type = typeSel.value;
+  if (!type) { sel.innerHTML = '<option value="">— Select a type first —</option>'; return; }
+  const prev = sel.value;
+  const opts = attachmentVersions.filter(v => v.type_code === type);
+  sel.innerHTML = '<option value="">— Select a version —</option>' +
+    opts.map(v => `<option value="${v.version}">${v.version}</option>`).join('');
+  if (opts.some(v => v.version === prev)) sel.value = prev;
+  const targetDisplay = document.getElementById('current-attachment-target-display');
+  if (targetDisplay) {
+    const target = attachmentTargets[type];
+    targetDisplay.textContent = target ? `${ATTACHMENT_TYPE_NAME[type]} v${target}` : 'none';
+  }
+}
+
+function renderDeployAttachmentList() {
+  const el = document.getElementById('deploy-attachment-list');
+  if (!el) return;
+  const type = document.getElementById('deploy-attachment-type').value;
+  if (!type) { el.innerHTML = '<div class="empty">Select an attachment type above</div>'; return; }
+  const entries = Object.values(attachments).filter(a => a.type_code === type);
+  if (!entries.length) { el.innerHTML = '<div class="empty">No attachments of this type</div>'; return; }
+  el.innerHTML = entries.map(a => {
+    const canUpdate = a.status !== 'offline' && a.update_status === 'idle';
+    const robot = a.attached_to ? fleet[a.attached_to] : null;
+    const where = a.attached_to ? (robot ? robot.name : a.attached_to) : 'In inventory';
+    return `<div class="deploy-target" style="${!canUpdate ? 'opacity:.5' : ''}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="achk-${a.serial}" ${canUpdate ? '' : 'disabled'} ${canUpdate ? 'checked' : ''}>
+        <label for="achk-${a.serial}" style="cursor:pointer">
+          <div style="font-weight:600;font-size:13px">${a.serial}</div>
+          <div style="font-size:11px;color:var(--text2)">${where} · v${a.current_version} · ${a.status}</div>
+        </label>
+      </div>
+      ${attachmentStatusBadge(a)}
+    </div>`;
+  }).join('');
+}
+
+function selectAllAttachments(val) {
+  document.querySelectorAll('[id^="achk-"]').forEach(cb => {
+    if (!cb.disabled) cb.checked = val;
+  });
+}
+
+function renderAttachmentTargetsList() {
+  const el = document.getElementById('attachment-targets-list');
+  if (!el) return;
+  const entries = Object.entries(attachmentTargets).filter(([, v]) => v);
+  if (!entries.length) { el.innerHTML = '<div class="empty">No targets set</div>'; return; }
+  el.innerHTML = entries.map(([code, v]) => `
+    <div class="version-item">
+      <div>
+        <div class="version-name">${ATTACHMENT_TYPE_NAME[code] || code}</div>
+        <div class="version-meta">Target firmware</div>
+      </div>
+      <span class="stat-badge badge-orange">v${v}</span>
+    </div>`).join('');
+}
+
+async function deployAttachmentUpdate() {
+  const type = document.getElementById('deploy-attachment-type').value;
+  const version = document.getElementById('deploy-attachment-version').value;
+  if (!type) { showToast('Select an attachment type', 'error'); return; }
+  if (!version) { showToast('Select a version to deploy', 'error'); return; }
+  const checked = [...document.querySelectorAll('[id^="achk-"]')]
+    .filter(cb => cb.checked && !cb.disabled)
+    .map(cb => cb.id.replace('achk-', ''));
+  if (!checked.length) { showToast('Select at least one attachment', 'error'); return; }
+  const res = await fetch('/deploy/attachment', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ version, type_code: type, attachment_ids: checked })
+  });
+  const data = await res.json();
+  // Prefer server-confirmed target ids for the rollout cohort; fall back to the UI selection.
+  const ids = (data && data.targets && data.targets.length) ? data.targets : checked;
+  const typeName = ATTACHMENT_TYPE_NAME[type] || type;
+  showToast(`Update v${version} queued for ${ids.length} ${typeName}(s)`, 'success');
+  addLog(`Attachment deployment queued: ${typeName} v${version} → ${ids.length} attachment(s)`);
+  rolloutTrackers.attachment = {
+    version, label: `${typeName}s`, typeCode: type,
+    targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null,
+  };
+  renderRolloutProgress();
+}
+
+// ---- Active Rollout progress card (§6.4) ----
+// Aggregates only — reads like it would with 2,000 robots, never per-device rows.
+// All numbers derived 100% from real fleet_update state.
+function formatElapsed(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const m = Math.floor(s / 60), sec = s % 60;
+  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function trackerSourceMap(kind) { return kind === 'robot' ? fleet : attachments; }
+
+// If a rollout is already in flight in server state but no tracker was started from a UI
+// click (e.g. page load mid-campaign), pick it up so the card still reflects reality.
+function autoDetectTracker(kind) {
+  if (rolloutTrackers[kind]) return;
+  const source = trackerSourceMap(kind);
+  const inflight = Object.entries(source).filter(([, x]) => x.update_status === 'pending' || x.update_status === 'triggered');
+  if (!inflight.length) return;
+  const counts = {};
+  inflight.forEach(([, x]) => { counts[x.pending_version] = (counts[x.pending_version] || 0) + 1; });
+  const version = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  const ids = Object.entries(source).filter(([, x]) => x.pending_version === version || x.current_version === version).map(([id]) => id);
+  let label = kind === 'robot' ? 'robots' : 'attachments';
+  if (kind === 'attachment') {
+    const typeCode = inflight[0][1].type_code;
+    label = `${ATTACHMENT_TYPE_NAME[typeCode] || typeCode}s`;
+  }
+  rolloutTrackers[kind] = { version, label, targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null };
+}
+
+function computeTrackerStats(kind) {
+  const t = rolloutTrackers[kind];
+  if (!t) return null;
+  const source = trackerSourceMap(kind);
+  const ids = [...t.targetIds];
+  const total = ids.length;
+  let updated = 0, inProgress = 0;
+  ids.forEach(id => {
+    const item = source[id];
+    if (!item) return;
+    if (item.current_version === t.version && item.update_status === 'idle') updated++;
+    else if (item.update_status === 'pending' || item.update_status === 'triggered') inProgress++;
+  });
+  return { total, updated, inProgress, pct: total ? Math.round((updated / total) * 100) : 0 };
+}
+
+function renderRolloutProgress() {
+  const card = document.getElementById('rollout-progress-card');
+  const body = document.getElementById('rollout-progress-body');
+  if (!card || !body) return;
+
+  autoDetectTracker('robot');
+  autoDetectTracker('attachment');
+
+  const blocks = [];
+  ['robot', 'attachment'].forEach(kind => {
+    const t = rolloutTrackers[kind];
+    if (!t) return;
+    const stats = computeTrackerStats(kind);
+    if (!stats || !stats.total) return;
+
+    if (stats.updated === stats.total && !t.completed) {
+      t.completed = true;
+      t.collapseAt = Date.now() + 10000;
+      showToast(`Rollout complete — ${stats.total} ${t.label} on v${t.version}`, 'success');
+      addLog(`Rollout complete: ${stats.total} ${t.label} on v${t.version}`);
+    }
+
+    if (t.completed && t.collapseAt && Date.now() > t.collapseAt) {
+      blocks.push(`<div class="setting-row" style="border:none;padding:6px 0">
+        <div>
+          <div class="setting-row-label" style="font-weight:600">v${t.version} rollout complete</div>
+          <div class="setting-row-desc">${stats.total} ${t.label} updated</div>
+        </div>
+        <span class="stat-badge badge-green">Done</span>
+      </div>`);
+      return;
+    }
+
+    const barColor = t.completed ? 'linear-gradient(90deg,var(--green),#15803d)' : 'linear-gradient(90deg,var(--orange),var(--orange-dark))';
+    const elapsed = formatElapsed(Date.now() - t.startedAt);
+    blocks.push(`
+      <div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+          <div style="font-weight:700;font-size:14px">${t.completed ? 'Rollout complete' : 'Rolling out'} v${t.version}</div>
+          <div style="font-family:monospace;font-size:12px;color:var(--text2)">${elapsed}</div>
+        </div>
+        <div class="chart-bar-track" style="height:10px;margin-bottom:10px">
+          <div class="chart-bar-fill" style="width:${stats.pct}%;background:${barColor}"></div>
+        </div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text2)">
+          <span>Updated <strong style="color:var(--text)">${stats.updated} / ${stats.total}</strong> ${t.label}</span>
+          <span>In progress: <strong style="color:var(--text)">${stats.inProgress}</strong></span>
+        </div>
+      </div>`);
+  });
+
+  if (!blocks.length) { card.style.display = 'none'; body.innerHTML = ''; return; }
+  card.style.display = '';
+  body.innerHTML = blocks.join('<div class="divider"></div>');
+}
+
+function renderDeployRobotList() {
+  const el = document.getElementById('deploy-robot-list');
+  const entries = Object.entries(fleet);
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">No robots connected yet</div>';
+    return;
+  }
+  el.innerHTML = entries.map(([id, r]) => {
+    const canUpdate = r.status !== 'offline' && r.update_status === 'idle';
+    return `<div class="deploy-target" style="${!canUpdate ? 'opacity:.5' : ''}">
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" id="chk-${id}" ${canUpdate ? '' : 'disabled'} ${canUpdate ? 'checked' : ''}>
+        <label for="chk-${id}" style="cursor:pointer">
+          <div style="font-weight:600;font-size:13px">${r.name}</div>
+          <div style="font-size:11px;color:var(--text2)">${id} · v${r.current_version} · ${r.status}</div>
+        </label>
+      </div>
+      ${statusBadge(r)}
+    </div>`;
+  }).join('');
+}
+
+function renderDeployStatus() {
+  const el = document.getElementById('deploy-status-list');
+  const activeRobots = Object.entries(fleet).filter(([,r]) => r.update_status !== 'idle');
+  const activeAttachments = Object.values(attachments).filter(a => a.update_status !== 'idle');
+  if (!activeRobots.length && !activeAttachments.length) { el.innerHTML = '<div class="empty">No pending deployments</div>'; return; }
+  const robotRows = activeRobots.map(([id, r]) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div>
+        <div style="font-weight:600;font-size:13px">${r.name}</div>
+        <div style="font-size:11px;color:var(--text2)">→ v${r.pending_version}</div>
+      </div>
+      <span class="stat-badge ${r.update_status === 'triggered' ? 'badge-blue' : 'badge-yellow'}">${r.update_status}</span>
+    </div>
+  `).join('');
+  const attachmentRows = activeAttachments.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div>
+        <div style="font-weight:600;font-size:13px">${a.type} · ${a.serial}</div>
+        <div style="font-size:11px;color:var(--text2)">→ v${a.pending_version}</div>
+      </div>
+      <span class="stat-badge ${a.update_status === 'triggered' ? 'badge-blue' : 'badge-yellow'}">${a.update_status}</span>
+    </div>
+  `).join('');
+  el.innerHTML = robotRows + attachmentRows;
+}
+
+function renderDeploySidebar() {
+  const el = document.getElementById('deploy-versions-sidebar');
+  if (!versions.length) { el.innerHTML = '<div class="empty">No firmware uploaded yet<br><a onclick="showSection(\'uploads\')" style="color:var(--orange);cursor:pointer">Upload firmware →</a></div>'; return; }
+  el.innerHTML = versions.map(v => `
+    <div class="version-item">
+      <div>
+        <div class="version-name">v${v.version}</div>
+        <div class="version-meta">${(v.size/1024).toFixed(1)} KB</div>
+      </div>
+      ${v.version === targetVersion ? '<span class="stat-badge badge-orange">Target</span>' : ''}
+    </div>
+  `).join('');
+}
+
+// ---- Actions ----
+async function uploadFile() {
+  const file = document.getElementById('fileInput').files[0];
+  const version = document.getElementById('versionInput').value.trim();
+  if (!file) { showToast('Please select a file', 'error'); return; }
+  if (!version) { showToast('Please enter a version number', 'error'); return; }
+  const formData = new FormData();
+  formData.append('file', file);
+  showToast(`Uploading v${version}...`, 'info');
+  const res = await fetch(`/upload?version=${version}`, { method: 'POST', body: formData });
+  if (res.ok) {
+    showToast(`v${version} uploaded successfully`, 'success');
+    addLog(`Uploaded firmware v${version}`);
+    document.getElementById('versionInput').value = '';
+    document.getElementById('file-name').textContent = '';
+  } else {
+    showToast('Upload failed', 'error');
+  }
+}
+
+async function deployUpdate() {
+  const version = document.getElementById('deploy-version-select').value;
+  if (!version) { showToast('Select a version to deploy', 'error'); return; }
+  const checked = [...document.querySelectorAll('[id^="chk-"]')]
+    .filter(cb => cb.checked && !cb.disabled)
+    .map(cb => cb.id.replace('chk-', ''));
+  if (!checked.length) { showToast('Select at least one robot', 'error'); return; }
+  const res = await fetch('/deploy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ version, robot_ids: checked })
+  });
+  const data = await res.json();
+  // Prefer server-confirmed target ids for the rollout cohort; fall back to the UI selection.
+  const ids = (data && data.targets && data.targets.length) ? data.targets : checked;
+  showToast(`Update v${version} queued for ${ids.length} robot(s)`, 'success');
+  addLog(`Deployment queued: v${version} → ${ids.length} robot(s)`);
+  rolloutTrackers.robot = {
+    version, label: 'robots',
+    targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null,
+  };
+  renderRolloutProgress();
+}
+
+async function deploySingle(robotId) {
+  if (!targetVersion) { showToast('Deploy a version to the fleet first', 'error'); return; }
+  const res = await fetch('/deploy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ version: targetVersion, robot_ids: [robotId] })
+  });
+  const data = await res.json();
+  if (data.targets.length) {
+    showToast(`Update queued for ${fleet[robotId]?.name}`, 'info');
+    addLog(`Manual update queued: ${fleet[robotId]?.name}`);
+  } else {
+    showToast('Robot already up to date or unavailable', 'error');
+  }
+}
+
+async function clearDatabase() {
+  if (!confirm('This will remove all registered robots and reset the fleet. Continue?')) return;
+  await fetch('/api/clear', { method: 'POST' });
+}
+
+function selectAllRobots(val) {
+  document.querySelectorAll('[id^="chk-"]').forEach(cb => {
+    if (!cb.disabled) cb.checked = val;
+  });
+}
+
+function refreshFleet() {
+  fetch('/api/fleet').then(r => r.json()).then(data => {
+    fleet = data.robots || {};
+    attachments = data.attachments || {};
+    renderFleet();
+    renderStats();
+    showToast('Fleet refreshed', 'info');
+  });
+}
+
+// ---- Upload UX ----
+function fileSelected(input) {
+  if (input.files[0]) {
+    document.getElementById('file-name').textContent = input.files[0].name;
+    const match = input.files[0].name.match(/[\d]+\.[\d]+\.[\d]+/);
+    if (match) document.getElementById('versionInput').value = match[0];
+  }
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    document.getElementById('fileInput').files = dt.files;
+    fileSelected(document.getElementById('fileInput'));
+  }
+}
+
+// ---- Activity log ----
+function addLog(msg) {
+  activityLog.unshift({ time: new Date().toLocaleTimeString(), msg });
+  if (activityLog.length > 50) activityLog.pop();
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById('activity-log');
+  if (!activityLog.length) { el.innerHTML = '<div class="empty">No activity yet</div>'; return; }
+  el.innerHTML = activityLog.map(e =>
+    `<div class="log-entry"><span class="log-time">${e.time}</span><span class="log-msg">${e.msg}</span></div>`
+  ).join('');
+}
+
+function clearLog() { activityLog = []; renderActivityLog(); }
+
+// ---- Toast ----
+function showToast(msg, kind = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${kind}`;
+  const icons = {
+    success: '✓', error: '✕', info: 'ℹ'
+  };
+  el.innerHTML = `<span style="font-size:16px">${icons[kind]||'ℹ'}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ---- Init ----
+connectWS();
+
+// Refresh time-ago labels every 15s
+setInterval(() => {
+  if (Object.keys(fleet).length) renderFleet();
+}, 15000);
+
+// Tick the Active Rollout elapsed-time display every second while a rollout is tracked.
+setInterval(() => {
+  if (rolloutTrackers.robot || rolloutTrackers.attachment) renderRolloutProgress();
+}, 1000);
+</script>
+</body>
+</html>

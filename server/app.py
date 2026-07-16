@@ -113,6 +113,7 @@ class DemoStageRequest(BaseModel):
     title: str
     section: str
     caption: str
+    tempo: Optional[str] = None
 
 # --- Helpers ---
 
@@ -276,6 +277,7 @@ async def demo_stage(req: DemoStageRequest):
         "title": req.title,
         "section": req.section,
         "caption": req.caption,
+        "tempo": req.tempo,
     })
     return {"status": "ok"}
 

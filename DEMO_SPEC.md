@@ -229,3 +229,68 @@ Real dashboards don't toast every device event. Total toasts in the 2:30 video �
 - Don't break `client/robot_client.py` — it must still register (it becomes a
   13th ad-hoc robot if run).
 - All timestamps ISO, same as today. Keep the 20s online threshold.
+
+## 8. SHORT MODE — 15-second feature reel
+
+A second simulator mode for recording a ~15.5s feature-showcase clip instead
+of the full ~2:30 demo. Same fleet, same real API traffic, same six acts —
+just staged back-to-back instead of spread over 2:30.
+
+### 8.1 CLI
+`python3 fleet_simulator.py --server http://localhost:8000 --short`
+`--short` is mutually exclusive with `--fast` (the simulator errors out via
+`parser.error` if both are passed — there's no meaningful "fast + short"
+combination).
+
+### 8.2 `tempo` field on `/api/demo/stage`
+- `DemoStageRequest` gains an optional `tempo: str | None = None` field.
+- The server's `/api/demo/stage` handler broadcasts it unchanged:
+  `demo_stage` WS messages now carry `"tempo": <value>` (`"short"` or `null`).
+- The simulator's `stage()` includes `"tempo": "short"` in the POST body only
+  when `--short` is active; it's omitted (→ `null` on the wire) otherwise, so
+  the normal ~2:30 timeline is unaffected.
+- **Frontend contract**: the dashboard selects the fast choreography variant
+  and runs the virtual cursor at ~0.4× normal physics (shorter move/pause
+  durations) whenever `demo_stage.tempo === "short"`. This lets one cursor
+  engine drive both timelines from the same `demo_stage` messages, keyed
+  purely off `tempo`.
+
+### 8.3 Compressed timings
+Two module-level tunables replace the previously-hardcoded ranges, applied to
+**both** `RobotAgent` and `AttachmentAgent` (`_loop` heartbeat interval and
+`_install` duration):
+
+| Tunable | Normal | `--short` |
+|---|---|---|
+| Heartbeat interval | 4–6s | 0.8–1.4s |
+| Install duration | 6–10s | 1.0–1.8s |
+
+Installs are still purely reactive inside the heartbeat threads regardless of
+mode — the simulator never calls `/deploy` or `/deploy/attachment` itself,
+short mode included.
+
+### 8.4 Short timeline (`run_demo_short`, ~15.5s total)
+After `upload_firmware_catalog()` and fleet build, the simulator prints a
+"START RECORDING NOW" banner with a 3-2-1 countdown (1s apart) — a 15s clip
+has no slack for the operator to react, so recording must already be rolling
+before Act 1 fires.
+
+| Act | ~t | Section | What the simulator does |
+|-----|-----|---------|--------------------------|
+| 1 "Fleet comes online" | 0.0s | fleet | Same job list as the normal Act 1 (11 robots + their attachments + non-held-back inventory attachments), staggered over ~2.0s total instead of ~12s. |
+| 2 "Zero-touch provisioning" | 2.6s | devices | Robot 12 registers, ~0.3–0.5s gap, then leaf collector `AT-LC-2026-00002` registers. |
+| 3 "Robot OTA rollout" | 5.2s | deploy | Stage post only — operator cursor pushes v1.3.1. |
+| 4 "Attachment OTA" | 8.6s | deploy | Stage post only — operator cursor pushes Lawn Mower v2.4.1. |
+| 5 "Remote diagnostics" | 11.8s | remoteops | Stage post only. Caption is about remote commands (dispatched/acked/executed), not "going quiet" — see 8.5. |
+| 6 "The data flywheel" | 14.2s | flywheel | Stage post, then a closing banner: short timeline complete (~15s), heartbeats continue until Ctrl+C. |
+
+Console act banners/logs are kept in short mode too — they're used for
+picture-in-picture terminal shots just like the full demo.
+
+### 8.5 Short mode skips the offline window
+The normal Act 5 pauses `CR-2026-00009`'s heartbeats for ~24s to cross the
+20s `ONLINE_THRESHOLD_SECONDS` and show the offline→recovery toast. That
+cannot fit inside a 15s clip, so short mode's Act 5 does **not** pause any
+robot's heartbeats — the dashboard's self-test command history (sent → acked
+→ executed) is the visual instead, driven by the frontend's own choreography
+for that stage.

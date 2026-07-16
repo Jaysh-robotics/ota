@@ -75,3 +75,38 @@ progress bars, and the activity log — like a real dashboard.
 - After the timeline ends the simulator keeps heartbeating so you can linger on
   any section; robots stay green until you Ctrl+C.
 - Re-record anytime: Ctrl+C simulator → Clear Database in the dashboard → rerun.
+
+## 15-second short cut
+
+For a ~15s feature-showcase clip instead of the full demo, use `--short`. It
+plays the same six acts with the same real API traffic, just staged
+back-to-back (see DEMO_SPEC.md §8 for the exact timeline and timings).
+
+1. Click **Clear Database** in the dashboard (same as any re-record).
+2. Start your screen recorder on the browser window.
+3. Run:
+
+```bash
+# Terminal 2
+python3 fleet_simulator.py --server http://localhost:8000 --short
+```
+
+4. The simulator prints a "START RECORDING NOW" banner followed by a 3-2-1
+   countdown (1s apart) before Act 1 fires — a 15s clip has no slack, so make
+   sure recording is already rolling by the time the countdown starts, and
+   use the countdown itself as your cue for when Act 1 begins on screen.
+5. Do nothing else. The six acts land at roughly t=0.0 / 2.6 / 5.2 / 8.6 /
+   11.8 / 14.2s. Stop recording ~2s after the flywheel appears (~16–17s total
+   recording). Ctrl+C the simulator when done.
+
+Notes specific to short mode:
+- `--short` and `--fast` are mutually exclusive — the simulator errors out if
+  you pass both.
+- Heartbeat and install timings are compressed (0.8–1.4s heartbeats, 1.0–1.8s
+  installs) so a full OTA install cycle is still visible on screen in the
+  short window.
+- Short mode never triggers the Chorerobot-00009 offline/recovery beat — the
+  20s offline threshold can't fit in a 15s clip, so Act 5's visual is the
+  self-test command history instead.
+- Re-record flow is the same as the main runbook: Ctrl+C simulator → Clear
+  Database in the dashboard → rerun.

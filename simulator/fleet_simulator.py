@@ -20,11 +20,17 @@ non-zero (see the threading.excepthook override below, which is what makes a
 background-thread failure crash the demo instead of dying silently).
 
 Usage:
-    python3 fleet_simulator.py --server http://localhost:8000 [--fast]
+    python3 fleet_simulator.py --server http://localhost:8000 [--fast | --short]
 
 --fast divides every sleep by 4 (for quick pipeline testing; it will NOT
 look like a polished demo — it's for verifying the simulator drives the API
 correctly, not for recording).
+
+--short runs a compressed ~15.5s feature-reel timeline instead of the full
+~2:30 demo (see DEMO_SPEC.md §8) — same six acts, same API traffic, just
+staged back-to-back for a short-form clip. Heartbeat and install timings are
+also compressed in this mode so a full install cycle fits on screen.
+Mutually exclusive with --fast.
 """
 import argparse
 import io
@@ -41,6 +47,13 @@ import requests
 # --- Globals set by main() before any agent/thread is created ---
 SERVER = "http://localhost:8000"
 DIV = 1  # sleep divisor; becomes 4 under --fast
+SHORT = False  # becomes True under --short (mutually exclusive with --fast)
+
+# Heartbeat interval and install-duration ranges (seconds). Compressed under
+# --short so a full check-in/install cycle still fits inside a ~15s clip.
+# Applies to both RobotAgent and AttachmentAgent (_loop and _install).
+HEARTBEAT_INTERVAL_RANGE = (4, 6)
+INSTALL_DURATION_RANGE = (6, 10)
 
 TIMEOUT = 10
 
@@ -95,7 +108,10 @@ def api_get(path: str, params: dict) -> dict:
 
 
 def stage(n: int, title: str, section: str, caption: str):
-    api_post("/api/demo/stage", {"stage": n, "title": title, "section": section, "caption": caption})
+    payload = {"stage": n, "title": title, "section": section, "caption": caption}
+    if SHORT:
+        payload["tempo"] = "short"
+    api_post("/api/demo/stage", payload)
     act_banner(n, title)
     log(f"» {caption}")
 
@@ -216,7 +232,7 @@ class RobotAgent:
         while True:
             if not self.paused.is_set():
                 self._check_in()
-            wait_range(4, 6)
+            wait_range(*HEARTBEAT_INTERVAL_RANGE)
 
     def _check_in(self):
         data = api_get("/api/robot/check", {"robot_id": self.robot_id, "version": self.version})
@@ -226,7 +242,7 @@ class RobotAgent:
     def _install(self, target: str):
         api_post("/api/robot/ack", {"robot_id": self.robot_id, "status": "triggered"})
         log(f"  ⚡ {self.name} received OTA trigger -> installing v{target}")
-        wait_range(6, 10)
+        wait_range(*INSTALL_DURATION_RANGE)
         api_post("/api/robot/ack", {"robot_id": self.robot_id, "status": "idle", "version": target})
         self.version = target
         log(f"  ✓ {self.name} now running v{target}")
@@ -263,7 +279,7 @@ class AttachmentAgent:
     def _loop(self):
         while True:
             self._check_in()
-            wait_range(4, 6)
+            wait_range(*HEARTBEAT_INTERVAL_RANGE)
 
     def _check_in(self):
         data = api_get("/api/attachment/check", {"attachment_id": self.attachment_id, "version": self.version})
@@ -273,7 +289,7 @@ class AttachmentAgent:
     def _install(self, target: str):
         api_post("/api/attachment/ack", {"attachment_id": self.attachment_id, "status": "triggered"})
         log(f"  ⚡ {self.type_name} {self.serial} received OTA trigger -> installing v{target}")
-        wait_range(6, 10)
+        wait_range(*INSTALL_DURATION_RANGE)
         api_post("/api/attachment/ack", {"attachment_id": self.attachment_id, "status": "idle", "version": target})
         self.version = target
         log(f"  ✓ {self.type_name} {self.serial} now running v{target}")
@@ -412,28 +428,148 @@ def run_demo(robots: dict, attachments: list):
     print("=" * 72)
 
 
+# --- Short-mode acts (DEMO_SPEC.md §8) ---------------------------------------
+# Same six acts, same API traffic as the full demo — just staged back-to-back
+# for a ~15.5s feature-reel clip instead of ~2:30. Acts 3, 4 and 6 have no
+# internal timing of their own in the normal timeline either (stage post +
+# log only), so act3_robot_ota/act4_attachment_ota/act6_data_flywheel are
+# reused as-is below; only the acts with internal waits get short variants.
+
+def act1_fleet_online_short(robots: dict, attachments: list):
+    stage(1, "Fleet comes online", "fleet",
+          "11 robots and their attachments come online in real time")
+
+    held_back = {12}
+    held_back_attachment = "AT-LC-2026-00002"
+
+    # Same job list as act1_fleet_online: every robot except #12 (held back
+    # for Act 2) plus its attached attachments, plus inventory attachments
+    # not held back for Act 2.
+    jobs = []
+    for num in sorted(robots.keys()):
+        if num in held_back:
+            continue
+        jobs.append(("robot", robots[num]))
+        for att in attachments:
+            if att.attached_robot_num == num:
+                jobs.append(("attachment", att))
+    for att in attachments:
+        if att.attached_to is None and att.serial != held_back_attachment:
+            jobs.append(("attachment", att))
+
+    # Staggered over ~2.0s total instead of ~12s so the whole fleet lands
+    # in-frame inside a 15s clip.
+    per_item = 2.0 / max(len(jobs), 1)
+    for kind, obj in jobs:
+        obj.register()
+        obj.start_heartbeat()
+        wait_range(per_item * 0.6, per_item * 1.4)
+
+    log(f"Act 1 complete — {len(robots) - 1} robots and {len(attachments) - 1} attachments live.")
+
+
+def act2_zero_touch_short(robots: dict, attachments: list):
+    stage(2, "Zero-touch provisioning", "devices",
+          "A brand new robot registers itself and its attachment with zero manual setup")
+
+    robot12 = robots[12]
+    robot12.register()
+    robot12.start_heartbeat()
+    wait_range(0.3, 0.5)
+
+    leaf_collector = next(a for a in attachments if a.serial == "AT-LC-2026-00002")
+    leaf_collector.register()
+    leaf_collector.start_heartbeat()
+
+    log("Act 2 complete — Chorerobot-00012 is live with its Leaf Collector attached.")
+
+
+def act5_remote_diagnostics_short():
+    stage(5, "Remote diagnostics", "remoteops",
+          "Remote commands reach the fleet instantly — self-test dispatched, acked, executed")
+    log("Standing by — short mode skips the offline/recovery window (the 20s offline "
+        "threshold can't fit in a 15s clip); the self-test command history is the visual.")
+
+
+def run_demo_short(robots: dict, attachments: list):
+    """~15.5s feature-reel timeline (DEMO_SPEC.md §8). Act schedule (t = seconds
+    from the start of Act 1, after the countdown):
+      Act 1 fleet     t=0.0
+      Act 2 devices   t=2.6
+      Act 3 deploy    t=5.2
+      Act 4 deploy    t=8.6
+      Act 5 remoteops t=11.8
+      Act 6 flywheel  t=14.2
+    """
+    print()
+    print("=" * 72)
+    print("  START RECORDING NOW")
+    print("=" * 72)
+    for n in (3, 2, 1):
+        print(f"  {n}...", flush=True)
+        wait(1)
+
+    act1_fleet_online_short(robots, attachments)   # t=0.0 (~2.0s internal)
+    wait(0.6)                                       # land Act 2 at t≈2.6
+
+    act2_zero_touch_short(robots, attachments)      # t≈2.6 (~0.3-0.5s internal)
+    wait(2.2)                                       # land Act 3 at t≈5.2
+
+    act3_robot_ota(robots)                          # t≈5.2 (stage post only)
+    wait(3.4)                                        # land Act 4 at t≈8.6
+
+    act4_attachment_ota(attachments)                # t≈8.6 (stage post only)
+    wait(3.2)                                        # land Act 5 at t≈11.8
+
+    act5_remote_diagnostics_short()                 # t≈11.8 (stage post only)
+    wait(2.4)                                        # land Act 6 at t≈14.2
+
+    act6_data_flywheel()                            # t≈14.2 (stage post only)
+    wait(1.3)                                        # settle before closing banner
+
+    print()
+    print("=" * 72)
+    log("Short timeline complete (~15s). Heartbeats continue so the dashboard stays live.")
+    log("Press Ctrl+C to stop the simulator.")
+    print("=" * 72)
+
+
 def main():
-    global SERVER, DIV
+    global SERVER, DIV, SHORT, HEARTBEAT_INTERVAL_RANGE, INSTALL_DURATION_RANGE
 
     parser = argparse.ArgumentParser(description="Chore Robotics fleet simulator")
     parser.add_argument("--server", default="http://localhost:8000", help="OTA server base URL")
     parser.add_argument("--fast", action="store_true", help="divide all sleeps by 4 (for testing, not recording)")
+    parser.add_argument("--short", action="store_true",
+                         help="run the ~15.5s feature-reel timeline instead of the full ~2:30 demo "
+                              "(for a short-form clip); mutually exclusive with --fast")
     args = parser.parse_args()
+
+    if args.short and args.fast:
+        parser.error("--short and --fast cannot be combined")
 
     SERVER = args.server.rstrip("/")
     DIV = 4 if args.fast else 1
+    SHORT = args.short
+    if SHORT:
+        HEARTBEAT_INTERVAL_RANGE = (0.8, 1.4)
+        INSTALL_DURATION_RANGE = (1.0, 1.8)
 
+    mode = "FAST (testing)" if args.fast else "SHORT (15s feature reel)" if SHORT else "DEMO (real-time)"
     print("=" * 72)
     print("  CHORE ROBOTICS FLEET SIMULATOR")
     print(f"  Server : {SERVER}")
-    print(f"  Mode   : {'FAST (testing)' if args.fast else 'DEMO (real-time)'}")
+    print(f"  Mode   : {mode}")
     print("=" * 72)
 
     upload_firmware_catalog()
     robots, attachments = build_fleet()
 
     try:
-        run_demo(robots, attachments)
+        if SHORT:
+            run_demo_short(robots, attachments)
+        else:
+            run_demo(robots, attachments)
         while True:
             time.sleep(1)
     except KeyboardInterrupt:

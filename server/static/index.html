@@ -1779,7 +1779,16 @@ function handleMessage(msg) {
 const cursorState = { x: 60, y: 60, visible: false };
 let cursorFadeTimer = null;
 
+// Tempo factor for the 15s "short" demo (msg.tempo === 'short' sets this to 0.4
+// in handleDemoStage before the stage is enqueued). 1 = normal, unscaled pace.
+let vcTempo = 1;
+
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+// Scales a duration by the active tempo factor, with a floor so nothing collapses
+// to ~0ms. Explicit {pause: N} step values are NEVER passed through this — those
+// numbers belong to the choreography tables, not the engine.
+function vcScale(ms, floor = 60) { return Math.max(floor, ms * vcTempo); }
 
 function ensureCursorVisible() {
   clearTimeout(cursorFadeTimer);
@@ -1822,7 +1831,7 @@ function cursorMoveTo(targetX, targetY) {
   const startX = cursorState.x, startY = cursorState.y;
   const dist = Math.hypot(targetX - startX, targetY - startY);
   if (dist < 2) { setCursorPos(targetX, targetY); return Promise.resolve(); }
-  const duration = Math.min(1200, Math.max(600, dist * 2.2));
+  const duration = vcScale(Math.min(1200, Math.max(600, dist * 2.2)), 150);
   const dx = targetX - startX, dy = targetY - startY;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len; // perpendicular unit vector
@@ -1923,7 +1932,7 @@ async function runCursorSteps(steps) {
         el.classList.add('vc-hover');
         // Follow the element while hovering: live registrations re-render and
         // grow the table, shifting rows under a stationary cursor.
-        const dur = step.duration || 700;
+        const dur = step.duration || vcScale(700, 150);
         const t0 = performanceNow();
         while (performanceNow() - t0 < dur) {
           await sleep(140);
@@ -1937,7 +1946,7 @@ async function runCursorSteps(steps) {
       } else if (step.click) {
         const el = await travelTo(step.click);
         if (!el) { console.warn('[demo-cursor] click: selector not found —', step.click); continue; }
-        await sleep(150 + Math.random() * 250);
+        await sleep(vcScale(150 + Math.random() * 250));
         // Re-resolve right before clicking: live re-renders (fleet_update) can
         // detach or shift the node we measured. Snap to the fresh position so
         // the ripple lands exactly where the click happens.
@@ -1964,7 +1973,7 @@ async function runCursorSteps(steps) {
 async function animateSelect(selector, value) {
   const el = await travelTo(selector);
   if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); return; }
-  await sleep(150 + Math.random() * 200);
+  await sleep(vcScale(150 + Math.random() * 200));
   await cursorClickEffect();
   const live = resolveTarget(selector) || el;
   const rect = live.getBoundingClientRect();
@@ -1984,14 +1993,14 @@ async function animateSelect(selector, value) {
   panel.style.maxHeight = '240px';
   panel.style.top = (rect.bottom + 4 + panelH < window.innerHeight ? rect.bottom + 4 : Math.max(8, rect.top - panelH - 4)) + 'px';
   document.body.appendChild(panel);
-  await sleep(380);
+  await sleep(vcScale(380));
   if (targetRow) {
     const c = elCenter(targetRow);
     await cursorMoveTo(c.x, c.y);
     targetRow.classList.add('vc-opt-hover');
-    await sleep(280);
+    await sleep(vcScale(280));
     await cursorClickEffect();
-    await sleep(120);
+    await sleep(vcScale(120));
   } else {
     console.warn('[demo-cursor] selectValue: option not present —', selector, value);
   }
@@ -2080,16 +2089,84 @@ const CHOREOGRAPHY = {
   ],
 };
 
+// ---- Choreography, "short" tempo (15s clip) ----
+// Same step language as CHOREOGRAPHY, compressed to fit acts arriving at roughly
+// t = 0 / 2.6 / 5.2 / 8.6 / 11.8 / 14.2s. vcTempo (0.4 while this table is active)
+// already shrinks every move/select/hover-default internally, so the {pause: N}
+// values here only need to be small on their own terms — no drawer opens (no time
+// for a 3s linger), and every act ends on its next camera position rather than
+// resting mid-thought.
+const CHOREOGRAPHY_SHORT = {
+  // 1. Fleet Overview while robots register rapidly: brief pause, glance at the
+  //    online counter, short hover of a fleet row. No drawer.
+  1: [
+    { pause: 300 },
+    { move: '#stat-online' },
+    { hover: '#fleet-tbody tr.robot-row:nth-child(1)' },
+  ],
+  // 2. Device Registry: nav, short pause, scroll to Attachment Registry, brief
+  //    hover of a row. No drawer.
+  2: [
+    { click: '#nav-devices' },
+    { pause: 150 },
+    { scrollTo: '#attachments-table' },
+    { hover: '#attachments-tbody tr:nth-child(1)' },
+  ],
+  // 3. Deploy Updates: nav, pick version, select all, push — scroll up to the
+  //    Active Rollout progress bar for a short hold.
+  3: [
+    { click: '#nav-deploy' },
+    { selectValue: ['#deploy-version-select', '1.3.1'] },
+    { click: '#select-all-robots-btn' },
+    { click: '#deploy-btn' },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 300 },
+  ],
+  // 4. Attachment OTA: pick type + version, select all, push — back up to the
+  //    progress bar for a short hold.
+  4: [
+    { selectValue: ['#deploy-attachment-type', 'LM'] },
+    { selectValue: ['#deploy-attachment-version', '2.4.1'] },
+    { click: '#select-all-attachments-btn' },
+    { click: '#deploy-attachment-btn' },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 200 },
+  ],
+  // 5. Remote Operations: pick the robot, run self-test, then rest on Command
+  //    History long enough for the (also scaled) acked → executed transition
+  //    to land on camera.
+  5: [
+    { click: '#nav-remoteops' },
+    { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
+    { click: '#self-test-btn' },
+    { move: '#command-history' },
+    { pause: 500 },
+  ],
+  // 6. Data Flywheel: nav, settle on the graphic, hold ~1.2s. The stage-6 hook
+  //    in handleDemoStage shortens the post-demo fade to match.
+  6: [
+    { click: '#nav-flywheel' },
+    { move: '#flywheel-wrap svg' },
+    { pause: 1200 },
+  ],
+};
+
 let choreoQueue = Promise.resolve();
 function handleDemoStage(msg) {
   const stage = msg.stage;
-  const steps = CHOREOGRAPHY[stage];
+  const isShort = msg.tempo === 'short';
+  vcTempo = isShort ? 0.4 : 1;
+  let steps = isShort ? CHOREOGRAPHY_SHORT[stage] : CHOREOGRAPHY[stage];
+  if (!steps && isShort) {
+    console.warn('[demo-cursor] no short choreography for stage', stage, '— falling back to normal table');
+    steps = CHOREOGRAPHY[stage];
+  }
   if (!steps) { console.warn('[demo-cursor] no choreography registered for stage', stage); return; }
   // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
   // the cursor always finishes what it's doing before starting the next act.
   choreoQueue = choreoQueue
     .then(() => runCursorSteps(steps))
-    .then(() => { if (stage === 6) scheduleCursorFade(3000); })
+    .then(() => { if (stage === 6) scheduleCursorFade(isShort ? 1200 : 3000); })
     .catch(err => console.warn('[demo-cursor] choreography error on stage', stage, err));
 }
 
@@ -2393,8 +2470,13 @@ function sendCommand(cmd) {
   renderCommandHistory();
   // No toast here — the Command History panel already shows sent → acked → executed.
   addLog(`Remote command "${cmd}" sent to ${r.name}`);
-  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, 900);
-  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, 1900);
+  // vcScale reads vcTempo synchronously, right here — so the delay below is fixed
+  // at call time and a later tempo change can't retroactively alter a transition
+  // that's already been scheduled.
+  const ackedMs = vcScale(900, 100);
+  const executedMs = vcScale(1900, 150);
+  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, ackedMs);
+  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, executedMs);
 }
 
 function renderCommandHistory() {

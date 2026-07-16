@@ -49,12 +49,12 @@ it during recording — the virtual cursor is doing the driving.
 
 | Time | Scene | Section shown | What happens |
 |------|-------|---------------|--------------|
-| 0:00 | Fleet comes online | Fleet Overview | 11 robots (Chorerobot-00001…00011, serials CR-2026-…) + attachments register live; stats and charts fill in while the cursor hovers rows. |
+| 0:00 | Fleet comes online | Fleet Overview | Simulator uploads the firmware catalog, then 11 robots (Chorerobot-00001…00011, serials CR-2026-…) + attachments register live; stats and charts fill in while the cursor hovers rows. |
 | 0:25 | Zero-touch provisioning | Device Registry | Cursor opens the registry; Chorerobot-00012 registers itself with its Leaf Collector; cursor scrolls to the Attachment Registry and opens a robot drawer. |
-| 0:45 | Robot OTA rollout | Deploy Updates | Cursor selects v1.3.1 → "Select All Available" → "Push Update to Fleet". Active Rollout card shows a live progress bar: "Updated N / 11 robots". |
-| 1:25 | Attachment OTA | Deploy Updates | Cursor picks Lawn Mower + v2.4.1 and pushes — progress bar again: "Updated N / 4 Lawn Mowers". |
-| 1:50 | Remote diagnostics | Remote Operations | Cursor targets Chorerobot-00009 and runs a Self-Test (sent → acked → executed in Command History). 00009 also goes briefly silent and recovers with a single alert toast. |
-| 2:10 | The data flywheel | Data Flywheel | Closing shot: animated flywheel with live counters; cursor fades out. |
+| 0:45 | Robot OTA rollout | Deploy Updates | Cursor opens the version dropdown, picks v1.3.1 → "Select All Available" → "Push Update to Fleet", then scrolls up to the Active Rollout progress bar for ~3s. |
+| 1:03 | Attachment OTA | Deploy Updates | Cursor moves down to the attachment card, picks Lawn Mower + v2.4.1, pushes — then back up to the progress bar for ~3s. |
+| 1:19 | Remote diagnostics | Remote Operations | Cursor targets Chorerobot-00009, runs a Self-Test, then rests on Command History while sent → acked → executed plays out. 00009 also goes briefly silent and recovers with one alert toast. |
+| ~1:55 | Flywheel + closing | Data Flywheel → Fleet Overview | ~3s on the animated flywheel, then the cursor returns to the main dashboard and fades out. Total ≈ 2:05. |
 
 Total toasts on screen for the whole video: ~4 (two deploy confirmations, rollout
 complete, one recovery alert). Everything else surfaces through stats, tables,

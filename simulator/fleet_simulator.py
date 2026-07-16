@@ -27,9 +27,11 @@ look like a polished demo — it's for verifying the simulator drives the API
 correctly, not for recording).
 """
 import argparse
+import io
 import os
 import random
 import sys
+import tarfile
 import threading
 import time
 import traceback
@@ -96,6 +98,42 @@ def stage(n: int, title: str, section: str, caption: str):
     api_post("/api/demo/stage", {"stage": n, "title": title, "section": section, "caption": caption})
     act_banner(n, title)
     log(f"» {caption}")
+
+
+# --- Firmware catalog upload -------------------------------------------------
+# The dashboard's "Firmware Version to Deploy" dropdown only lists packages
+# that actually exist on the server, and Act 3's cursor choreography selects
+# v1.3.1 — so the catalog must be uploaded before the demo starts. Real
+# multipart uploads through the real /upload endpoint; raises on any failure.
+
+ROBOT_FIRMWARE_VERSIONS = ["1.2.4", "1.3.0", "1.3.1"]
+
+
+def make_firmware_blob(version: str) -> bytes:
+    """A genuine .tar.gz with a firmware payload inside. Size is deterministic
+    per version (~5 MB) so the dashboard shows realistic package sizes."""
+    size = 4_600_000 + int(version.replace(".", "")) * 3_000
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        payload = os.urandom(size)  # incompressible → archive stays ~size
+        info = tarfile.TarInfo(name=f"chorebot_firmware_{version}.bin")
+        info.size = len(payload)
+        tar.addfile(info, io.BytesIO(payload))
+    return buf.getvalue()
+
+
+def upload_firmware_catalog():
+    log("Uploading robot firmware catalog to the OTA server...")
+    for v in ROBOT_FIRMWARE_VERSIONS:
+        blob = make_firmware_blob(v)
+        resp = requests.post(
+            f"{SERVER}/upload",
+            params={"version": v},
+            files={"file": (f"update_{v}.tar.gz", blob, "application/gzip")},
+            timeout=60,
+        )
+        resp.raise_for_status()
+        log(f"  ✓ update_{v}.tar.gz uploaded ({len(blob) // 1024} KB)")
 
 
 # --- Fleet definition (serials/names per DEMO_SPEC.md §1) ---
@@ -358,10 +396,10 @@ def run_demo(robots: dict, attachments: list):
     wait(17)  # land near the 0:45 mark
 
     act3_robot_ota(robots)
-    wait(40)  # land near the 1:25 mark; gives the rollout time to finish in the background
+    wait(18)  # deploy click + 2-3s on the progress bar, then straight to attachments
 
     act4_attachment_ota(attachments)
-    wait(25)  # land near the 1:50 mark
+    wait(16)  # attachment push + progress beat, then on to diagnostics
 
     act5_remote_diagnostics(robots)
 
@@ -391,6 +429,7 @@ def main():
     print(f"  Mode   : {'FAST (testing)' if args.fast else 'DEMO (real-time)'}")
     print("=" * 72)
 
+    upload_firmware_catalog()
     robots, attachments = build_fleet()
 
     try:

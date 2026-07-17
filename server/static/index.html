@@ -2635,20 +2635,6 @@ function fwPackets(path, n, dur) {
   return s;
 }
 
-function fwNeuralIcon() {
-  const l1 = [118, 148, 178].map(y => [722, y]);
-  const l2 = [103, 133, 163, 193].map(y => [775, y]);
-  const l3 = [133, 163].map(y => [828, y]);
-  let links = '';
-  l1.forEach(a => l2.forEach(b => { links += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }));
-  l2.forEach(a => l3.forEach(b => { links += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`; }));
-  const dot = (p, r, fill) => `<circle cx="${p[0]}" cy="${p[1]}" r="${r}" fill="${fill}" stroke="#fff" stroke-width="1.5"/>`;
-  return `<g stroke="var(--orange)" stroke-width="1.4" opacity=".25">${links}</g>
-    ${l1.map(p => dot(p, 6, 'var(--orange)')).join('')}
-    ${l2.map(p => dot(p, 6, 'var(--orange)')).join('')}
-    ${l3.map(p => dot(p, 7, 'var(--orange-dark)')).join('')}`;
-}
-
 function buildFlywheelScene() {
   const spokes = [0, 120, 240].map(a => `
     <g transform="rotate(${a})" stroke="var(--orange)" stroke-width="3" fill="none" opacity=".45">
@@ -2704,12 +2690,8 @@ function buildFlywheelScene() {
 
       <!-- path labels -->
       <text class="fw-path-label" x="360" y="250" text-anchor="start">experience from every robot</text>
-      <text class="fw-path-label" x="140" y="364" text-anchor="middle">improvements sent back</text>
-      <text class="fw-path-label" x="140" y="380" text-anchor="middle">automatically</text>
-      <text class="fw-path-label" x="140" y="398" text-anchor="middle"><tspan id="fw-v-updates" fill="var(--orange-dark)" font-weight="700"></tspan></text>
-      <text class="fw-path-label" x="600" y="270" text-anchor="start">fleet at a glance</text>
-      <text class="fw-path-label" x="505" y="526" text-anchor="middle">watch &amp; control in real time</text>
-      <text class="fw-path-label" x="628" y="90" text-anchor="middle">lessons in</text>
+      <text class="fw-path-label" x="140" y="372" text-anchor="middle">improvements sent back</text>
+      <text class="fw-path-label" x="140" y="390" text-anchor="middle"><tspan id="fw-v-updates" fill="var(--orange-dark)" font-weight="700"></tspan></text>
       <text class="fw-path-label" x="626" y="212" text-anchor="middle">smarter software out</text>
 
       <!-- CLOUD: ingest + data lake -->
@@ -2719,7 +2701,6 @@ function buildFlywheelScene() {
               stroke-width="2.5" vector-effect="non-scaling-stroke"
               style="filter:drop-shadow(0 6px 14px rgba(247,148,29,.18))"/>
         <text class="fw-station-label" x="449" y="36" text-anchor="middle">Chore Robotics Cloud</text>
-        <text class="fw-station-sub" x="449" y="113" text-anchor="middle">every robot's experience, collected</text>
         <g transform="translate(358,143)" fill="none" stroke="var(--orange)" stroke-width="1.4" opacity=".55">
           <path d="M -9 -6 L -9 6 A 9 3 0 0 0 9 6 L 9 -6"/>
           <ellipse cx="0" cy="-6" rx="9" ry="3"/>
@@ -2727,9 +2708,8 @@ function buildFlywheelScene() {
         </g>
         <rect class="fw-pill" x="372" y="123" width="154" height="52" rx="14" style="filter:drop-shadow(0 3px 8px rgba(247,148,29,.15))"/>
         <text class="fw-counter" x="449" y="149" text-anchor="middle" id="fw-v-rate">0</text>
-        <text class="fw-counter-sub" x="449" y="165" text-anchor="middle">field updates per second</text>
+        <text class="fw-counter-sub" x="449" y="165" text-anchor="middle">field updates / sec</text>
       </g>
-      <text class="fw-path-label" x="449" y="222" text-anchor="middle" id="fw-v-faults"></text>
 
       <!-- MODEL: fleet learning chip (cloud-only, no direct link to the robot) -->
       <g class="fw-node-pulse">
@@ -2741,10 +2721,8 @@ function buildFlywheelScene() {
           <line x1="870" y1="114" x2="880" y2="114"/><line x1="870" y1="151" x2="880" y2="151"/>
           <line x1="870" y1="189" x2="880" y2="189"/><line x1="870" y1="226" x2="880" y2="226"/>
         </g>
-        ${fwNeuralIcon()}
-        <text class="fw-station-label" x="785" y="223" text-anchor="middle">Fleet Learning</text>
+        <text class="fw-station-label" x="785" y="176" text-anchor="middle">Fleet Learning</text>
       </g>
-      <text class="fw-station-sub" x="785" y="265" text-anchor="middle">turns experience into upgrades</text>
       <rect class="fw-pill" x="702" y="280" width="166" height="50" rx="14" style="filter:drop-shadow(0 3px 8px rgba(247,148,29,.15))"/>
       <text class="fw-counter" x="785" y="308" text-anchor="middle" id="fw-v-builds">0</text>
       <text class="fw-counter-sub" x="785" y="324" text-anchor="middle">upgrades released</text>
@@ -2809,7 +2787,6 @@ function renderFlywheel() {
 
   const robotsOnline = robots.filter(r => r.status === 'online').length;
   const telemetryRate = robots.length * 4;
-  const faultsTracked = FAULT_CODES.reduce((s, f) => s + f.count, 0);
   const versionsShipped = versions.length + attachmentVersions.length;
   const robotsOnTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
   const attachmentsOnTarget = atts.filter(a => attachmentTargets[a.type_code] && a.current_version === attachmentTargets[a.type_code]).length;
@@ -2819,7 +2796,6 @@ function renderFlywheel() {
 
   document.getElementById('fw-v-robots').textContent = robotsOnline;
   document.getElementById('fw-v-rate').textContent = telemetryRate;
-  document.getElementById('fw-v-faults').textContent = `${faultsTracked} real-world lessons captured`;
   document.getElementById('fw-v-builds').textContent = versionsShipped;
   document.getElementById('fw-v-updates').textContent = `${updatesDelivered} delivered to the fleet`;
 }

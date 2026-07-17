@@ -577,12 +577,13 @@
   .fw-flow { fill: none; stroke: var(--orange); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 2 14; animation: fwFlow 1.4s linear infinite; }
   .fw-flow-return { stroke: var(--orange-dark); animation-duration: 1.8s; }
   @keyframes fwFlow { to { stroke-dashoffset: -16; } }
-  .fw-station-label { font-size: 15px; font-weight: 800; fill: var(--text); }
-  .fw-station-sub { font-size: 10.5px; font-weight: 600; fill: var(--text2); letter-spacing: .02em; }
-  .fw-counter { font-size: 26px; font-weight: 800; fill: var(--orange-dark); }
-  .fw-counter-sub { font-size: 9.5px; font-weight: 700; fill: var(--text3); letter-spacing: .06em; text-transform: uppercase; }
-  .fw-path-label { font-size: 11px; font-weight: 700; fill: var(--text2); }
-  .fw-tagline { font-size: 13px; font-weight: 700; fill: var(--text2); }
+  #fw-scene text { font-family: 'Avenir Next', 'Helvetica Neue', -apple-system, 'Segoe UI', sans-serif; }
+  .fw-station-label { font-size: 16px; font-weight: 600; fill: var(--text); letter-spacing: .01em; }
+  .fw-station-sub { font-size: 11px; font-weight: 500; fill: var(--text2); letter-spacing: .02em; }
+  .fw-counter { font-size: 26px; font-weight: 700; fill: var(--orange-dark); letter-spacing: .01em; }
+  .fw-counter-sub { font-size: 9.5px; font-weight: 600; fill: var(--text3); letter-spacing: .08em; text-transform: uppercase; }
+  .fw-path-label { font-size: 11.5px; font-weight: 500; fill: var(--text2); letter-spacing: .015em; }
+  .fw-tagline { font-size: 13.5px; font-weight: 600; fill: var(--text2); letter-spacing: .02em; }
   .fw-particle { fill: var(--orange); }
   .fw-packet { fill: var(--orange-dark); }
   .fw-node-pulse { animation: fwPulse 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
@@ -1566,7 +1567,7 @@
         <div class="card-header">
           <div>
             <div class="card-title">The Data Flywheel</div>
-            <div class="card-subtitle">Field data streams to the cloud and trains the models — improvements ship back over the air. Live counters, fed from real fleet state</div>
+            <div class="card-subtitle">Every robot working in the field makes the whole fleet smarter — lessons flow in, improvements flow back automatically. Live numbers from the real fleet</div>
           </div>
         </div>
         <div class="card-body" style="display:flex;justify-content:center;padding:24px 20px 12px">
@@ -2019,7 +2020,7 @@ const titles = {
   automation: ['Automation', 'Rules, feature flags, and A/B cohorts'],
   access: ['Access & Audit', 'Users, roles, and the audit trail'],
   enterprise: ['Enterprise & Ecosystem', 'B2B portal, partners, and integrations'],
-  flywheel: ['Data Flywheel', 'Telemetry in, better robots out'],
+  flywheel: ['Data Flywheel', 'Every robot makes the fleet smarter'],
   activity: ['Activity Log', 'System events and update history'],
 };
 
@@ -2656,7 +2657,7 @@ function buildFlywheelScene() {
     </g>`).join('');
   return `
     <svg id="fw-scene" viewBox="0 0 920 700" width="100%" style="display:block" role="img"
-         aria-label="Data flywheel: robots and the operator's phone stream telemetry to the cloud, the cloud trains the fleet-learning model and ships firmware back to the robot, and the phone monitors and controls the fleet directly">
+         aria-label="Data flywheel: robots in the field share their experience with the cloud, the cloud learns from it and sends improvements back automatically, and the fleet app lets operators watch and control everything in real time">
       <defs>
         <linearGradient id="fwNodeGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="#ffffff"/>
@@ -2702,13 +2703,14 @@ function buildFlywheelScene() {
       <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange-dark)" transform="translate(562,158) rotate(207)"/>
 
       <!-- path labels -->
-      <text class="fw-path-label" x="360" y="250" text-anchor="start">telemetry · faults · usage</text>
-      <text class="fw-path-label" x="140" y="378" text-anchor="middle">OTA firmware updates</text>
-      <text class="fw-path-label" x="140" y="394" text-anchor="middle"><tspan id="fw-v-updates" fill="var(--orange-dark)" font-weight="800"></tspan></text>
-      <text class="fw-path-label" x="600" y="270" text-anchor="start">fleet status</text>
-      <text class="fw-path-label" x="505" y="526" text-anchor="middle">live status · control commands</text>
-      <text class="fw-path-label" x="628" y="90" text-anchor="middle">training data</text>
-      <text class="fw-path-label" x="626" y="212" text-anchor="middle">improved models</text>
+      <text class="fw-path-label" x="360" y="250" text-anchor="start">experience from every robot</text>
+      <text class="fw-path-label" x="140" y="364" text-anchor="middle">improvements sent back</text>
+      <text class="fw-path-label" x="140" y="380" text-anchor="middle">automatically</text>
+      <text class="fw-path-label" x="140" y="398" text-anchor="middle"><tspan id="fw-v-updates" fill="var(--orange-dark)" font-weight="700"></tspan></text>
+      <text class="fw-path-label" x="600" y="270" text-anchor="start">fleet at a glance</text>
+      <text class="fw-path-label" x="505" y="526" text-anchor="middle">watch &amp; control in real time</text>
+      <text class="fw-path-label" x="628" y="90" text-anchor="middle">lessons in</text>
+      <text class="fw-path-label" x="626" y="212" text-anchor="middle">smarter software out</text>
 
       <!-- CLOUD: ingest + data lake -->
       <g class="fw-node-pulse">
@@ -2717,7 +2719,7 @@ function buildFlywheelScene() {
               stroke-width="2.5" vector-effect="non-scaling-stroke"
               style="filter:drop-shadow(0 6px 14px rgba(247,148,29,.18))"/>
         <text class="fw-station-label" x="449" y="36" text-anchor="middle">Chore Robotics Cloud</text>
-        <text class="fw-station-sub" x="449" y="113" text-anchor="middle">telemetry ingest · fleet data lake</text>
+        <text class="fw-station-sub" x="449" y="113" text-anchor="middle">every robot's experience, collected</text>
         <g transform="translate(358,143)" fill="none" stroke="var(--orange)" stroke-width="1.4" opacity=".55">
           <path d="M -9 -6 L -9 6 A 9 3 0 0 0 9 6 L 9 -6"/>
           <ellipse cx="0" cy="-6" rx="9" ry="3"/>
@@ -2725,7 +2727,7 @@ function buildFlywheelScene() {
         </g>
         <rect class="fw-pill" x="372" y="123" width="154" height="52" rx="14" style="filter:drop-shadow(0 3px 8px rgba(247,148,29,.15))"/>
         <text class="fw-counter" x="449" y="149" text-anchor="middle" id="fw-v-rate">0</text>
-        <text class="fw-counter-sub" x="449" y="165" text-anchor="middle">data points / sec</text>
+        <text class="fw-counter-sub" x="449" y="165" text-anchor="middle">field updates per second</text>
       </g>
       <text class="fw-path-label" x="449" y="222" text-anchor="middle" id="fw-v-faults"></text>
 
@@ -2742,10 +2744,10 @@ function buildFlywheelScene() {
         ${fwNeuralIcon()}
         <text class="fw-station-label" x="785" y="223" text-anchor="middle">Fleet Learning</text>
       </g>
-      <text class="fw-station-sub" x="785" y="265" text-anchor="middle">model training · firmware builds</text>
+      <text class="fw-station-sub" x="785" y="265" text-anchor="middle">turns experience into upgrades</text>
       <rect class="fw-pill" x="702" y="280" width="166" height="50" rx="14" style="filter:drop-shadow(0 3px 8px rgba(247,148,29,.15))"/>
       <text class="fw-counter" x="785" y="308" text-anchor="middle" id="fw-v-builds">0</text>
-      <text class="fw-counter-sub" x="785" y="324" text-anchor="middle">firmware builds shipped</text>
+      <text class="fw-counter-sub" x="785" y="324" text-anchor="middle">upgrades released</text>
 
       <!-- ROBOT: the actual product shot, on the ground, transmitting -->
       <ellipse cx="200" cy="585" rx="120" ry="10" fill="#000" opacity=".08"/>
@@ -2817,7 +2819,7 @@ function renderFlywheel() {
 
   document.getElementById('fw-v-robots').textContent = robotsOnline;
   document.getElementById('fw-v-rate').textContent = telemetryRate;
-  document.getElementById('fw-v-faults').textContent = `${faultsTracked} fault signatures feeding the models`;
+  document.getElementById('fw-v-faults').textContent = `${faultsTracked} real-world lessons captured`;
   document.getElementById('fw-v-builds').textContent = versionsShipped;
   document.getElementById('fw-v-updates').textContent = `${updatesDelivered} delivered to the fleet`;
 }

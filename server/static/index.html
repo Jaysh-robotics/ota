@@ -572,6 +572,40 @@
   @keyframes vcRipple { from { transform: scale(.3); opacity: .9; } to { transform: scale(3.4); opacity: 0; } }
   .vc-hover td { background: var(--bg) !important; }
 
+  /* ---------- Cursor-attached caption bubble ----------
+     A small tooltip that travels with the virtual cursor (see handleDemoStage /
+     showDemoCaptionOverlay). It's a CHILD of #virtual-cursor, positioned via
+     absolute offset from the pointer tip — so it moves with every cursor move
+     and inherits #virtual-cursor's own opacity fade in/out for free (that
+     element's opacity is toggled via inline style in ensureCursorVisible /
+     scheduleCursorFade; opacity applies to the whole subtree, so no separate
+     show/hide transition is needed here). pointer-events:none so it never
+     interferes with the cursor's real clicks. */
+  #vc-caption {
+    position: absolute;
+    left: 22px;
+    top: 26px;
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    align-items: stretch;
+    max-width: 230px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    white-space: normal;
+  }
+  /* Flip to the cursor's left edge near the right side of the viewport, so the
+     bubble never overflows off-screen (toggled in setCursorPos). */
+  #virtual-cursor.vc-flip #vc-caption { left: auto; right: 22px; }
+  #vc-caption.vc-caption-swap { opacity: 0; transition: opacity .12s ease; }
+  .vc-caption-accent { width: 3px; flex-shrink: 0; background: var(--orange); }
+  .vc-caption-body { padding: 8px 12px; min-width: 0; }
+  .vc-caption-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.35; }
+  .vc-caption-line { font-size: 11px; font-weight: 500; color: var(--text2); line-height: 1.35; margin-top: 2px; }
+
   /* ---------- Data Flywheel ---------- */
   .fw-track { fill: none; stroke: var(--orange); stroke-width: 2.5; opacity: .18; }
   .fw-flow { fill: none; stroke: var(--orange); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 2 14; animation: fwFlow 1.4s linear infinite; }
@@ -1610,11 +1644,21 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- Virtual cursor (demo choreography) -->
+<!-- Virtual cursor (demo choreography), with its caption bubble as a child so
+     it travels and fades with the cursor for free -->
 <div id="virtual-cursor">
   <svg width="22" height="22" viewBox="0 0 24 24">
     <path d="M4 2 L4 20 L9 16 L12 22.5 L15.2 21 L12.2 14.5 L19 14.2 Z" fill="#111827" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
   </svg>
+  <!-- Caption bubble — shown for every demo run; see handleDemoStage /
+       showDemoCaptionOverlay. -->
+  <div id="vc-caption" aria-hidden="true">
+    <div class="vc-caption-accent"></div>
+    <div class="vc-caption-body">
+      <div class="vc-caption-title" id="vc-caption-title"></div>
+      <div class="vc-caption-line" id="vc-caption-line"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1801,10 +1845,56 @@ function scheduleCursorFade(delayMs) {
   }, delayMs);
 }
 
+// ---- Cursor-attached caption bubble ----
+// Small tooltip riding the virtual cursor, shown for every demo run (normal
+// and short tempo alike — this branch has no tempo field on demo_stage
+// payloads at all, so there's nothing to gate on). Because #vc-caption is a
+// child of #virtual-cursor, its on-screen visibility is entirely inherited
+// from that element's own opacity fade (see ensureCursorVisible /
+// scheduleCursorFade) — this module only needs to manage the bubble's TEXT
+// crossfade between acts, not a separate show/hide transition.
+const CAPTION_SWAP_MS = 130; // half of the #vc-caption 120ms swap transition + a hair of slack
+let captionShown = false; // whether the bubble already holds content this run
+
+function showDemoCaptionOverlay(title, caption) {
+  const bubble = document.getElementById('vc-caption');
+  if (!bubble) return;
+  const applyContent = () => {
+    document.getElementById('vc-caption-title').textContent = title || '';
+    document.getElementById('vc-caption-line').textContent = caption || '';
+  };
+  if (!captionShown) {
+    // First appearance this run: set the content directly — no crossfade
+    // needed since there's nothing on screen yet to swap from.
+    applyContent();
+    captionShown = true;
+  } else {
+    // Quick crossfade rather than stacking a second element: fade the bubble
+    // out, swap its text while invisible, fade it back in.
+    bubble.classList.add('vc-caption-swap');
+    setTimeout(() => {
+      applyContent();
+      bubble.classList.remove('vc-caption-swap');
+    }, CAPTION_SWAP_MS);
+  }
+}
+
+// Resets the crossfade state for the next run. No opacity/timer work needed
+// here — the bubble fades out for free when scheduleCursorFade drops
+// #virtual-cursor's opacity, since #vc-caption is its child.
+function hideDemoCaptionOverlay() {
+  captionShown = false;
+}
+
 function setCursorPos(x, y) {
   cursorState.x = x; cursorState.y = y;
   const el = document.getElementById('virtual-cursor');
-  if (el) el.style.transform = `translate(${x - 2}px, ${y - 2}px)`;
+  if (el) {
+    el.style.transform = `translate(${x - 2}px, ${y - 2}px)`;
+    // Flip the caption bubble to the cursor's left once it's within ~260px
+    // of the right edge, so it never overflows off-screen.
+    el.classList.toggle('vc-flip', x > window.innerWidth - 260);
+  }
 }
 
 function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -1988,13 +2078,24 @@ const CHOREOGRAPHY = {
 let choreoQueue = Promise.resolve();
 function handleDemoStage(msg) {
   const stage = msg.stage;
+  // Cursor-attached caption bubble — shown for every demo run, no tempo gate
+  // (this branch's demo_stage payloads don't carry a tempo field at all).
+  showDemoCaptionOverlay(msg.title, msg.caption);
   const steps = CHOREOGRAPHY[stage];
   if (!steps) { console.warn('[demo-cursor] no choreography registered for stage', stage); return; }
   // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
   // the cursor always finishes what it's doing before starting the next act.
   choreoQueue = choreoQueue
     .then(() => runCursorSteps(steps))
-    .then(() => { if (stage === 6) scheduleCursorFade(3000); })
+    .then(() => {
+      if (stage === 6) {
+        // Bubble is a child of #virtual-cursor, so it fades out for free
+        // together with the cursor here; just reset the crossfade state so
+        // the next run's first caption applies instantly instead of swapping.
+        scheduleCursorFade(3000);
+        hideDemoCaptionOverlay();
+      }
+    })
     .catch(err => console.warn('[demo-cursor] choreography error on stage', stage, err));
 }
 
@@ -2688,7 +2789,7 @@ function buildFlywheelScene() {
       <!-- path labels -->
       <text class="fw-path-label" x="298" y="285" text-anchor="start">experience</text>
       <text class="fw-path-label" x="298" y="301" text-anchor="start">from every robot</text>
-      <text class="fw-path-label" x="158" y="372" text-anchor="middle">improvements</text>
+      <text class="fw-path-label" x="158" y="372" text-anchor="middle" style="fill:var(--orange-dark);font-weight:600">OTA updates</text>
       <text class="fw-path-label" x="158" y="388" text-anchor="middle">sent back automatically</text>
       <text class="fw-path-label" x="626" y="204" text-anchor="middle">smarter software out</text>
 

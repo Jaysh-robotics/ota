@@ -596,7 +596,7 @@
     pointer-events: none;
     display: flex;
     align-items: stretch;
-    max-width: 320px;
+    max-width: 440px;
     background: #fff;
     border: 1.5px solid var(--orange);
     border-radius: 10px;
@@ -1770,6 +1770,38 @@ function connectWS() {
   ws.onclose = () => setTimeout(connectWS, 2000);
 }
 
+// Coalesces bursts of fleet_update messages (11+ robots heartbeating every
+// ~1s in --short mode can fire several per frame) into a single render pass
+// per animation frame. Without this, every message tore down and rebuilt the
+// whole fleet table/stats/charts synchronously, faster than the browser could
+// paint — visible as flicker rather than smooth, incremental updates. `fleet`
+// is already updated synchronously above; this only debounces the expensive
+// DOM work, so the render always reflects the latest state, just at most
+// once per frame.
+let fleetRenderScheduled = false;
+function scheduleFleetRender() {
+  if (fleetRenderScheduled) return;
+  fleetRenderScheduled = true;
+  requestAnimationFrame(() => {
+    fleetRenderScheduled = false;
+    renderFleet();
+    renderDeployStatus();
+    renderStats();
+    renderCharts();
+    renderVersionFilterOptions();
+    if (drawerRobotId) renderDrawer(drawerRobotId);
+    if (document.getElementById('section-deploy').style.display !== 'none') {
+      renderDeployRobotList();
+      renderDeployAttachmentList();
+      renderAttachmentTargetsList();
+    }
+    if (document.getElementById('section-flywheel').style.display !== 'none') {
+      renderFlywheel();
+    }
+    renderRolloutProgress();
+  });
+}
+
 function handleMessage(msg) {
   if (msg.type === 'init') {
     const robots = (msg.fleet && msg.fleet.robots) || {};
@@ -1788,21 +1820,7 @@ function handleMessage(msg) {
     trackFleetChanges(robots);
     fleet = robots;
     attachments = msg.fleet.attachments || {};
-    renderFleet();
-    renderDeployStatus();
-    renderStats();
-    renderCharts();
-    renderVersionFilterOptions();
-    if (drawerRobotId) renderDrawer(drawerRobotId);
-    if (document.getElementById('section-deploy').style.display !== 'none') {
-      renderDeployRobotList();
-      renderDeployAttachmentList();
-      renderAttachmentTargetsList();
-    }
-    if (document.getElementById('section-flywheel').style.display !== 'none') {
-      renderFlywheel();
-    }
-    renderRolloutProgress();
+    scheduleFleetRender();
   } else if (msg.type === 'versions_update') {
     versions = msg.versions;
     renderVersions();
@@ -1911,7 +1929,7 @@ function setCursorPos(x, y) {
     el.style.transform = `translate(${x - 3.7}px, ${y - 1.8}px)`;
     // Flip the caption bubble to the cursor's left once it's within ~260px
     // of the right edge, so it never overflows off-screen.
-    el.classList.toggle('vc-flip', x > window.innerWidth - 260);
+    el.classList.toggle('vc-flip', x > window.innerWidth - 480);
   }
 }
 

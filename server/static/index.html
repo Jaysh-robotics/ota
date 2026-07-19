@@ -2193,50 +2193,35 @@ const CHOREOGRAPHY = {
 // for a 3s linger), and every act ends on its next camera position rather than
 // resting mid-thought.
 const CHOREOGRAPHY_SHORT = {
-  // 1. Fleet Overview while robots register rapidly: brief pause, glance at the
-  //    online counter, short hover of a fleet row. No drawer.
+  // 1. Fleet Overview: settle once on the live stat, hold ~4s without drifting
+  //    around the page.
   1: [
-    { pause: 300 },
     { move: '#stat-online' },
-    { hover: '#fleet-tbody tr.robot-row:nth-child(1)' },
+    { pause: 4000 },
   ],
-  // 2. Device Registry: nav, short pause, scroll to Attachment Registry, brief
-  //    hover of a row. No drawer.
-  2: [
-    { click: '#nav-devices' },
-    { pause: 150 },
-    { scrollTo: '#attachments-table' },
-    { hover: '#attachments-tbody tr:nth-child(1)' },
-  ],
-  // 3. Deploy Updates: nav, pick version, select all, push — scroll up to the
-  //    Active Rollout progress bar for a short hold.
+  // 2. Device Registry — not part of this cut; empty steps means the cursor
+  //    simply stays put (queued behind stage 1's hold) instead of navigating away.
+  2: [],
+  // 3. Robot OTA only: pick version, select all, push — scroll up to the Active
+  //    Rollout progress bar and hold on it.
   3: [
     { click: '#nav-deploy' },
     { selectValue: ['#deploy-version-select', '1.3.1'] },
     { click: '#select-all-robots-btn' },
     { click: '#deploy-btn' },
     { scrollTo: '#rollout-progress-card' },
-    { pause: 300 },
+    { pause: 1200 },
   ],
-  // 4. Attachment OTA: pick type + version, select all, push — back up to the
-  //    progress bar for a short hold.
-  4: [
-    { selectValue: ['#deploy-attachment-type', 'LM'] },
-    { selectValue: ['#deploy-attachment-version', '2.4.1'] },
-    { click: '#select-all-attachments-btn' },
-    { click: '#deploy-attachment-btn' },
-    { scrollTo: '#rollout-progress-card' },
-    { pause: 200 },
-  ],
-  // 5. Remote Operations: pick the robot, run self-test, then rest on Command
-  //    History long enough for the (also scaled) acked → executed transition
-  //    to land on camera.
+  // 4. Attachment OTA — skipped in this cut (robot-only), so it never fires and
+  //    attachment firmware is left untouched.
+  4: [],
+  // 5. Remote Operations: pick the robot, run self-test, hold ~3s before moving
+  //    on to the flywheel.
   5: [
     { click: '#nav-remoteops' },
     { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
     { click: '#self-test-btn' },
-    { move: '#command-history' },
-    { pause: 500 },
+    { pause: 3000 },
   ],
   // 6. Data Flywheel: nav, settle on the graphic, hold ~1.2s. The stage-6 hook
   //    in handleDemoStage shortens the post-demo fade to match.
@@ -2252,8 +2237,6 @@ function handleDemoStage(msg) {
   const stage = msg.stage;
   const isShort = msg.tempo === 'short';
   vcTempo = isShort ? 0.4 : 1;
-  // Cursor-attached caption bubble — shown for every demo run, both tempos alike.
-  showDemoCaptionOverlay(msg.title, msg.caption);
   let steps = isShort ? CHOREOGRAPHY_SHORT[stage] : CHOREOGRAPHY[stage];
   if (!steps && isShort) {
     console.warn('[demo-cursor] no short choreography for stage', stage, '— falling back to normal table');
@@ -2263,7 +2246,17 @@ function handleDemoStage(msg) {
   // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
   // the cursor always finishes what it's doing before starting the next act.
   choreoQueue = choreoQueue
-    .then(() => runCursorSteps(steps))
+    .then(() => {
+      // Caption text is applied HERE, not synchronously in handleDemoStage — it
+      // must land exactly when this stage's steps actually start, not whenever
+      // the WS message arrives. In --short mode stages fire every ~2.6s, faster
+      // than a backed-up choreoQueue can drain, so an eagerly-set caption could
+      // describe a page the cursor hasn't navigated to yet (stage N's text over
+      // stage N-1's still-running movement). Queuing it keeps caption and cursor
+      // in lockstep regardless of how far behind the queue gets.
+      showDemoCaptionOverlay(msg.title, msg.caption);
+      return runCursorSteps(steps);
+    })
     .then(() => {
       if (stage === 6) {
         // Bubble is a child of #virtual-cursor, so it fades out for free

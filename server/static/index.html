@@ -571,6 +571,13 @@
   }
   @keyframes vcRipple { from { transform: scale(.3); opacity: .9; } to { transform: scale(3.4); opacity: 0; } }
   .vc-hover td { background: var(--bg) !important; }
+  .vc-select-panel {
+    position: fixed; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 99997;
+    overflow-y: auto; font-size: 13px; padding: 3px 0;
+  }
+  .vc-select-panel div { padding: 7px 12px; color: var(--text); cursor: default; }
+  .vc-select-panel div.vc-opt-hover { background: var(--orange-light); color: var(--orange-dark); font-weight: 600; }
 
   /* ---------- Cursor-attached caption bubble ----------
      A small tooltip that travels with the virtual cursor (see handleDemoStage /
@@ -589,9 +596,9 @@
     pointer-events: none;
     display: flex;
     align-items: stretch;
-    max-width: 230px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+    max-width: 320px;
+    background: #fff;
+    border: 1.5px solid var(--orange);
     border-radius: 10px;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
@@ -1824,6 +1831,15 @@ let cursorFadeTimer = null;
 
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
+// Tempo factor for the 15s "short" demo (msg.tempo === 'short' sets this to 0.4
+// in handleDemoStage before the stage is enqueued). 1 = normal, unscaled pace.
+let vcTempo = 1;
+
+// Scales a duration by the active tempo factor, with a floor so nothing collapses
+// to ~0ms. Explicit {pause: N} step values are NEVER passed through this — those
+// numbers belong to the choreography tables, not the engine.
+function vcScale(ms, floor = 60) { return Math.max(floor, ms * vcTempo); }
+
 function ensureCursorVisible() {
   clearTimeout(cursorFadeTimer);
   const el = document.getElementById('virtual-cursor');
@@ -1890,7 +1906,9 @@ function setCursorPos(x, y) {
   cursorState.x = x; cursorState.y = y;
   const el = document.getElementById('virtual-cursor');
   if (el) {
-    el.style.transform = `translate(${x - 2}px, ${y - 2}px)`;
+    // Offset so the arrow TIP (at ~(3.7, 1.8) inside the 22px svg) sits exactly
+    // on (x, y) — otherwise clicks read slightly below/right of the pointer.
+    el.style.transform = `translate(${x - 3.7}px, ${y - 1.8}px)`;
     // Flip the caption bubble to the cursor's left once it's within ~260px
     // of the right edge, so it never overflows off-screen.
     el.classList.toggle('vc-flip', x > window.innerWidth - 260);
@@ -1909,7 +1927,7 @@ function cursorMoveTo(targetX, targetY) {
   const startX = cursorState.x, startY = cursorState.y;
   const dist = Math.hypot(targetX - startX, targetY - startY);
   if (dist < 2) { setCursorPos(targetX, targetY); return Promise.resolve(); }
-  const duration = Math.min(1200, Math.max(600, dist * 2.2));
+  const duration = vcScale(Math.min(1200, Math.max(600, dist * 2.2)), 150);
   const dx = targetX - startX, dy = targetY - startY;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len; // perpendicular unit vector
@@ -1953,13 +1971,37 @@ function resolveTarget(selector) {
   try { return document.querySelector(selector); } catch (e) { return null; }
 }
 
+async function waitForScrollSettle(el, maxMs = 1400) {
+  // Smooth scrolling has no completion event; poll the element's rect until it
+  // stops moving so the cursor lands where the element actually IS.
+  let last = el.getBoundingClientRect().top;
+  let stable = 0;
+  const t0 = performanceNow();
+  while (performanceNow() - t0 < maxMs) {
+    await new Promise(r => requestAnimationFrame(r));
+    const top = el.getBoundingClientRect().top;
+    if (Math.abs(top - last) < 0.5) { if (++stable >= 3) return; }
+    else stable = 0;
+    last = top;
+  }
+}
+
 async function travelTo(selector) {
   const el = resolveTarget(selector);
   if (!el) return null;
+  const r = el.getBoundingClientRect();
+  if (r.width === 0 && r.height === 0) {
+    console.warn('[demo-cursor] target not visible, skipping —', selector);
+    return null;
+  }
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  await sleep(320); // let smooth scroll settle before re-measuring
+  await waitForScrollSettle(el);
   const c = elCenter(el);
   await cursorMoveTo(c.x, c.y);
+  // Live fleet_updates can re-render/shift layout while the cursor travels —
+  // re-measure and correct so the pointer sits exactly on the target.
+  const c2 = elCenter(el);
+  if (Math.hypot(c2.x - c.x, c2.y - c.y) > 3) await cursorMoveTo(c2.x, c2.y);
   return el;
 }
 
@@ -1980,26 +2022,37 @@ async function runCursorSteps(steps) {
         const el = await travelTo(step.scrollTo);
         if (!el) console.warn('[demo-cursor] scrollTo: selector not found —', step.scrollTo);
       } else if (step.hover) {
-        const el = await travelTo(step.hover);
+        let el = await travelTo(step.hover);
         if (!el) { console.warn('[demo-cursor] hover: selector not found —', step.hover); continue; }
         el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
         el.classList.add('vc-hover');
-        await sleep(step.duration || 700);
+        // Follow the element while hovering: live registrations re-render and
+        // grow the table, shifting rows under a stationary cursor.
+        const dur = step.duration || vcScale(700, 150);
+        const t0 = performanceNow();
+        while (performanceNow() - t0 < dur) {
+          await sleep(140);
+          const fresh = resolveTarget(step.hover);
+          if (!fresh) continue;
+          if (fresh !== el) { el.classList.remove('vc-hover'); fresh.classList.add('vc-hover'); el = fresh; }
+          const c = elCenter(el);
+          if (Math.hypot(c.x - cursorState.x, c.y - cursorState.y) > 3) setCursorPos(c.x, c.y);
+        }
         el.classList.remove('vc-hover');
       } else if (step.click) {
         const el = await travelTo(step.click);
         if (!el) { console.warn('[demo-cursor] click: selector not found —', step.click); continue; }
-        await sleep(150 + Math.random() * 250);
+        await sleep(vcScale(150 + Math.random() * 250));
+        // Re-resolve right before clicking: live re-renders (fleet_update) can
+        // detach or shift the node we measured. Snap to the fresh position so
+        // the ripple lands exactly where the click happens.
+        const live = resolveTarget(step.click) || el;
+        const c = elCenter(live);
+        if (Math.hypot(c.x - cursorState.x, c.y - cursorState.y) > 3) setCursorPos(c.x, c.y);
         await cursorClickEffect();
-        el.click();
+        live.click();
       } else if (step.selectValue) {
-        const [selector, value] = step.selectValue;
-        const el = await travelTo(selector);
-        if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); continue; }
-        await sleep(150 + Math.random() * 250);
-        await cursorClickEffect();
-        el.value = value;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        await animateSelect(step.selectValue[0], step.selectValue[1]);
       } else {
         console.warn('[demo-cursor] unknown step, skipping:', step);
       }
@@ -2007,6 +2060,49 @@ async function runCursorSteps(steps) {
       console.warn('[demo-cursor] step failed, skipping:', step, err);
     }
   }
+}
+
+// Native <select> dropdowns can't be opened programmatically, so the value
+// change looks fake on camera. Instead: click the select, render an identical-
+// looking options panel beneath it, move the cursor down to the option, click
+// it, close the panel, then set the real value + change event.
+async function animateSelect(selector, value) {
+  const el = await travelTo(selector);
+  if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); return; }
+  await sleep(vcScale(150 + Math.random() * 200));
+  await cursorClickEffect();
+  const live = resolveTarget(selector) || el;
+  const rect = live.getBoundingClientRect();
+  const opts = [...live.options].filter(o => o.value !== '');
+  const panel = document.createElement('div');
+  panel.className = 'vc-select-panel';
+  panel.style.left = rect.left + 'px';
+  panel.style.width = Math.max(rect.width, 150) + 'px';
+  let targetRow = null;
+  opts.forEach(o => {
+    const row = document.createElement('div');
+    row.textContent = o.textContent;
+    if (o.value === value && !targetRow) targetRow = row;
+    panel.appendChild(row);
+  });
+  const panelH = Math.min(opts.length * 31 + 6, 240);
+  panel.style.maxHeight = '240px';
+  panel.style.top = (rect.bottom + 4 + panelH < window.innerHeight ? rect.bottom + 4 : Math.max(8, rect.top - panelH - 4)) + 'px';
+  document.body.appendChild(panel);
+  await sleep(vcScale(380));
+  if (targetRow) {
+    const c = elCenter(targetRow);
+    await cursorMoveTo(c.x, c.y);
+    targetRow.classList.add('vc-opt-hover');
+    await sleep(vcScale(280));
+    await cursorClickEffect();
+    await sleep(vcScale(120));
+  } else {
+    console.warn('[demo-cursor] selectValue: option not present —', selector, value);
+  }
+  panel.remove();
+  live.value = value;
+  live.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 // ---- Choreography (§6.3), keyed by demo_stage.stage ----
@@ -2037,7 +2133,8 @@ const CHOREOGRAPHY = {
     { pause: 3000 },
     { click: '#drawer-close-btn' },
   ],
-  // 3. Deploy Updates: nav, pick version, select all, push.
+  // 3. Deploy Updates: nav, pick version (animated dropdown), select all, push —
+  //    scroll up to the Active Rollout progress bar and hold it 2-3s.
   3: [
     { click: '#nav-deploy' },
     { pause: 700 },
@@ -2046,42 +2143,122 @@ const CHOREOGRAPHY = {
     { click: '#select-all-robots-btn' },
     { pause: 700 },
     { click: '#deploy-btn' },
+    { pause: 1200 },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 2600 },
   ],
-  // 4. Attachment OTA: pick type + version, select all, push.
+  // 4. Attachment OTA: move down to the attachment card, pick type + version,
+  //    select all, push — then back up to the progress bar for 2-3s.
   4: [
-    { pause: 500 },
+    { pause: 300 },
     { selectValue: ['#deploy-attachment-type', 'LM'] },
-    { pause: 600 },
+    { pause: 500 },
     { selectValue: ['#deploy-attachment-version', '2.4.1'] },
     { pause: 500 },
     { click: '#select-all-attachments-btn' },
     { pause: 700 },
     { click: '#deploy-attachment-btn' },
+    { pause: 1200 },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 2600 },
   ],
-  // 5. Remote Operations: nav, pick the robot, run self-test.
+  // 5. Remote Operations: pick the robot, run self-test, then rest the cursor
+  //    on the Command History panel while sent → acked → executed plays out.
   5: [
     { click: '#nav-remoteops' },
     { pause: 800 },
     { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
     { pause: 600 },
     { click: '#self-test-btn' },
+    { pause: 700 },
+    { move: '#command-history' },
+    { pause: 3000 },
   ],
-  // 6. Data Flywheel: nav, drift to center, end (cursor fades 3s after this stage).
+  // 6. Data Flywheel for ~3s, then close on the main dashboard.
   6: [
     { click: '#nav-flywheel' },
-    { pause: 900 },
+    { pause: 800 },
     { move: '#flywheel-wrap svg' },
-    { pause: 1800 },
+    { pause: 3000 },
+    { click: '#nav-fleet' },
+    { pause: 2000 },
+  ],
+};
+
+// ---- Choreography, "short" tempo (15s clip) ----
+// Same step language as CHOREOGRAPHY, compressed to fit acts arriving at roughly
+// t = 0 / 2.6 / 5.2 / 8.6 / 11.8 / 14.2s. vcTempo (0.4 while this table is active)
+// already shrinks every move/select/hover-default internally, so the {pause: N}
+// values here only need to be small on their own terms — no drawer opens (no time
+// for a 3s linger), and every act ends on its next camera position rather than
+// resting mid-thought.
+const CHOREOGRAPHY_SHORT = {
+  // 1. Fleet Overview while robots register rapidly: brief pause, glance at the
+  //    online counter, short hover of a fleet row. No drawer.
+  1: [
+    { pause: 300 },
+    { move: '#stat-online' },
+    { hover: '#fleet-tbody tr.robot-row:nth-child(1)' },
+  ],
+  // 2. Device Registry: nav, short pause, scroll to Attachment Registry, brief
+  //    hover of a row. No drawer.
+  2: [
+    { click: '#nav-devices' },
+    { pause: 150 },
+    { scrollTo: '#attachments-table' },
+    { hover: '#attachments-tbody tr:nth-child(1)' },
+  ],
+  // 3. Deploy Updates: nav, pick version, select all, push — scroll up to the
+  //    Active Rollout progress bar for a short hold.
+  3: [
+    { click: '#nav-deploy' },
+    { selectValue: ['#deploy-version-select', '1.3.1'] },
+    { click: '#select-all-robots-btn' },
+    { click: '#deploy-btn' },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 300 },
+  ],
+  // 4. Attachment OTA: pick type + version, select all, push — back up to the
+  //    progress bar for a short hold.
+  4: [
+    { selectValue: ['#deploy-attachment-type', 'LM'] },
+    { selectValue: ['#deploy-attachment-version', '2.4.1'] },
+    { click: '#select-all-attachments-btn' },
+    { click: '#deploy-attachment-btn' },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 200 },
+  ],
+  // 5. Remote Operations: pick the robot, run self-test, then rest on Command
+  //    History long enough for the (also scaled) acked → executed transition
+  //    to land on camera.
+  5: [
+    { click: '#nav-remoteops' },
+    { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
+    { click: '#self-test-btn' },
+    { move: '#command-history' },
+    { pause: 500 },
+  ],
+  // 6. Data Flywheel: nav, settle on the graphic, hold ~1.2s. The stage-6 hook
+  //    in handleDemoStage shortens the post-demo fade to match.
+  6: [
+    { click: '#nav-flywheel' },
+    { move: '#flywheel-wrap svg' },
+    { pause: 1200 },
   ],
 };
 
 let choreoQueue = Promise.resolve();
 function handleDemoStage(msg) {
   const stage = msg.stage;
-  // Cursor-attached caption bubble — shown for every demo run, no tempo gate
-  // (this branch's demo_stage payloads don't carry a tempo field at all).
+  const isShort = msg.tempo === 'short';
+  vcTempo = isShort ? 0.4 : 1;
+  // Cursor-attached caption bubble — shown for every demo run, both tempos alike.
   showDemoCaptionOverlay(msg.title, msg.caption);
-  const steps = CHOREOGRAPHY[stage];
+  let steps = isShort ? CHOREOGRAPHY_SHORT[stage] : CHOREOGRAPHY[stage];
+  if (!steps && isShort) {
+    console.warn('[demo-cursor] no short choreography for stage', stage, '— falling back to normal table');
+    steps = CHOREOGRAPHY[stage];
+  }
   if (!steps) { console.warn('[demo-cursor] no choreography registered for stage', stage); return; }
   // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
   // the cursor always finishes what it's doing before starting the next act.
@@ -2092,7 +2269,7 @@ function handleDemoStage(msg) {
         // Bubble is a child of #virtual-cursor, so it fades out for free
         // together with the cursor here; just reset the crossfade state so
         // the next run's first caption applies instantly instead of swapping.
-        scheduleCursorFade(3000);
+        scheduleCursorFade(isShort ? 1200 : 3000);
         hideDemoCaptionOverlay();
       }
     })
@@ -2399,8 +2576,13 @@ function sendCommand(cmd) {
   renderCommandHistory();
   // No toast here — the Command History panel already shows sent → acked → executed.
   addLog(`Remote command "${cmd}" sent to ${r.name}`);
-  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, 900);
-  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, 1900);
+  // vcScale reads vcTempo synchronously, right here — so the delay below is fixed
+  // at call time and a later tempo change can't retroactively alter a transition
+  // that's already been scheduled.
+  const ackedMs = vcScale(900, 100);
+  const executedMs = vcScale(1900, 150);
+  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, ackedMs);
+  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, executedMs);
 }
 
 function renderCommandHistory() {

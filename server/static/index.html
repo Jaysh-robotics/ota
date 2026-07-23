@@ -571,18 +571,65 @@
   }
   @keyframes vcRipple { from { transform: scale(.3); opacity: .9; } to { transform: scale(3.4); opacity: 0; } }
   .vc-hover td { background: var(--bg) !important; }
+  .vc-select-panel {
+    position: fixed; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; box-shadow: var(--shadow-lg); z-index: 99997;
+    overflow-y: auto; font-size: 13px; padding: 3px 0;
+  }
+  .vc-select-panel div { padding: 7px 12px; color: var(--text); cursor: default; }
+  .vc-select-panel div.vc-opt-hover { background: var(--orange-light); color: var(--orange-dark); font-weight: 600; }
+
+  /* ---------- Cursor-attached caption bubble ----------
+     A small tooltip that travels with the virtual cursor (see handleDemoStage /
+     showDemoCaptionOverlay). It's a CHILD of #virtual-cursor, positioned via
+     absolute offset from the pointer tip — so it moves with every cursor move
+     and inherits #virtual-cursor's own opacity fade in/out for free (that
+     element's opacity is toggled via inline style in ensureCursorVisible /
+     scheduleCursorFade; opacity applies to the whole subtree, so no separate
+     show/hide transition is needed here). pointer-events:none so it never
+     interferes with the cursor's real clicks. */
+  #vc-caption {
+    position: absolute;
+    left: 22px;
+    top: 26px;
+    z-index: 1;
+    pointer-events: none;
+    display: flex;
+    align-items: stretch;
+    max-width: 440px;
+    background: #fff;
+    border: 1.5px solid var(--orange);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    white-space: normal;
+  }
+  /* Flip to the cursor's left edge near the right side of the viewport, so the
+     bubble never overflows off-screen (toggled in setCursorPos). */
+  #virtual-cursor.vc-flip #vc-caption { left: auto; right: 22px; }
+  #vc-caption.vc-caption-swap { opacity: 0; transition: opacity .12s ease; }
+  .vc-caption-accent { width: 3px; flex-shrink: 0; background: var(--orange); }
+  .vc-caption-body { padding: 8px 12px; min-width: 0; }
+  .vc-caption-title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.35; }
+  .vc-caption-line { font-size: 11px; font-weight: 500; color: var(--text2); line-height: 1.35; margin-top: 2px; }
 
   /* ---------- Data Flywheel ---------- */
-  .flywheel-arrow { fill: none; stroke: var(--orange); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 9 7; animation: flywheelFlow 1.1s linear infinite; opacity: .85; }
-  @keyframes flywheelFlow { to { stroke-dashoffset: -32; } }
-  .flywheel-node-circle { fill: url(#flywheelNodeGrad); stroke: var(--orange); stroke-width: 2; filter: drop-shadow(0 4px 10px rgba(247,148,29,.25)); }
-  .flywheel-node-label { font-size: 12px; font-weight: 700; fill: var(--text); }
-  .flywheel-node-sub { font-size: 9px; font-weight: 600; fill: var(--text2); letter-spacing: .03em; }
-  .flywheel-node-counter { font-size: 20px; font-weight: 800; fill: var(--orange-dark); }
-  .flywheel-center-label { font-size: 13px; font-weight: 800; fill: var(--text); }
-  .flywheel-center-sub { font-size: 10px; font-weight: 600; fill: var(--text3); }
-  .flywheel-hub { animation: flywheelSpin 40s linear infinite; transform-box: fill-box; transform-origin: center; }
-  @keyframes flywheelSpin { to { transform: rotate(360deg); } }
+  .fw-track { fill: none; stroke: var(--orange); stroke-width: 2.5; opacity: .18; }
+  .fw-flow { fill: none; stroke: var(--orange); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 2 14; animation: fwFlow 1.4s linear infinite; }
+  .fw-flow-return { stroke: var(--orange-dark); animation-duration: 1.8s; }
+  @keyframes fwFlow { to { stroke-dashoffset: -16; } }
+  #fw-scene text { font-family: 'Avenir Next', 'Helvetica Neue', -apple-system, 'Segoe UI', sans-serif; }
+  .fw-station-label { font-size: 16px; font-weight: 600; fill: var(--text); letter-spacing: .01em; }
+  .fw-station-sub { font-size: 11px; font-weight: 500; fill: var(--text2); letter-spacing: .02em; }
+  .fw-path-label { font-size: 11.5px; font-weight: 500; fill: var(--text2); letter-spacing: .015em; }
+  .fw-tagline { font-size: 13.5px; font-weight: 600; fill: var(--text2); letter-spacing: .02em; }
+  .fw-particle { fill: var(--orange); }
+  .fw-packet { fill: var(--orange-dark); }
+  .fw-node-pulse { animation: fwPulse 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes fwPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+  @media (prefers-reduced-motion: reduce) {
+    .fw-flow, .fw-node-pulse { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -1558,11 +1605,11 @@
         <div class="card-header">
           <div>
             <div class="card-title">The Data Flywheel</div>
-            <div class="card-subtitle">How fleet telemetry compounds into better robots — live counters, fed from real fleet state</div>
+            <div class="card-subtitle">Every robot working in the field makes the whole fleet smarter — lessons flow in, improvements flow back automatically</div>
           </div>
         </div>
-        <div class="card-body" style="display:flex;justify-content:center;padding:32px 20px">
-          <div id="flywheel-wrap" style="width:100%;max-width:640px"></div>
+        <div class="card-body" style="display:flex;justify-content:center;padding:24px 20px 12px">
+          <div id="flywheel-wrap" style="width:100%;max-width:920px"></div>
         </div>
       </div>
     </div>
@@ -1604,11 +1651,21 @@
 <!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- Virtual cursor (demo choreography) -->
+<!-- Virtual cursor (demo choreography), with its caption bubble as a child so
+     it travels and fades with the cursor for free -->
 <div id="virtual-cursor">
   <svg width="22" height="22" viewBox="0 0 24 24">
     <path d="M4 2 L4 20 L9 16 L12 22.5 L15.2 21 L12.2 14.5 L19 14.2 Z" fill="#111827" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round"/>
   </svg>
+  <!-- Caption bubble — shown for every demo run; see handleDemoStage /
+       showDemoCaptionOverlay. -->
+  <div id="vc-caption" aria-hidden="true">
+    <div class="vc-caption-accent"></div>
+    <div class="vc-caption-body">
+      <div class="vc-caption-title" id="vc-caption-title"></div>
+      <div class="vc-caption-line" id="vc-caption-line"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1713,6 +1770,38 @@ function connectWS() {
   ws.onclose = () => setTimeout(connectWS, 2000);
 }
 
+// Coalesces bursts of fleet_update messages (11+ robots heartbeating every
+// ~1s in --short mode can fire several per frame) into a single render pass
+// per animation frame. Without this, every message tore down and rebuilt the
+// whole fleet table/stats/charts synchronously, faster than the browser could
+// paint — visible as flicker rather than smooth, incremental updates. `fleet`
+// is already updated synchronously above; this only debounces the expensive
+// DOM work, so the render always reflects the latest state, just at most
+// once per frame.
+let fleetRenderScheduled = false;
+function scheduleFleetRender() {
+  if (fleetRenderScheduled) return;
+  fleetRenderScheduled = true;
+  requestAnimationFrame(() => {
+    fleetRenderScheduled = false;
+    renderFleet();
+    renderDeployStatus();
+    renderStats();
+    renderCharts();
+    renderVersionFilterOptions();
+    if (drawerRobotId) renderDrawer(drawerRobotId);
+    if (document.getElementById('section-deploy').style.display !== 'none') {
+      renderDeployRobotList();
+      renderDeployAttachmentList();
+      renderAttachmentTargetsList();
+    }
+    if (document.getElementById('section-flywheel').style.display !== 'none') {
+      renderFlywheel();
+    }
+    renderRolloutProgress();
+  });
+}
+
 function handleMessage(msg) {
   if (msg.type === 'init') {
     const robots = (msg.fleet && msg.fleet.robots) || {};
@@ -1731,21 +1820,7 @@ function handleMessage(msg) {
     trackFleetChanges(robots);
     fleet = robots;
     attachments = msg.fleet.attachments || {};
-    renderFleet();
-    renderDeployStatus();
-    renderStats();
-    renderCharts();
-    renderVersionFilterOptions();
-    if (drawerRobotId) renderDrawer(drawerRobotId);
-    if (document.getElementById('section-deploy').style.display !== 'none') {
-      renderDeployRobotList();
-      renderDeployAttachmentList();
-      renderAttachmentTargetsList();
-    }
-    if (document.getElementById('section-flywheel').style.display !== 'none') {
-      renderFlywheel();
-    }
-    renderRolloutProgress();
+    scheduleFleetRender();
   } else if (msg.type === 'versions_update') {
     versions = msg.versions;
     renderVersions();
@@ -1774,6 +1849,15 @@ let cursorFadeTimer = null;
 
 function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
 
+// Tempo factor for the 15s "short" demo (msg.tempo === 'short' sets this to 0.4
+// in handleDemoStage before the stage is enqueued). 1 = normal, unscaled pace.
+let vcTempo = 1;
+
+// Scales a duration by the active tempo factor, with a floor so nothing collapses
+// to ~0ms. Explicit {pause: N} step values are NEVER passed through this — those
+// numbers belong to the choreography tables, not the engine.
+function vcScale(ms, floor = 60) { return Math.max(floor, ms * vcTempo); }
+
 function ensureCursorVisible() {
   clearTimeout(cursorFadeTimer);
   const el = document.getElementById('virtual-cursor');
@@ -1795,10 +1879,58 @@ function scheduleCursorFade(delayMs) {
   }, delayMs);
 }
 
+// ---- Cursor-attached caption bubble ----
+// Small tooltip riding the virtual cursor, shown for every demo run (normal
+// and short tempo alike — this branch has no tempo field on demo_stage
+// payloads at all, so there's nothing to gate on). Because #vc-caption is a
+// child of #virtual-cursor, its on-screen visibility is entirely inherited
+// from that element's own opacity fade (see ensureCursorVisible /
+// scheduleCursorFade) — this module only needs to manage the bubble's TEXT
+// crossfade between acts, not a separate show/hide transition.
+const CAPTION_SWAP_MS = 130; // half of the #vc-caption 120ms swap transition + a hair of slack
+let captionShown = false; // whether the bubble already holds content this run
+
+function showDemoCaptionOverlay(title, caption) {
+  const bubble = document.getElementById('vc-caption');
+  if (!bubble) return;
+  const applyContent = () => {
+    document.getElementById('vc-caption-title').textContent = title || '';
+    document.getElementById('vc-caption-line').textContent = caption || '';
+  };
+  if (!captionShown) {
+    // First appearance this run: set the content directly — no crossfade
+    // needed since there's nothing on screen yet to swap from.
+    applyContent();
+    captionShown = true;
+  } else {
+    // Quick crossfade rather than stacking a second element: fade the bubble
+    // out, swap its text while invisible, fade it back in.
+    bubble.classList.add('vc-caption-swap');
+    setTimeout(() => {
+      applyContent();
+      bubble.classList.remove('vc-caption-swap');
+    }, CAPTION_SWAP_MS);
+  }
+}
+
+// Resets the crossfade state for the next run. No opacity/timer work needed
+// here — the bubble fades out for free when scheduleCursorFade drops
+// #virtual-cursor's opacity, since #vc-caption is its child.
+function hideDemoCaptionOverlay() {
+  captionShown = false;
+}
+
 function setCursorPos(x, y) {
   cursorState.x = x; cursorState.y = y;
   const el = document.getElementById('virtual-cursor');
-  if (el) el.style.transform = `translate(${x - 2}px, ${y - 2}px)`;
+  if (el) {
+    // Offset so the arrow TIP (at ~(3.7, 1.8) inside the 22px svg) sits exactly
+    // on (x, y) — otherwise clicks read slightly below/right of the pointer.
+    el.style.transform = `translate(${x - 3.7}px, ${y - 1.8}px)`;
+    // Flip the caption bubble to the cursor's left once it's within ~260px
+    // of the right edge, so it never overflows off-screen.
+    el.classList.toggle('vc-flip', x > window.innerWidth - 480);
+  }
 }
 
 function easeInOutCubic(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -1813,7 +1945,7 @@ function cursorMoveTo(targetX, targetY) {
   const startX = cursorState.x, startY = cursorState.y;
   const dist = Math.hypot(targetX - startX, targetY - startY);
   if (dist < 2) { setCursorPos(targetX, targetY); return Promise.resolve(); }
-  const duration = Math.min(1200, Math.max(600, dist * 2.2));
+  const duration = vcScale(Math.min(1200, Math.max(600, dist * 2.2)), 150);
   const dx = targetX - startX, dy = targetY - startY;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len; // perpendicular unit vector
@@ -1857,13 +1989,37 @@ function resolveTarget(selector) {
   try { return document.querySelector(selector); } catch (e) { return null; }
 }
 
+async function waitForScrollSettle(el, maxMs = 1400) {
+  // Smooth scrolling has no completion event; poll the element's rect until it
+  // stops moving so the cursor lands where the element actually IS.
+  let last = el.getBoundingClientRect().top;
+  let stable = 0;
+  const t0 = performanceNow();
+  while (performanceNow() - t0 < maxMs) {
+    await new Promise(r => requestAnimationFrame(r));
+    const top = el.getBoundingClientRect().top;
+    if (Math.abs(top - last) < 0.5) { if (++stable >= 3) return; }
+    else stable = 0;
+    last = top;
+  }
+}
+
 async function travelTo(selector) {
   const el = resolveTarget(selector);
   if (!el) return null;
+  const r = el.getBoundingClientRect();
+  if (r.width === 0 && r.height === 0) {
+    console.warn('[demo-cursor] target not visible, skipping —', selector);
+    return null;
+  }
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  await sleep(320); // let smooth scroll settle before re-measuring
+  await waitForScrollSettle(el);
   const c = elCenter(el);
   await cursorMoveTo(c.x, c.y);
+  // Live fleet_updates can re-render/shift layout while the cursor travels —
+  // re-measure and correct so the pointer sits exactly on the target.
+  const c2 = elCenter(el);
+  if (Math.hypot(c2.x - c.x, c2.y - c.y) > 3) await cursorMoveTo(c2.x, c2.y);
   return el;
 }
 
@@ -1884,26 +2040,37 @@ async function runCursorSteps(steps) {
         const el = await travelTo(step.scrollTo);
         if (!el) console.warn('[demo-cursor] scrollTo: selector not found —', step.scrollTo);
       } else if (step.hover) {
-        const el = await travelTo(step.hover);
+        let el = await travelTo(step.hover);
         if (!el) { console.warn('[demo-cursor] hover: selector not found —', step.hover); continue; }
         el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
         el.classList.add('vc-hover');
-        await sleep(step.duration || 700);
+        // Follow the element while hovering: live registrations re-render and
+        // grow the table, shifting rows under a stationary cursor.
+        const dur = step.duration || vcScale(700, 150);
+        const t0 = performanceNow();
+        while (performanceNow() - t0 < dur) {
+          await sleep(140);
+          const fresh = resolveTarget(step.hover);
+          if (!fresh) continue;
+          if (fresh !== el) { el.classList.remove('vc-hover'); fresh.classList.add('vc-hover'); el = fresh; }
+          const c = elCenter(el);
+          if (Math.hypot(c.x - cursorState.x, c.y - cursorState.y) > 3) setCursorPos(c.x, c.y);
+        }
         el.classList.remove('vc-hover');
       } else if (step.click) {
         const el = await travelTo(step.click);
         if (!el) { console.warn('[demo-cursor] click: selector not found —', step.click); continue; }
-        await sleep(150 + Math.random() * 250);
+        await sleep(vcScale(150 + Math.random() * 250));
+        // Re-resolve right before clicking: live re-renders (fleet_update) can
+        // detach or shift the node we measured. Snap to the fresh position so
+        // the ripple lands exactly where the click happens.
+        const live = resolveTarget(step.click) || el;
+        const c = elCenter(live);
+        if (Math.hypot(c.x - cursorState.x, c.y - cursorState.y) > 3) setCursorPos(c.x, c.y);
         await cursorClickEffect();
-        el.click();
+        live.click();
       } else if (step.selectValue) {
-        const [selector, value] = step.selectValue;
-        const el = await travelTo(selector);
-        if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); continue; }
-        await sleep(150 + Math.random() * 250);
-        await cursorClickEffect();
-        el.value = value;
-        el.dispatchEvent(new Event('change', { bubbles: true }));
+        await animateSelect(step.selectValue[0], step.selectValue[1]);
       } else {
         console.warn('[demo-cursor] unknown step, skipping:', step);
       }
@@ -1911,6 +2078,49 @@ async function runCursorSteps(steps) {
       console.warn('[demo-cursor] step failed, skipping:', step, err);
     }
   }
+}
+
+// Native <select> dropdowns can't be opened programmatically, so the value
+// change looks fake on camera. Instead: click the select, render an identical-
+// looking options panel beneath it, move the cursor down to the option, click
+// it, close the panel, then set the real value + change event.
+async function animateSelect(selector, value) {
+  const el = await travelTo(selector);
+  if (!el) { console.warn('[demo-cursor] selectValue: selector not found —', selector); return; }
+  await sleep(vcScale(150 + Math.random() * 200));
+  await cursorClickEffect();
+  const live = resolveTarget(selector) || el;
+  const rect = live.getBoundingClientRect();
+  const opts = [...live.options].filter(o => o.value !== '');
+  const panel = document.createElement('div');
+  panel.className = 'vc-select-panel';
+  panel.style.left = rect.left + 'px';
+  panel.style.width = Math.max(rect.width, 150) + 'px';
+  let targetRow = null;
+  opts.forEach(o => {
+    const row = document.createElement('div');
+    row.textContent = o.textContent;
+    if (o.value === value && !targetRow) targetRow = row;
+    panel.appendChild(row);
+  });
+  const panelH = Math.min(opts.length * 31 + 6, 240);
+  panel.style.maxHeight = '240px';
+  panel.style.top = (rect.bottom + 4 + panelH < window.innerHeight ? rect.bottom + 4 : Math.max(8, rect.top - panelH - 4)) + 'px';
+  document.body.appendChild(panel);
+  await sleep(vcScale(380));
+  if (targetRow) {
+    const c = elCenter(targetRow);
+    await cursorMoveTo(c.x, c.y);
+    targetRow.classList.add('vc-opt-hover');
+    await sleep(vcScale(280));
+    await cursorClickEffect();
+    await sleep(vcScale(120));
+  } else {
+    console.warn('[demo-cursor] selectValue: option not present —', selector, value);
+  }
+  panel.remove();
+  live.value = value;
+  live.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
 // ---- Choreography (§6.3), keyed by demo_stage.stage ----
@@ -1941,7 +2151,8 @@ const CHOREOGRAPHY = {
     { pause: 3000 },
     { click: '#drawer-close-btn' },
   ],
-  // 3. Deploy Updates: nav, pick version, select all, push.
+  // 3. Deploy Updates: nav, pick version (animated dropdown), select all, push —
+  //    scroll up to the Active Rollout progress bar and hold it 2-3s.
   3: [
     { click: '#nav-deploy' },
     { pause: 700 },
@@ -1950,45 +2161,129 @@ const CHOREOGRAPHY = {
     { click: '#select-all-robots-btn' },
     { pause: 700 },
     { click: '#deploy-btn' },
+    { pause: 1200 },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 2600 },
   ],
-  // 4. Attachment OTA: pick type + version, select all, push.
+  // 4. Attachment OTA: move down to the attachment card, pick type + version,
+  //    select all, push — then back up to the progress bar for 2-3s.
   4: [
-    { pause: 500 },
+    { pause: 300 },
     { selectValue: ['#deploy-attachment-type', 'LM'] },
-    { pause: 600 },
+    { pause: 500 },
     { selectValue: ['#deploy-attachment-version', '2.4.1'] },
     { pause: 500 },
     { click: '#select-all-attachments-btn' },
     { pause: 700 },
     { click: '#deploy-attachment-btn' },
+    { pause: 1200 },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 2600 },
   ],
-  // 5. Remote Operations: nav, pick the robot, run self-test.
+  // 5. Remote Operations: pick the robot, run self-test, then rest the cursor
+  //    on the Command History panel while sent → acked → executed plays out.
   5: [
     { click: '#nav-remoteops' },
     { pause: 800 },
     { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
     { pause: 600 },
     { click: '#self-test-btn' },
+    { pause: 700 },
+    { move: '#command-history' },
+    { pause: 3000 },
   ],
-  // 6. Data Flywheel: nav, drift to center, end (cursor fades 3s after this stage).
+  // 6. Data Flywheel for ~3s, then close on the main dashboard.
   6: [
     { click: '#nav-flywheel' },
-    { pause: 900 },
+    { pause: 800 },
     { move: '#flywheel-wrap svg' },
-    { pause: 1800 },
+    { pause: 3000 },
+    { click: '#nav-fleet' },
+    { pause: 2000 },
+  ],
+};
+
+// ---- Choreography, "short" tempo (15s clip) ----
+// Same step language as CHOREOGRAPHY, compressed to fit acts arriving at roughly
+// t = 0 / 2.6 / 5.2 / 8.6 / 11.8 / 14.2s. vcTempo (0.4 while this table is active)
+// already shrinks every move/select/hover-default internally, so the {pause: N}
+// values here only need to be small on their own terms — no drawer opens (no time
+// for a 3s linger), and every act ends on its next camera position rather than
+// resting mid-thought.
+const CHOREOGRAPHY_SHORT = {
+  // 1. Fleet Overview: settle once on the live stat, hold ~4s without drifting
+  //    around the page.
+  1: [
+    { move: '#stat-online' },
+    { pause: 4000 },
+  ],
+  // 2. Device Registry — not part of this cut; empty steps means the cursor
+  //    simply stays put (queued behind stage 1's hold) instead of navigating away.
+  2: [],
+  // 3. Robot OTA only: pick version, select all, push — scroll up to the Active
+  //    Rollout progress bar and hold on it.
+  3: [
+    { click: '#nav-deploy' },
+    { selectValue: ['#deploy-version-select', '1.3.1'] },
+    { click: '#select-all-robots-btn' },
+    { click: '#deploy-btn' },
+    { scrollTo: '#rollout-progress-card' },
+    { pause: 1200 },
+  ],
+  // 4. Attachment OTA — skipped in this cut (robot-only), so it never fires and
+  //    attachment firmware is left untouched.
+  4: [],
+  // 5. Remote Operations: pick the robot, run self-test, hold ~3s before moving
+  //    on to the flywheel.
+  5: [
+    { click: '#nav-remoteops' },
+    { selectValue: ['#remoteops-robot', 'CR-2026-00009'] },
+    { click: '#self-test-btn' },
+    { pause: 3000 },
+  ],
+  // 6. Data Flywheel: nav, settle on the graphic, hold ~1.2s. The stage-6 hook
+  //    in handleDemoStage shortens the post-demo fade to match.
+  6: [
+    { click: '#nav-flywheel' },
+    { move: '#flywheel-wrap svg' },
+    { pause: 1200 },
   ],
 };
 
 let choreoQueue = Promise.resolve();
 function handleDemoStage(msg) {
   const stage = msg.stage;
-  const steps = CHOREOGRAPHY[stage];
+  const isShort = msg.tempo === 'short';
+  vcTempo = isShort ? 0.4 : 1;
+  let steps = isShort ? CHOREOGRAPHY_SHORT[stage] : CHOREOGRAPHY[stage];
+  if (!steps && isShort) {
+    console.warn('[demo-cursor] no short choreography for stage', stage, '— falling back to normal table');
+    steps = CHOREOGRAPHY[stage];
+  }
   if (!steps) { console.warn('[demo-cursor] no choreography registered for stage', stage); return; }
   // Serialize stages so a late-arriving demo_stage never interrupts a running leg —
   // the cursor always finishes what it's doing before starting the next act.
   choreoQueue = choreoQueue
-    .then(() => runCursorSteps(steps))
-    .then(() => { if (stage === 6) scheduleCursorFade(3000); })
+    .then(() => {
+      // Caption text is applied HERE, not synchronously in handleDemoStage — it
+      // must land exactly when this stage's steps actually start, not whenever
+      // the WS message arrives. In --short mode stages fire every ~2.6s, faster
+      // than a backed-up choreoQueue can drain, so an eagerly-set caption could
+      // describe a page the cursor hasn't navigated to yet (stage N's text over
+      // stage N-1's still-running movement). Queuing it keeps caption and cursor
+      // in lockstep regardless of how far behind the queue gets.
+      showDemoCaptionOverlay(msg.title, msg.caption);
+      return runCursorSteps(steps);
+    })
+    .then(() => {
+      if (stage === 6) {
+        // Bubble is a child of #virtual-cursor, so it fades out for free
+        // together with the cursor here; just reset the crossfade state so
+        // the next run's first caption applies instantly instead of swapping.
+        scheduleCursorFade(isShort ? 1200 : 3000);
+        hideDemoCaptionOverlay();
+      }
+    })
     .catch(err => console.warn('[demo-cursor] choreography error on stage', stage, err));
 }
 
@@ -2011,7 +2306,7 @@ const titles = {
   automation: ['Automation', 'Rules, feature flags, and A/B cohorts'],
   access: ['Access & Audit', 'Users, roles, and the audit trail'],
   enterprise: ['Enterprise & Ecosystem', 'B2B portal, partners, and integrations'],
-  flywheel: ['Data Flywheel', 'Telemetry in, better robots out'],
+  flywheel: ['Data Flywheel', 'Every robot makes the fleet smarter'],
   activity: ['Activity Log', 'System events and update history'],
 };
 
@@ -2292,8 +2587,13 @@ function sendCommand(cmd) {
   renderCommandHistory();
   // No toast here — the Command History panel already shows sent → acked → executed.
   addLog(`Remote command "${cmd}" sent to ${r.name}`);
-  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, 900);
-  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, 1900);
+  // vcScale reads vcTempo synchronously, right here — so the delay below is fixed
+  // at call time and a later tempo change can't retroactively alter a transition
+  // that's already been scheduled.
+  const ackedMs = vcScale(900, 100);
+  const executedMs = vcScale(1900, 150);
+  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, ackedMs);
+  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, executedMs);
 }
 
 function renderCommandHistory() {
@@ -2588,78 +2888,182 @@ function exportFleetCSV() {
 }
 
 // ---- Data Flywheel ----
-const FLYWHEEL_NODES = [
-  { lines: ['Robots in', 'the Field'], sub: 'online now' },
-  { lines: ['Telemetry', '& Faults'], sub: 'pts/sec' },
-  { lines: ['Fleet', 'Insights'], sub: 'faults tracked' },
-  { lines: ['Firmware', 'Improvements'], sub: 'versions shipped' },
-  { lines: ['OTA', 'Deployment'], sub: 'updates delivered' },
-  { lines: ['Better', 'Robots'], sub: 'attachments active' },
-];
+// Two-layer pictorial loop: a cloud layer up top and a field layer on the ground.
+// Robot <-> Cloud closes the flywheel (telemetry up, OTA firmware down); the phone
+// links to both the cloud (fleet status) and the robot (live status / control
+// commands) at ground level; the ML chip talks only to the cloud (training data
+// out, improved models back). The chip never touches the robot directly.
+// The scene is built once (so SMIL particle animations never restart) and is a
+// static pictorial — no live counters, so it doubles as a deck-ready image.
+const FW_P1 = 'M 272 430 C 277 350, 257 240, 342 178';   // robot -> cloud (telemetry) -- right lane
+const FW_P2 = 'M 308 178 C 223 240, 243 350, 238 430';   // cloud -> robot (OTA firmware return) -- left lane, parallel to FW_P1 (34px constant horizontal gap, pure offset of the same curve so the two never cross)
+const FW_P3 = 'M 520 205 C 580 280, 640 340, 700 396';   // cloud -> mobile (fleet status)
+const FW_P4 = 'M 355 505 C 450 480, 560 480, 655 502';   // robot -> mobile (live status)
+const FW_P5 = 'M 655 535 C 560 560, 450 560, 358 538';   // mobile -> robot (control commands)
+const FW_P6 = 'M 560 118 C 610 105, 655 110, 696 140';   // cloud -> chip (training data)
+const FW_P7 = 'M 696 185 C 650 195, 605 180, 562 158';   // chip -> cloud (improved models)
 
-function flywheelPoint(angleDeg, radius, cx, cy) {
-  const rad = angleDeg * Math.PI / 180;
-  return { x: cx + radius * Math.sin(rad), y: cy - radius * Math.cos(rad) };
+function fwParticles(path, n, dur, r) {
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    s += `<circle class="fw-particle" r="${r}" stroke="#fff" stroke-width="1">
+      <animateMotion dur="${dur}s" repeatCount="indefinite" begin="${(-i * dur / n).toFixed(2)}s" path="${path}"/>
+    </circle>`;
+  }
+  return s;
+}
+
+function fwPackets(path, n, dur) {
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    s += `<g>
+      <animateMotion dur="${dur}s" repeatCount="indefinite" begin="${(-i * dur / n).toFixed(2)}s" rotate="auto" path="${path}"/>
+      <rect class="fw-packet" x="-7" y="-5" width="14" height="10" rx="2.5" stroke="#fff" stroke-width="1.5"/>
+      <rect x="-4" y="-2" width="8" height="1.6" rx="0.8" fill="#fff" opacity=".85"/>
+      <rect x="-4" y="1" width="5" height="1.6" rx="0.8" fill="#fff" opacity=".6"/>
+    </g>`;
+  }
+  return s;
+}
+
+function buildFlywheelScene() {
+  const spokes = [0, 120, 240].map(a => `
+    <g transform="rotate(${a})" stroke="var(--orange)" stroke-width="3" fill="none" opacity=".45">
+      <path d="M 26 0 A 26 26 0 0 1 -2.3 25.9"/>
+      <path d="M0,-3.5 L7,0 L0,3.5 Z" fill="var(--orange)" stroke="none" transform="translate(-2.3,25.9) rotate(185)"/>
+    </g>`).join('');
+  return `
+    <svg id="fw-scene" viewBox="0 0 920 700" width="100%" style="display:block" role="img"
+         aria-label="Data flywheel: robots in the field share their experience with the cloud, the cloud learns from it and sends improvements back automatically, and the fleet app lets operators watch and control everything in real time">
+      <defs>
+        <linearGradient id="fwNodeGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#FFF3E0"/>
+        </linearGradient>
+        <radialGradient id="fwBackdrop" cx="470" cy="320" r="380" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#FFF8EF" stop-opacity=".9"/>
+          <stop offset="100%" stop-color="#FFF8EF" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="fwGlow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="fwBlur"/>
+          <feMerge>
+            <feMergeNode in="fwBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- backdrop wash + flywheel geometry rings (behind everything) -->
+      <rect x="0" y="0" width="920" height="700" fill="url(#fwBackdrop)"/>
+      <g class="fw-ring" fill="none" stroke="var(--orange)" stroke-dasharray="4 7">
+        <circle cx="470" cy="320" r="130" opacity=".1"/>
+        <circle cx="470" cy="320" r="195" opacity=".08"/>
+      </g>
+
+      <!-- ground line: field level -->
+      <line x1="40" y1="597" x2="880" y2="597" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="2 6"/>
+
+      <!-- flow tracks -->
+      <path class="fw-track" d="${FW_P1}"/><path class="fw-flow" d="${FW_P1}"/>
+      <path class="fw-track" d="${FW_P2}"/><path class="fw-flow fw-flow-return" d="${FW_P2}"/>
+      <path class="fw-track" d="${FW_P3}"/><path class="fw-flow" d="${FW_P3}"/>
+      <path class="fw-track" d="${FW_P4}"/><path class="fw-flow" d="${FW_P4}"/>
+      <path class="fw-track" d="${FW_P5}"/><path class="fw-flow fw-flow-return" d="${FW_P5}"/>
+      <path class="fw-track" d="${FW_P6}"/><path class="fw-flow" d="${FW_P6}"/>
+      <path class="fw-track" d="${FW_P7}"/><path class="fw-flow fw-flow-return" d="${FW_P7}"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange)" transform="translate(342,178) rotate(-36)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange-dark)" transform="translate(238,430) rotate(94)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange)" transform="translate(700,396) rotate(43)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange)" transform="translate(655,502) rotate(13)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange-dark)" transform="translate(358,538) rotate(193)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange)" transform="translate(696,140) rotate(36)"/>
+      <path d="M0,-4.5 L9,0 L0,4.5 Z" fill="var(--orange-dark)" transform="translate(562,158) rotate(207)"/>
+
+      <!-- path labels -->
+      <text class="fw-path-label" x="298" y="285" text-anchor="start">experience</text>
+      <text class="fw-path-label" x="298" y="301" text-anchor="start">from every robot</text>
+      <text class="fw-path-label" x="158" y="372" text-anchor="middle" style="fill:var(--orange-dark);font-weight:600">OTA updates</text>
+      <text class="fw-path-label" x="158" y="388" text-anchor="middle">sent back automatically</text>
+      <text class="fw-path-label" x="626" y="204" text-anchor="middle">smarter software out</text>
+
+      <!-- CLOUD: ingest + data lake -->
+      <g class="fw-node-pulse">
+        <path d="M6.5 19a4.5 4.5 0 1 1 .42-8.98 6 6 0 0 1 11.3 1.85A3.5 3.5 0 0 1 17.5 19h-11z"
+              transform="translate(320,-8) scale(11)" fill="url(#fwNodeGrad)" stroke="var(--orange)"
+              stroke-width="2.5" vector-effect="non-scaling-stroke"
+              style="filter:drop-shadow(0 6px 14px rgba(247,148,29,.18))"/>
+        <text class="fw-station-label" x="449" y="36" text-anchor="middle">Chore Robotics Cloud</text>
+      </g>
+
+      <!-- MODEL: fleet learning chip (cloud-only, no direct link to the robot) -->
+      <g class="fw-node-pulse">
+        <rect x="700" y="95" width="170" height="150" rx="18" fill="url(#fwNodeGrad)" stroke="var(--orange)"
+              stroke-width="2" style="filter:drop-shadow(0 6px 14px rgba(247,148,29,.18))"/>
+        <g stroke="var(--orange)" stroke-width="2" opacity=".5" stroke-linecap="round">
+          <line x1="690" y1="114" x2="700" y2="114"/><line x1="690" y1="151" x2="700" y2="151"/>
+          <line x1="690" y1="189" x2="700" y2="189"/><line x1="690" y1="226" x2="700" y2="226"/>
+          <line x1="870" y1="114" x2="880" y2="114"/><line x1="870" y1="151" x2="880" y2="151"/>
+          <line x1="870" y1="189" x2="880" y2="189"/><line x1="870" y1="226" x2="880" y2="226"/>
+        </g>
+        <text class="fw-station-label" x="785" y="155" text-anchor="middle">AI Brain</text>
+        <text class="fw-station-sub" x="785" y="180" text-anchor="middle">learns from every robot,</text>
+        <text class="fw-station-sub" x="785" y="196" text-anchor="middle">upgrades them all</text>
+      </g>
+
+      <!-- ROBOT: the actual product shot, on the ground, transmitting -->
+      <ellipse cx="200" cy="585" rx="120" ry="10" fill="#000" opacity=".08"/>
+      <image href="static/robot.png" x="40" y="400" width="320" height="200"/>
+      <g fill="none" stroke="var(--orange)" stroke-width="2.5" stroke-linecap="round" transform="translate(43,193)">
+        <path d="M 237 243.3 A 10 10 0 0 1 242 252"><animate attributeName="opacity" values=".15;1;.15" dur="1.8s" repeatCount="indefinite"/></path>
+        <path d="M 240.5 237.3 A 17 17 0 0 1 249 252"><animate attributeName="opacity" values=".15;1;.15" dur="1.8s" begin="0.3s" repeatCount="indefinite"/></path>
+        <path d="M 244 231.2 A 24 24 0 0 1 256 252"><animate attributeName="opacity" values=".15;1;.15" dur="1.8s" begin="0.6s" repeatCount="indefinite"/></path>
+      </g>
+
+      <!-- PHONE: operator's fleet app, on the ground -->
+      <g>
+        <rect x="660" y="400" width="96" height="188" rx="18" fill="#fff" stroke="var(--text)" stroke-width="2" stroke-opacity=".75"/>
+        <rect x="694" y="410" width="28" height="4" rx="2" fill="var(--text)" opacity=".3"/>
+        <rect x="670" y="428" width="76" height="132" rx="10" fill="#fff" stroke="var(--text)" stroke-width="1" stroke-opacity=".12"/>
+        <rect x="676" y="436" width="64" height="9" rx="4" fill="var(--orange)"/>
+        <circle cx="683" cy="456" r="3.3" fill="var(--green)"/><rect x="692" y="452.5" width="46" height="6" rx="3" fill="var(--text3)" opacity=".55"/>
+        <circle cx="683" cy="478" r="3.3" fill="var(--green)"/><rect x="692" y="474.5" width="38" height="6" rx="3" fill="var(--text3)" opacity=".55"/>
+        <circle cx="683" cy="500" r="3.3" fill="var(--green)"/><rect x="692" y="496.5" width="43" height="6" rx="3" fill="var(--text3)" opacity=".55"/>
+        <rect x="706" y="534" width="32" height="12" rx="6" fill="var(--orange)"/>
+      </g>
+
+      <!-- exhibit captions, below the ground line -->
+      <text class="fw-station-label" x="200" y="628" text-anchor="middle">Robots in the Field</text>
+      <text class="fw-station-sub" x="200" y="646" text-anchor="middle">learning on the job, every day</text>
+
+      <text class="fw-station-label" x="708" y="628" text-anchor="middle">Fleet App</text>
+      <text class="fw-station-sub" x="708" y="646" text-anchor="middle">monitor &amp; control from anywhere</text>
+
+      <!-- center flywheel + tagline -->
+      <g transform="translate(470,320)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="14s" repeatCount="indefinite"/>
+          ${spokes}
+        </g>
+      </g>
+      <text class="fw-tagline" x="470" y="372" text-anchor="middle">Every loop ships a better robot</text>
+
+      <!-- moving data (single glow filter group for perf) -->
+      <g filter="url(#fwGlow)">
+        ${fwParticles(FW_P1, 4, 2.4, 4)}
+        ${fwPackets(FW_P2, 3, 3.2)}
+        ${fwParticles(FW_P3, 3, 2.3, 4)}
+        ${fwParticles(FW_P4, 2, 2.4, 3)}
+        ${fwParticles(FW_P5, 2, 2.6, 3)}
+        ${fwParticles(FW_P6, 2, 2.1, 3)}
+        ${fwParticles(FW_P7, 2, 2.5, 3)}
+      </g>
+    </svg>`;
 }
 
 function renderFlywheel() {
   const wrap = document.getElementById('flywheel-wrap');
   if (!wrap) return;
-  const robots = Object.values(fleet);
-  const atts = Object.values(attachments);
-
-  const robotsOnline = robots.filter(r => r.status === 'online').length;
-  const telemetryRate = robots.length * 4;
-  const faultsTracked = FAULT_CODES.reduce((s, f) => s + f.count, 0);
-  const versionsShipped = versions.length + attachmentVersions.length;
-  const robotsOnTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
-  const attachmentsOnTarget = atts.filter(a => attachmentTargets[a.type_code] && a.current_version === attachmentTargets[a.type_code]).length;
-  const updatesDelivered = robotsOnTarget + attachmentsOnTarget;
-  const attachmentsActive = atts.filter(a => a.status === 'online').length;
-
-  const values = [robotsOnline, telemetryRate, faultsTracked, versionsShipped, updatesDelivered, attachmentsActive];
-
-  const cx = 300, cy = 280, R = 180, nodeR = 48, pad = 17;
-  let arcs = '';
-  for (let i = 0; i < 6; i++) {
-    const a1 = i * 60 + pad;
-    const a2 = (i + 1) * 60 - pad;
-    const p1 = flywheelPoint(a1, R, cx, cy);
-    const p2 = flywheelPoint(a2, R, cx, cy);
-    arcs += `<path class="flywheel-arrow" marker-end="url(#flywheelArrowHead)" d="M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}"/>`;
-  }
-
-  let nodes = '';
-  for (let i = 0; i < 6; i++) {
-    const p = flywheelPoint(i * 60, R, cx, cy);
-    const n = FLYWHEEL_NODES[i];
-    const titleLines = n.lines.map((line, li) => `<tspan x="0" dy="${li === 0 ? 0 : 13}">${line}</tspan>`).join('');
-    nodes += `
-      <g transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})">
-        <circle class="flywheel-node-circle" r="${nodeR}"/>
-        <text class="flywheel-node-counter" text-anchor="middle" y="-4">${values[i]}</text>
-        <text class="flywheel-node-sub" text-anchor="middle" y="13">${n.sub}</text>
-        <text class="flywheel-node-label" text-anchor="middle" y="${nodeR + 20}">${titleLines}</text>
-      </g>`;
-  }
-
-  wrap.innerHTML = `
-    <svg viewBox="0 0 600 560" width="100%" style="display:block">
-      <defs>
-        <radialGradient id="flywheelNodeGrad" cx="35%" cy="30%" r="80%">
-          <stop offset="0%" stop-color="#ffffff"/>
-          <stop offset="100%" stop-color="#FFF3E0"/>
-        </radialGradient>
-        <marker id="flywheelArrowHead" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
-          <path d="M0,0 L9,4.5 L0,9 Z" fill="#F7941D"/>
-        </marker>
-      </defs>
-      <circle class="flywheel-hub" cx="${cx}" cy="${cy}" r="${R - nodeR - 6}" fill="none" stroke="#F7941D" stroke-width="1.5" stroke-dasharray="3 7" opacity=".35"/>
-      <text x="${cx}" y="${cy - 6}" text-anchor="middle" class="flywheel-center-label">The Data Flywheel</text>
-      <text x="${cx}" y="${cy + 12}" text-anchor="middle" class="flywheel-center-sub">Every loop ships a better robot</text>
-      ${arcs}
-      ${nodes}
-    </svg>`;
+  if (!document.getElementById('fw-scene')) wrap.innerHTML = buildFlywheelScene();
 }
 
 // ---- Render ----
@@ -3422,6 +3826,10 @@ function showToast(msg, kind = 'info') {
 
 // ---- Init ----
 connectWS();
+
+// Deep-link a section: /?section=flywheel
+const initialSection = new URLSearchParams(location.search).get('section');
+if (initialSection && sections.includes(initialSection)) showSection(initialSection);
 
 // Refresh time-ago labels every 15s
 setInterval(() => {

@@ -13,10 +13,12 @@ from datetime import datetime, timedelta
 app = FastAPI(title="Chore Robotics OTA Server")
 
 UPDATE_DIR = "updates"
+JETSON_UPDATE_DIR = os.path.join(UPDATE_DIR, "jetson")
 DB_FILE = "fleet_db.json"
 ONLINE_THRESHOLD_SECONDS = 20  # robot/attachment considered offline if no check-in within this window
 
 os.makedirs(UPDATE_DIR, exist_ok=True)
+os.makedirs(JETSON_UPDATE_DIR, exist_ok=True)
 os.makedirs("static", exist_ok=True)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -53,6 +55,12 @@ def load_state() -> dict:
     data.setdefault("attachments", {})
     data.setdefault("attachment_versions", default_attachment_versions())
     data.setdefault("attachment_targets", {})
+    data.setdefault("jetson_target_version", "")
+    # Migrate robots persisted before the jetson module firmware channel existed.
+    for r in data["robots"].values():
+        r.setdefault("jetson_version", "1.0.0")
+        r.setdefault("jetson_pending_version", None)
+        r.setdefault("jetson_update_status", "idle")
     return data
 
 def save_fleet():
@@ -62,6 +70,7 @@ def save_fleet():
             "attachments": attachments,
             "attachment_versions": attachment_versions,
             "attachment_targets": attachment_targets,
+            "jetson_target_version": jetson_target_version,
         }, f, indent=2)
 
 _state = load_state()
@@ -69,6 +78,7 @@ robots: dict[str, dict] = _state["robots"]
 attachments: dict[str, dict] = _state["attachments"]
 attachment_versions: list[dict] = _state["attachment_versions"]
 attachment_targets: dict[str, str] = _state["attachment_targets"]
+jetson_target_version: str = _state["jetson_target_version"]
 current_target_version = ""
 active_connections: list[WebSocket] = []
 
@@ -81,6 +91,7 @@ class RegisterRequest(BaseModel):
     version: str
     serial: Optional[str] = None
     hw_rev: Optional[str] = "A"
+    jetson_version: Optional[str] = None
 
 class AckRequest(BaseModel):
     robot_id: str
@@ -88,6 +99,15 @@ class AckRequest(BaseModel):
     version: Optional[str] = None
 
 class DeployRequest(BaseModel):
+    version: str
+    robot_ids: Optional[list[str]] = None  # None = all known robots
+
+class JetsonAckRequest(BaseModel):
+    robot_id: str
+    status: str  # "triggered" | "idle"
+    version: Optional[str] = None
+
+class JetsonDeployRequest(BaseModel):
     version: str
     robot_ids: Optional[list[str]] = None  # None = all known robots
 
@@ -130,6 +150,20 @@ def scan_uploaded_versions() -> list[dict]:
     for path in glob.glob(os.path.join(UPDATE_DIR, "update_*.tar.gz")):
         fname = os.path.basename(path)
         version = fname[len("update_"):-len(".tar.gz")]
+        versions.append({
+            "version": version,
+            "filename": fname,
+            "size": os.path.getsize(path),
+            "uploaded_at": datetime.fromtimestamp(os.path.getmtime(path)).isoformat(),
+        })
+    versions.sort(key=lambda v: v["version"], reverse=True)
+    return versions
+
+def scan_jetson_versions() -> list[dict]:
+    versions = []
+    for path in glob.glob(os.path.join(JETSON_UPDATE_DIR, "jetson_*.tar.gz")):
+        fname = os.path.basename(path)
+        version = fname[len("jetson_"):-len(".tar.gz")]
         versions.append({
             "version": version,
             "filename": fname,
@@ -198,6 +232,10 @@ def get_fleet():
 def get_versions():
     return {"versions": scan_uploaded_versions(), "target": current_target_version}
 
+@app.get("/api/jetson/versions")
+def get_jetson_versions():
+    return {"versions": scan_jetson_versions(), "target": jetson_target_version}
+
 @app.post("/upload")
 async def upload_update(file: UploadFile = File(...), version: str = ""):
     file_path = os.path.join(UPDATE_DIR, f"update_{version}.tar.gz")
@@ -206,17 +244,27 @@ async def upload_update(file: UploadFile = File(...), version: str = ""):
     await broadcast({"type": "versions_update", "versions": scan_uploaded_versions()})
     return {"status": "uploaded", "version": version}
 
+@app.post("/upload/jetson")
+async def upload_jetson_update(file: UploadFile = File(...), version: str = ""):
+    file_path = os.path.join(JETSON_UPDATE_DIR, f"jetson_{version}.tar.gz")
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    await broadcast({"type": "jetson_versions_update", "versions": scan_jetson_versions()})
+    return {"status": "uploaded", "version": version}
+
 @app.post("/api/clear")
 async def clear_database():
-    global robots, attachments, current_target_version, attachment_targets
+    global robots, attachments, current_target_version, attachment_targets, jetson_target_version
     robots = {}
     attachments = {}
     current_target_version = ""
     attachment_targets = {}
+    jetson_target_version = ""
     save_fleet()
     await broadcast({"type": "fleet_update", "fleet": fleet_snapshot()})
     await broadcast({"type": "target_update", "target_version": current_target_version})
     await broadcast({"type": "attachment_target_update", "targets": dict(attachment_targets)})
+    await broadcast({"type": "jetson_target_update", "target_version": jetson_target_version})
     await broadcast({"type": "toast", "message": "Database cleared — waiting for robots to connect", "kind": "info"})
     return {"status": "cleared"}
 
@@ -268,6 +316,24 @@ async def deploy_attachment_update(req: AttachmentDeployRequest):
     await broadcast({"type": "toast", "message": f"Update v{req.version} queued for {len(targets)} {req.type_code} attachment(s)", "kind": "info"})
     return {"status": "queued", "targets": targets}
 
+@app.post("/deploy/jetson")
+async def deploy_jetson_update(req: JetsonDeployRequest):
+    global jetson_target_version
+    jetson_target_version = req.version
+    ids = req.robot_ids if req.robot_ids else list(robots.keys())
+    targets = []
+    for rid in ids:
+        if rid not in robots:
+            continue
+        robots[rid]["jetson_pending_version"] = req.version
+        robots[rid]["jetson_update_status"] = "pending"
+        targets.append(rid)
+    save_fleet()
+    await broadcast({"type": "fleet_update", "fleet": fleet_snapshot()})
+    await broadcast({"type": "jetson_target_update", "target_version": jetson_target_version})
+    await broadcast({"type": "toast", "message": f"Jetson module update v{req.version} queued for {len(targets)} robot(s)", "kind": "info"})
+    return {"status": "queued", "targets": targets}
+
 @app.post("/api/demo/stage")
 async def demo_stage(req: DemoStageRequest):
     await broadcast({
@@ -290,6 +356,8 @@ async def websocket_endpoint(ws: WebSocket):
         "attachment_versions": attachment_versions,
         "target_version": current_target_version,
         "attachment_targets": attachment_targets,
+        "jetson_versions": scan_jetson_versions(),
+        "jetson_target_version": jetson_target_version,
     }))
     try:
         while True:
@@ -312,6 +380,9 @@ async def robot_register(req: RegisterRequest):
         "current_version": req.version,
         "pending_version": existing.get("pending_version") if existing else None,
         "update_status": existing.get("update_status", "idle") if existing else "idle",
+        "jetson_version": req.jetson_version or (existing.get("jetson_version", "1.0.0") if existing else "1.0.0"),
+        "jetson_pending_version": existing.get("jetson_pending_version") if existing else None,
+        "jetson_update_status": existing.get("jetson_update_status", "idle") if existing else "idle",
         "first_seen": existing.get("first_seen", now) if existing else now,
         "last_seen": now,
     }
@@ -349,6 +420,40 @@ async def robot_ack(req: AckRequest):
         r["current_version"] = req.version
     if req.status == "idle":
         r["pending_version"] = None
+    save_fleet()
+    await broadcast({"type": "fleet_update", "fleet": fleet_snapshot()})
+    return {"status": "ok"}
+
+@app.get("/api/robot/jetson/check")
+async def robot_jetson_check(robot_id: str, version: str):
+    """Jetson compute-module firmware channel, independent from the robot's
+    main firmware version but scoped to the same robot serial (not a
+    separately-inventoried device like an attachment)."""
+    if robot_id not in robots:
+        raise HTTPException(status_code=404, detail="not_registered")
+    r = robots[robot_id]
+    r["last_seen"] = datetime.now().isoformat()
+    r["jetson_version"] = version
+    pending = r.get("jetson_pending_version")
+    update_available = bool(pending) and pending != version and r.get("jetson_update_status") != "triggered"
+    save_fleet()
+    await broadcast({"type": "fleet_update", "fleet": fleet_snapshot()})
+    return {
+        "update_available": update_available,
+        "target_version": pending if update_available else None,
+    }
+
+@app.post("/api/robot/jetson/ack")
+async def robot_jetson_ack(req: JetsonAckRequest):
+    if req.robot_id not in robots:
+        raise HTTPException(status_code=404, detail="not_registered")
+    r = robots[req.robot_id]
+    r["jetson_update_status"] = req.status
+    r["last_seen"] = datetime.now().isoformat()
+    if req.version:
+        r["jetson_version"] = req.version
+    if req.status == "idle":
+        r["jetson_pending_version"] = None
     save_fleet()
     await broadcast({"type": "fleet_update", "fleet": fleet_snapshot()})
     return {"status": "ok"}

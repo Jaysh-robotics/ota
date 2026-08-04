@@ -49,12 +49,12 @@ it during recording — the virtual cursor is doing the driving.
 
 | Time | Scene | Section shown | What happens |
 |------|-------|---------------|--------------|
-| 0:00 | Fleet comes online | Fleet Overview | 11 robots (Chorerobot-00001…00011, serials CR-2026-…) + attachments register live; stats and charts fill in while the cursor hovers rows. |
+| 0:00 | Fleet comes online | Fleet Overview | Simulator uploads the firmware catalog, then 11 robots (Chorerobot-00001…00011, serials CR-2026-…) + attachments register live; stats and charts fill in while the cursor hovers rows. |
 | 0:25 | Zero-touch provisioning | Device Registry | Cursor opens the registry; Chorerobot-00012 registers itself with its Leaf Collector; cursor scrolls to the Attachment Registry and opens a robot drawer. |
-| 0:45 | Robot OTA rollout | Deploy Updates | Cursor selects v1.3.1 → "Select All Available" → "Push Update to Fleet". Active Rollout card shows a live progress bar: "Updated N / 11 robots". |
-| 1:25 | Attachment OTA | Deploy Updates | Cursor picks Lawn Mower + v2.4.1 and pushes — progress bar again: "Updated N / 4 Lawn Mowers". |
-| 1:50 | Remote diagnostics | Remote Operations | Cursor targets Chorerobot-00009 and runs a Self-Test (sent → acked → executed in Command History). 00009 also goes briefly silent and recovers with a single alert toast. |
-| 2:10 | The data flywheel | Data Flywheel | Closing shot: animated flywheel with live counters; cursor fades out. |
+| 0:45 | Robot OTA rollout | Deploy Updates | Cursor opens the version dropdown, picks v1.3.1 → "Select All Available" → "Push Update to Fleet", then scrolls up to the Active Rollout progress bar for ~3s. |
+| 1:03 | Attachment OTA | Deploy Updates | Cursor moves down to the attachment card, picks Lawn Mower + v2.4.1, pushes — then back up to the progress bar for ~3s. |
+| 1:19 | Remote diagnostics | Remote Operations | Cursor targets Chorerobot-00009, runs a Self-Test, then rests on Command History while sent → acked → executed plays out. 00009 also goes briefly silent and recovers with one alert toast. |
+| ~1:55 | Flywheel + closing | Data Flywheel → Fleet Overview | ~3s on the animated flywheel, then the cursor returns to the main dashboard and fades out. Total ≈ 2:05. |
 
 Total toasts on screen for the whole video: ~4 (two deploy confirmations, rollout
 complete, one recovery alert). Everything else surfaces through stats, tables,
@@ -75,3 +75,45 @@ progress bars, and the activity log — like a real dashboard.
 - After the timeline ends the simulator keeps heartbeating so you can linger on
   any section; robots stay green until you Ctrl+C.
 - Re-record anytime: Ctrl+C simulator → Clear Database in the dashboard → rerun.
+
+## 15-second short cut
+
+For a ~15s feature-showcase clip instead of the full demo, use `--short`. It
+plays the same six acts with the same real API traffic, just staged
+back-to-back (see DEMO_SPEC.md §8 for the exact timeline and timings).
+
+1. Click **Clear Database** in the dashboard (same as any re-record).
+2. Start your screen recorder on the browser window.
+3. Run:
+
+```bash
+# Terminal 2
+python3 fleet_simulator.py --server http://localhost:8000 --short
+```
+
+4. The simulator prints a "START RECORDING NOW" banner followed by a 3-2-1
+   countdown (1s apart) before Act 1 fires — a 15s clip has no slack, so make
+   sure recording is already rolling by the time the countdown starts, and
+   use the countdown itself as your cue for when Act 1 begins on screen.
+5. Do nothing else. The six acts land at roughly t=0.0 / 2.6 / 5.2 / 8.6 /
+   11.8 / 14.2s. Stop recording ~2s after the flywheel appears (~16–17s total
+   recording). Ctrl+C the simulator when done.
+
+Notes specific to short mode:
+- `--short` and `--fast` are mutually exclusive — the simulator errors out if
+  you pass both.
+- Heartbeat and install timings are compressed (0.8–1.4s heartbeats, 1.0–1.8s
+  installs) so a full OTA install cycle is still visible on screen in the
+  short window.
+- Short mode never triggers the Chorerobot-00009 offline/recovery beat — the
+  20s offline threshold can't fit in a 15s clip, so Act 5's visual is the
+  self-test command history instead.
+- **Labels are burned in automatically — no post-production needed.** Only in
+  `--short` mode, the dashboard overlays a lower-third caption card (feature
+  name + one-line benefit + "ACT n/6") for each act, synced to the same
+  `demo_stage` messages that drive the virtual cursor, and it fades out with
+  the cursor at the end. The normal 2:30 recording still shows zero demo
+  chrome — you still add labels in post for that one — this carve-out is
+  short-mode only (DEMO_SPEC.md §8.6).
+- Re-record flow is the same as the main runbook: Ctrl+C simulator → Clear
+  Database in the dashboard → rerun.

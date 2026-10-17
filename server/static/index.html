@@ -155,6 +155,249 @@
   }
   .btn-danger-ghost:hover { background: #fef2f2; border-color: var(--red); }
 
+  /* User profile pill & RBAC styling */
+  .user-profile-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px 3px 4px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all .2s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+  .user-profile-pill:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+  .user-avatar-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .user-info-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .user-info-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .user-info-role {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--orange);
+    letter-spacing: 0.04em;
+  }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all .15s;
+  }
+  .btn-logout:hover {
+    background: #fee2e2;
+    color: var(--red);
+    border-color: #fca5a5;
+  }
+
+  /* Device Registry Styles */
+  .registry-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .registry-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+  .search-input-wrap {
+    position: relative;
+    min-width: 240px;
+  }
+  .search-input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    pointer-events: none;
+    display: flex;
+  }
+  .registry-search-input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: all .15s;
+  }
+  .registry-search-input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 2px rgba(247,148,29,.2);
+  }
+  .registry-select {
+    padding: 7px 12px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .tag-pill-interactive {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    border-radius: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-family: monospace;
+    transition: all .15s;
+  }
+  .tag-pill-interactive:hover {
+    border-color: var(--orange);
+    color: var(--text);
+  }
+  .tag-remove-btn {
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 12px;
+    line-height: 1;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+  }
+  .tag-remove-btn:hover { color: var(--red); }
+  .tag-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text3);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .tag-add-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: var(--surface2);
+  }
+  .btn-action-sm {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-action-sm:hover {
+    background: var(--surface2);
+    border-color: var(--orange);
+  }
+  .btn-action-sm.btn-primary-sm {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+  }
+  .btn-action-sm.btn-primary-sm:hover { background: var(--orange-dark); }
+  .btn-action-sm.btn-danger-sm {
+    color: var(--red);
+    border-color: #fecaca;
+  }
+  .btn-action-sm.btn-danger-sm:hover { background: #fee2e2; }
+
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: modalPop .2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .modal-body { padding: 20px; }
+  .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
   .content { padding: 28px; flex: 1; }
 
   /* ---------- Stats row ---------- */
@@ -377,6 +620,42 @@
 
   /* ---------- Right panel ---------- */
   .panel-stack { display: flex; flex-direction: column; gap: 20px; }
+
+  /* ---------- Diagnostic Terminal & Remote Ops ---------- */
+  .diag-terminal {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 11.5px;
+    color: #58a6ff;
+    padding: 12px 14px;
+    height: 270px;
+    overflow-y: auto;
+    line-height: 1.6;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+  }
+  .diag-terminal-line { margin-bottom: 2px; word-break: break-all; }
+  .diag-terminal-line .log-time { color: #8b949e; margin-right: 6px; }
+  .diag-terminal-line .log-tag { color: #f7941d; font-weight: 700; margin-right: 6px; }
+  .diag-terminal-line .log-pass { color: #3fb950; font-weight: 700; }
+  .diag-terminal-line .log-warn { color: #d29922; }
+  .diag-terminal-line .log-err { color: #f85149; font-weight: 700; }
+  .subsystem-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px; border-radius: 5px; font-size: 10px; font-weight: 700;
+    font-family: monospace; background: var(--bg); border: 1px solid var(--border);
+    transition: all .2s;
+  }
+  .subsystem-pill.ok { background: #dcfce7; color: #15803d; border-color: #86efac; }
+  .subsystem-pill.testing { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; animation: pulse 1.5s infinite; }
+  .subsystem-pill.err { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+  .cmd-progress-bar {
+    height: 4px; background: rgba(59,130,246,0.2); border-radius: 2px; overflow: hidden; margin-top: 4px;
+  }
+  .cmd-progress-fill {
+    height: 100%; background: #3b82f6; transition: width .3s ease;
+  }
 
   /* ---------- Upload zone ---------- */
   .upload-zone {
@@ -632,6 +911,8 @@
   .flywheel-hub { animation: flywheelSpin 40s linear infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes flywheelSpin { to { transform: rotate(360deg); } }
 </style>
+<link rel="stylesheet" href="/static/deployment.css">
+<link rel="stylesheet" href="/static/campaigns.css">
 </head>
 <body>
 
@@ -642,80 +923,80 @@
   </div>
   <nav class="sidebar-nav">
   <div class="sidebar-section">Fleet</div>
-  <a class="nav-item active" id="nav-fleet" onclick="showSection('fleet')">
+  <a class="nav-item active" id="nav-fleet" href="#fleet" onclick="showSection('fleet')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
     Fleet Overview
   </a>
-  <a class="nav-item" id="nav-analytics" onclick="showSection('analytics')">
+  <a class="nav-item" id="nav-analytics" href="#analytics" onclick="showSection('analytics')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     Fleet Analytics
   </a>
-  <a class="nav-item" id="nav-devices" onclick="showSection('devices')">
+  <a class="nav-item" id="nav-devices" href="#devices" onclick="showSection('devices')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/></svg>
     Device Registry
   </a>
-  <a class="nav-item" id="nav-connectivity" onclick="showSection('connectivity')">
+  <a class="nav-item" id="nav-connectivity" href="#connectivity" onclick="showSection('connectivity')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
     Connectivity
   </a>
   <div class="sidebar-section">OTA &amp; Updates</div>
-  <a class="nav-item" id="nav-deploy" onclick="showSection('deploy')">
+  <a class="nav-item" id="nav-deploy" href="#deploy" onclick="showSection('deploy')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
     Deploy Updates
   </a>
-  <a class="nav-item" id="nav-campaigns" onclick="showSection('campaigns')">
+  <a class="nav-item" id="nav-campaigns" href="#campaigns" onclick="showSection('campaigns')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
     Campaigns
   </a>
-  <a class="nav-item" id="nav-uploads" onclick="showSection('uploads')">
+  <a class="nav-item" id="nav-uploads" href="#uploads" onclick="showSection('uploads')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     Upload Firmware
   </a>
-  <a class="nav-item" id="nav-remoteops" onclick="showSection('remoteops')">
+  <a class="nav-item" id="nav-remoteops" href="#remoteops" onclick="showSection('remoteops')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
     Remote Operations
   </a>
   <div class="sidebar-section">Diagnostics</div>
-  <a class="nav-item" id="nav-telemetry" onclick="showSection('telemetry')">
+  <a class="nav-item" id="nav-telemetry" href="#telemetry" onclick="showSection('telemetry')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
     Telemetry
   </a>
-  <a class="nav-item" id="nav-faults" onclick="showSection('faults')">
+  <a class="nav-item" id="nav-faults" href="#faults" onclick="showSection('faults')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
     Fault Codes
   </a>
-  <a class="nav-item" id="nav-predictive" onclick="showSection('predictive')">
+  <a class="nav-item" id="nav-predictive" href="#predictive" onclick="showSection('predictive')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
     Predictive Maintenance
   </a>
   <div class="sidebar-section">Operations</div>
-  <a class="nav-item" id="nav-alerts" onclick="showSection('alerts')">
+  <a class="nav-item" id="nav-alerts" href="#alerts" onclick="showSection('alerts')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
     Alerts
   </a>
-  <a class="nav-item" id="nav-support" onclick="showSection('support')">
+  <a class="nav-item" id="nav-support" href="#support" onclick="showSection('support')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
     Support Console
   </a>
-  <a class="nav-item" id="nav-automation" onclick="showSection('automation')">
+  <a class="nav-item" id="nav-automation" href="#automation" onclick="showSection('automation')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
     Automation
   </a>
   <div class="sidebar-section">Platform</div>
-  <a class="nav-item" id="nav-access" onclick="showSection('access')">
+  <a class="nav-item" id="nav-access" href="#access" onclick="showSection('access')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
     Access &amp; Audit
   </a>
-  <a class="nav-item" id="nav-enterprise" onclick="showSection('enterprise')">
+  <a class="nav-item" id="nav-enterprise" href="#enterprise" onclick="showSection('enterprise')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M9 13h1M9 17h1M14 9h1M14 13h1M14 17h1"/></svg>
     Enterprise &amp; Ecosystem
   </a>
-  <a class="nav-item" id="nav-flywheel" onclick="showSection('flywheel')">
+  <a class="nav-item" id="nav-flywheel" href="#flywheel" onclick="showSection('flywheel')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M21 12h-4M12 21v-4M3 12h4"/><circle cx="12" cy="12" r="2.5"/></svg>
     Data Flywheel
   </a>
   <div class="sidebar-section">System</div>
-  <a class="nav-item" id="nav-activity" onclick="showSection('activity')">
+  <a class="nav-item" id="nav-activity" href="#activity" onclick="showSection('activity')">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
     Activity Log
   </a>
@@ -735,11 +1016,25 @@
     </div>
     <div class="topbar-right">
       <span class="chip badge-gray" id="target-version-chip">No target set</span>
-      <button class="btn btn-danger-ghost" onclick="clearDatabase()">
+
+      <!-- User Profile & RBAC indicator -->
+      <a href="/login" class="user-profile-pill" id="user-profile-pill" title="Click to switch persona">
+        <div class="user-avatar-circle" id="user-avatar">?</div>
+        <div class="user-info-text">
+          <span class="user-info-name" id="user-display-name">Authenticating...</span>
+          <span class="user-info-role" id="user-display-role">...</span>
+        </div>
+      </a>
+      <button class="btn-logout" onclick="logout()" title="Sign out of current session">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+
+      <button class="btn btn-danger-ghost" id="btn-clear-db" onclick="clearDatabase()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
         Clear Database
       </button>
-      <button class="btn btn-primary" onclick="showSection('deploy')">
+      <button class="btn btn-primary" id="btn-push-update" onclick="showSection('deploy')">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         Push Update
       </button>
@@ -890,6 +1185,12 @@
 
     <!-- ===== DEPLOY SECTION ===== -->
     <div id="section-deploy" style="display:none">
+      <div class="dp-header"><div><span class="dp-eyebrow">FIRMWARE DEPLOYMENT</span><h2>Release. Select. Deploy.</h2></div><a class="btn btn-ghost" href="#uploads" onclick="showSection('uploads')">↑ Upload firmware</a></div>
+      <div class="dp-channel-switch" aria-label="Firmware channel">
+        <button type="button" class="dp-channel active" id="dp-tab-robot" aria-pressed="true" onclick="switchDeployChannel('robot')"><span class="dp-channel-icon">01</span><span>Base controller<small>Motion &amp; control</small></span><b id="dp-count-robot">0</b></button>
+        <button type="button" class="dp-channel" id="dp-tab-jetson" aria-pressed="false" onclick="switchDeployChannel('jetson')"><span class="dp-channel-icon">02</span><span>Jetson<small>Compute &amp; perception</small></span><b id="dp-count-jetson">0</b></button>
+        <button type="button" class="dp-channel" id="dp-tab-attachment" aria-pressed="false" onclick="switchDeployChannel('attachment')"><span class="dp-channel-icon">03</span><span>Attachments<small>Tools &amp; modules</small></span><b id="dp-count-attachment">0</b></button>
+      </div>
       <div class="card" id="rollout-progress-card" style="margin-bottom:20px;display:none">
         <div class="card-header">
           <div>
@@ -899,44 +1200,46 @@
         </div>
         <div class="card-body" id="rollout-progress-body"></div>
       </div>
-      <div class="layout-grid">
+      <div class="layout-grid dp-channel-panel" id="dp-panel-robot">
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Deploy Firmware Update</div>
-              <div class="card-subtitle">Select a version and target robots</div>
+              <div class="card-title">Base controller</div>
+              <div class="card-subtitle"></div>
             </div>
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Firmware Version to Deploy</label>
+              <label class="form-label" for="deploy-version-select">01 · Release</label>
               <select class="form-input" id="deploy-version-select">
                 <option value="">— Select a version —</option>
               </select>
             </div>
             <div class="divider"></div>
-            <div class="form-label" style="margin-bottom:10px">Target Robots</div>
+            <div class="form-label" style="margin-bottom:10px">02 · Devices</div>
             <div style="margin-bottom:10px;display:flex;gap:8px">
-              <button class="btn btn-ghost" id="select-all-robots-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(true)">Select All Available</button>
-              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(false)">Deselect All</button>
+              <button class="btn btn-ghost" id="select-all-robots-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(true)">Select available</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllRobots(false)">Clear</button>
             </div>
-            <div id="deploy-robot-list"></div>
+            <div class="dp-target-tools"><input type="search" class="form-input" aria-label="Search robot devices" placeholder="Search devices…" id="dp-search-robot" oninput="filterDeployDevices('robot')"><span id="dp-selection-robot">0 selected</span></div><div class="dp-devices" id="deploy-robot-list"></div>
             <div class="divider"></div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <div style="font-size:13px;color:var(--text2)">
                 Current target: <strong id="current-target-display">none</strong>
               </div>
             </div>
+            <div class="dp-review-label">03 · Review &amp; deploy</div>
+            <div class="deployment-readiness" id="readiness-robot" role="status" aria-live="polite">Choose a release to check readiness</div>
             <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="deploy-btn" onclick="deployUpdate()">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              Push Update to Fleet
+              Deploy to selected robots
             </button>
           </div>
         </div>
         <div class="panel-stack">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Deployment Status</div>
+              <div class="card-title">In progress</div>
             </div>
             <div class="card-body" id="deploy-status-list">
               <div class="empty">No pending deployments</div>
@@ -944,7 +1247,7 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Available Versions</div>
+              <div class="card-title">Release library</div>
             </div>
             <div class="card-body" id="deploy-versions-sidebar">
               <div class="empty">No firmware uploaded yet</div>
@@ -953,50 +1256,52 @@
         </div>
       </div>
 
-      <div class="layout-grid" style="margin-top:20px">
+      <div class="layout-grid dp-channel-panel" id="dp-panel-attachment" hidden>
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Deploy Attachment Firmware</div>
-              <div class="card-subtitle">Select an attachment type, version, and target attachments</div>
+              <div class="card-title">Attachment firmware</div>
+              <div class="card-subtitle"></div>
             </div>
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Attachment Type</label>
+              <label class="form-label" for="deploy-attachment-type">Attachment Type</label>
               <select class="form-input" id="deploy-attachment-type" onchange="renderAttachmentVersionOptions();renderDeployAttachmentList();">
                 <option value="">— Select a type —</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Firmware Version</label>
+              <label class="form-label" for="deploy-attachment-version">01 · Release</label>
               <select class="form-input" id="deploy-attachment-version">
                 <option value="">— Select a type first —</option>
               </select>
             </div>
             <div class="divider"></div>
-            <div class="form-label" style="margin-bottom:10px">Target Attachments</div>
+            <div class="form-label" style="margin-bottom:10px">02 · Devices</div>
             <div style="margin-bottom:10px;display:flex;gap:8px">
-              <button class="btn btn-ghost" id="select-all-attachments-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(true)">Select All Available</button>
-              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(false)">Deselect All</button>
+              <button class="btn btn-ghost" id="select-all-attachments-btn" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(true)">Select available</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllAttachments(false)">Clear</button>
             </div>
-            <div id="deploy-attachment-list"><div class="empty">Select an attachment type above</div></div>
+            <div class="dp-target-tools"><input type="search" class="form-input" aria-label="Search attachment devices" placeholder="Search devices…" id="dp-search-attachment" oninput="filterDeployDevices('attachment')"><span id="dp-selection-attachment">0 selected</span></div><div class="dp-devices" id="deploy-attachment-list"><div class="empty">Select an attachment type above</div></div>
             <div class="divider"></div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <div style="font-size:13px;color:var(--text2)">
                 Current target: <strong id="current-attachment-target-display">none</strong>
               </div>
             </div>
+            <div class="dp-review-label">03 · Review &amp; deploy</div>
+            <div class="deployment-readiness" id="readiness-attachment" role="status" aria-live="polite">Choose a release to check readiness</div>
             <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="deploy-attachment-btn" onclick="deployAttachmentUpdate()">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              Push Update to Attachments
+              Deploy to selected attachments
             </button>
           </div>
         </div>
         <div class="panel-stack">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Attachment Firmware Targets</div>
+              <div class="card-title">Current targets</div>
             </div>
             <div class="card-body" id="attachment-targets-list">
               <div class="empty">No targets set</div>
@@ -1005,44 +1310,46 @@
         </div>
       </div>
 
-      <div class="layout-grid" style="margin-top:20px">
+      <div class="layout-grid dp-channel-panel" id="dp-panel-jetson" hidden>
         <div class="card">
           <div class="card-header">
             <div>
-              <div class="card-title">Deploy Jetson Module Firmware</div>
-              <div class="card-subtitle">Compute-module firmware, independent from robot firmware</div>
+              <div class="card-title">Jetson module</div>
+              <div class="card-subtitle"></div>
             </div>
           </div>
           <div class="card-body">
             <div class="form-group">
-              <label class="form-label">Jetson Firmware Version</label>
+              <label class="form-label" for="deploy-jetson-version-select">01 · Release</label>
               <select class="form-input" id="deploy-jetson-version-select">
                 <option value="">— Select a version —</option>
               </select>
             </div>
             <div class="divider"></div>
-            <div class="form-label" style="margin-bottom:10px">Target Robots</div>
+            <div class="form-label" style="margin-bottom:10px">02 · Devices</div>
             <div style="margin-bottom:10px;display:flex;gap:8px">
-              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllJetsonRobots(true)">Select All Available</button>
-              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllJetsonRobots(false)">Deselect All</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllJetsonRobots(true)">Select available</button>
+              <button class="btn btn-ghost" style="font-size:12px;padding:5px 10px" onclick="selectAllJetsonRobots(false)">Clear</button>
             </div>
-            <div id="deploy-jetson-robot-list"></div>
+            <div class="dp-target-tools"><input type="search" class="form-input" aria-label="Search jetson devices" placeholder="Search devices…" id="dp-search-jetson" oninput="filterDeployDevices('jetson')"><span id="dp-selection-jetson">0 selected</span></div><div class="dp-devices" id="deploy-jetson-robot-list"></div>
             <div class="divider"></div>
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
               <div style="font-size:13px;color:var(--text2)">
                 Current target: <strong id="current-jetson-target-display">none</strong>
               </div>
             </div>
+            <div class="dp-review-label">03 · Review &amp; deploy</div>
+            <div class="deployment-readiness" id="readiness-jetson" role="status" aria-live="polite">Choose a release to check readiness</div>
             <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="deploy-jetson-btn" onclick="deployJetsonUpdate()">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              Push Update to Jetson Modules
+              Deploy to selected modules
             </button>
           </div>
         </div>
         <div class="panel-stack">
           <div class="card">
             <div class="card-header">
-              <div class="card-title">Jetson Firmware Versions</div>
+              <div class="card-title">01 · Releases</div>
             </div>
             <div class="card-body" id="deploy-jetson-versions-sidebar">
               <div class="empty">No Jetson firmware uploaded yet</div>
@@ -1054,10 +1361,33 @@
 
     <!-- ===== UPLOADS SECTION ===== -->
     <div id="section-uploads" style="display:none">
-      <div class="layout-grid">
+      <div class="dp-header">
+        <div>
+          <span class="dp-eyebrow">FIRMWARE UPLOAD &amp; CATALOG</span>
+          <h2>Upload. Verify. Release.</h2>
+        </div>
+        <a class="btn btn-ghost" href="#deploy" onclick="showSection('deploy')">→ Deploy firmware</a>
+      </div>
+      <div class="dp-channel-switch" aria-label="Upload firmware channel">
+        <button type="button" class="dp-channel active" id="upload-tab-robot" aria-pressed="true" onclick="switchUploadChannel('robot')">
+          <span class="dp-channel-icon">01</span>
+          <span>Base controller<small>Motion &amp; control firmware</small></span>
+          <b id="upload-count-robot">0</b>
+        </button>
+        <button type="button" class="dp-channel" id="upload-tab-jetson" aria-pressed="false" onclick="switchUploadChannel('jetson')">
+          <span class="dp-channel-icon">02</span>
+          <span>Jetson<small>Compute &amp; perception firmware</small></span>
+          <b id="upload-count-jetson">0</b>
+        </button>
+      </div>
+
+      <div class="layout-grid dp-channel-panel" id="upload-panel-robot">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">Uploaded Firmware</div>
+            <div>
+              <div class="card-title">Uploaded Firmware</div>
+              <div class="card-subtitle">Verified packages available for MCU base controller rollout</div>
+            </div>
           </div>
           <div class="card-body" id="uploads-list">
             <div class="empty">No firmware uploaded yet</div>
@@ -1067,7 +1397,7 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">Upload Firmware Package</div>
-              <div class="card-subtitle">.tar.gz files only</div>
+              <div class="card-subtitle">.tar.gz packages · up to 256 MB · unique version</div>
             </div>
             <div class="card-body">
               <div class="upload-zone" id="upload-zone" onclick="document.getElementById('fileInput').click()"
@@ -1081,10 +1411,10 @@
               </div>
               <input type="file" id="fileInput" accept=".tar.gz,.gz" onchange="fileSelected(this)">
               <div class="form-group" style="margin-top:16px">
-                <label class="form-label">Version Number</label>
+                <label class="form-label" for="versionInput">Version Number</label>
                 <input type="text" class="form-input" id="versionInput" placeholder="e.g. 1.0.2">
               </div>
-              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="uploadFile()">
+              <button class="btn btn-primary" style="width:100%;justify-content:center" id="upload-robot-btn" onclick="uploadFile()">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Upload Package
               </button>
@@ -1093,10 +1423,13 @@
         </div>
       </div>
 
-      <div class="layout-grid" style="margin-top:20px">
+      <div class="layout-grid dp-channel-panel" id="upload-panel-jetson" hidden>
         <div class="card">
           <div class="card-header">
-            <div class="card-title">Uploaded Jetson Firmware</div>
+            <div>
+              <div class="card-title">Uploaded Jetson Firmware</div>
+              <div class="card-subtitle">Verified packages available for compute module rollout</div>
+            </div>
           </div>
           <div class="card-body" id="jetson-uploads-list">
             <div class="empty">No Jetson firmware uploaded yet</div>
@@ -1106,7 +1439,7 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">Upload Jetson Firmware Package</div>
-              <div class="card-subtitle">.tar.gz files only · compute-module channel</div>
+              <div class="card-subtitle">.tar.gz packages · up to 256 MB · compute-module channel</div>
             </div>
             <div class="card-body">
               <div class="upload-zone" id="jetson-upload-zone" onclick="document.getElementById('jetsonFileInput').click()"
@@ -1120,10 +1453,10 @@
               </div>
               <input type="file" id="jetsonFileInput" accept=".tar.gz,.gz" onchange="jetsonFileSelected(this)">
               <div class="form-group" style="margin-top:16px">
-                <label class="form-label">Version Number</label>
+                <label class="form-label" for="jetsonVersionInput">Version Number</label>
                 <input type="text" class="form-input" id="jetsonVersionInput" placeholder="e.g. 1.1.0">
               </div>
-              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="uploadJetsonFile()">
+              <button class="btn btn-primary" style="width:100%;justify-content:center" id="upload-jetson-btn" onclick="uploadJetsonFile()">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                 Upload Package
               </button>
@@ -1135,62 +1468,163 @@
 
     <!-- ===== DEVICE REGISTRY SECTION ===== -->
     <div id="section-devices" style="display:none">
+
+      <!-- KPI Metric Header -->
+      <div class="stats-row" style="grid-template-columns:repeat(6, 1fr);margin-bottom:20px">
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Total Robots</div><div class="stat-value orange" id="dev-kpi-total">0</div><div class="stat-sub">Base Chassis Units</div></div>
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Active Fleet</div><div class="stat-value" id="dev-kpi-active" style="color:var(--green)">0</div><div class="stat-sub">In Operation</div></div>
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Maintenance</div><div class="stat-value" id="dev-kpi-maint" style="color:var(--yellow)">0</div><div class="stat-sub">Depot Service</div></div>
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Decommissioned</div><div class="stat-value" id="dev-kpi-decom" style="color:var(--red)">0</div><div class="stat-sub">Retired Assets</div></div>
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Tool Modules</div><div class="stat-value" id="dev-kpi-att-total" style="color:var(--blue)">0</div><div class="stat-sub">CAN Peripherals</div></div>
+        <div class="stat-card" style="padding:14px"><div class="stat-label">Active CAN Links</div><div class="stat-value" id="dev-kpi-att-inv" style="color:var(--green)">0</div><div class="stat-sub">Detected Online</div></div>
+      </div>
+
+      <!-- Search & Multi-filter Bar -->
+      <div class="card" style="margin-bottom:20px;padding:16px">
+        <div class="registry-toolbar">
+          <div class="registry-filters">
+            <div class="search-input-wrap">
+              <span class="search-input-icon">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              </span>
+              <input type="text" class="registry-search-input" id="dev-search-input" placeholder="Search by name, serial, tag, or depot location..." oninput="onDeviceFilterChange()">
+            </div>
+            <select class="registry-select" id="dev-filter-lifecycle" onchange="onDeviceFilterChange()">
+              <option value="">All Lifecycles</option>
+              <option value="active">Active (Deployed)</option>
+              <option value="maintenance">In Maintenance / Service</option>
+              <option value="decommissioned">Decommissioned</option>
+            </select>
+            <select class="registry-select" id="dev-filter-hw" onchange="onDeviceFilterChange()">
+              <option value="">All HW Revs</option>
+              <option value="A">Chassis Rev A</option>
+              <option value="B">Chassis Rev B</option>
+              <option value="C">Chassis Rev C</option>
+            </select>
+            <span id="dev-active-tag-filter" style="display:none" class="chip badge-orange">
+              <span id="dev-active-tag-name"></span>
+              <span onclick="clearTagFilter()" style="cursor:pointer;margin-left:4px;font-weight:bold">&times;</span>
+            </span>
+          </div>
+          <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="fetchAndRenderDeviceRegistry()">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Refresh Registry
+          </button>
+        </div>
+      </div>
+
+      <!-- Base Robots Hardware Registry -->
       <div class="card" style="margin-bottom:20px">
-        <div class="card-header">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div class="card-title">Device &amp; Attachment Registry</div>
-            <div class="card-subtitle">Identity, hardware revision, lifecycle state, and attached attachment per robot</div>
+            <div class="card-title">Robot Base Chassis Registry</div>
+            <div class="card-subtitle">Hardware identity, revisions, carrier boards, depot location, and auto-detected tool module</div>
           </div>
         </div>
         <div class="card-body" style="padding:0">
           <table class="fleet-table" id="devices-table">
-            <thead><tr>
-              <th>Robot</th><th>Serial</th><th>HW Rev</th><th>Manufactured</th><th>Lifecycle</th><th>Attachment</th><th>Group / Tag</th>
-            </tr></thead>
-            <tbody id="devices-tbody"><tr><td colspan="7" class="empty">No data yet</td></tr></tbody>
+            <thead>
+              <tr>
+                <th>Robot &amp; Model</th>
+                <th>Serial / Jetson</th>
+                <th>Hardware Spec</th>
+                <th>Depot Location &amp; Mfg</th>
+                <th>Lifecycle State</th>
+                <th>Auto-Detected Tool (CAN Bus)</th>
+                <th>Fleet Tags &amp; Cohort</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="devices-tbody"><tr><td colspan="8" class="empty">Loading device registry...</td></tr></tbody>
           </table>
         </div>
       </div>
+
+      <!-- Attachments Tooling Registry -->
       <div class="card" style="margin-bottom:20px">
-        <div class="card-header">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
           <div>
-            <div class="card-title">Attachment Registry</div>
-            <div class="card-subtitle">Snow Plowers, Lawn Mowers, Snow Removers, and Leaf Collectors across the fleet</div>
+            <div class="card-title">Tool Module &amp; CAN Bus Registry</div>
+            <div class="card-subtitle">Interchangeable tool modules (Snow Plowers, Mowers, Blowers, Collectors) reported by robot telemetry</div>
           </div>
         </div>
         <div class="card-body" style="padding:0">
           <table class="fleet-table" id="attachments-table">
-            <thead><tr>
-              <th>Serial</th><th>Type</th><th>Firmware</th><th>Attached To</th><th>Status</th><th>Update</th>
-            </tr></thead>
-            <tbody id="attachments-tbody"><tr><td colspan="6" class="empty">No data yet</td></tr></tbody>
+            <thead>
+              <tr>
+                <th>Tool Serial Number</th>
+                <th>Module Type</th>
+                <th>Tool Firmware</th>
+                <th>Connected Chassis (CAN Bus)</th>
+                <th>CAN Link Status</th>
+                <th>Target OTA Version</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="attachments-tbody"><tr><td colspan="7" class="empty">Loading attachment registry...</td></tr></tbody>
           </table>
         </div>
       </div>
-      <div class="layout-grid" style="grid-template-columns:1fr 1fr">
+
+      <!-- Bottom Row: Dynamic Compatibility Matrix & Fleet Tag Directory -->
+      <div class="layout-grid" style="grid-template-columns:1.2fr 1fr">
         <div class="card">
-          <div class="card-header"><div class="card-title">Compatibility Matrix</div><div class="card-subtitle">Attachment firmware ↔ base hardware revision</div></div>
+          <div class="card-header">
+            <div class="card-title">CAN Bus Hardware Compatibility Matrix</div>
+            <div class="card-subtitle">Hardware revision constraints enforced for firmware delivery and field diagnostics</div>
+          </div>
           <div class="card-body" style="padding:0">
-            <table class="mini-table">
-              <thead><tr><th>Attachment FW</th><th>HW Rev A</th><th>HW Rev B</th><th>HW Rev C</th></tr></thead>
-              <tbody>
-                <tr><td>Snow Plower 1.1</td><td>✅</td><td>✅</td><td>❌</td></tr>
-                <tr><td>Lawn Mower 2.4</td><td>✅</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Snow Remover 1.0</td><td>❌</td><td>✅</td><td>✅</td></tr>
-                <tr><td>Leaf Collector 3.0</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            <table class="mini-table" id="compatibility-table">
+              <thead><tr><th>Tool Module</th><th>Min FW</th><th>Rev A</th><th>Rev B</th><th>Rev C</th><th>Bus / Power Requirement</th></tr></thead>
+              <tbody id="compatibility-tbody">
+                <tr><td colspan="6" class="empty">Loading matrix...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Device Groups &amp; Tags</div></div>
-          <div class="card-body" style="display:flex;flex-wrap:wrap;gap:8px">
-            <span class="chip badge-orange">beta-channel</span>
-            <span class="chip badge-blue">region:us-west</span>
-            <span class="chip badge-green">cohort:pilot-2026</span>
-            <span class="chip badge-gray">hw-rev:b</span>
-            <span class="chip badge-yellow">warranty:active</span>
+          <div class="card-header"><div class="card-title">Fleet Cohorts &amp; Tag Directory</div><div class="card-subtitle">Click tag to filter registry</div></div>
+          <div class="card-body" id="dev-tag-directory" style="display:flex;flex-wrap:wrap;gap:8px">
+            <span class="empty">No tags found</span>
           </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ===== EDIT ROBOT METADATA MODAL ===== -->
+    <div id="modal-edit-robot" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeEditRobotModal()">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title">Edit Robot Metadata</div>
+          <button class="btn btn-ghost" style="padding:2px 8px;font-size:14px" onclick="closeEditRobotModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-robot-id">
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Robot Display Name</label>
+            <input type="text" class="form-input" id="edit-robot-name">
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Lifecycle State</label>
+            <select class="form-input" id="edit-robot-lifecycle">
+              <option value="active">Active (Production Operation)</option>
+              <option value="maintenance">Maintenance (Service Bay)</option>
+              <option value="decommissioned">Decommissioned (Retired)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Operating Location / Depot</label>
+            <input type="text" class="form-input" id="edit-robot-location">
+          </div>
+          <div class="form-group" style="margin-bottom:14px">
+            <label class="form-label">Maintenance Notes</label>
+            <textarea class="form-input" id="edit-robot-notes" rows="3" style="resize:vertical"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" onclick="closeEditRobotModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="submitEditRobot()">Save Changes</button>
         </div>
       </div>
     </div>
@@ -1228,116 +1662,149 @@
     </div>
 
     <!-- ===== CAMPAIGNS SECTION ===== -->
-    <div id="section-campaigns" style="display:none">
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-header">
-          <div>
-            <div class="card-title">Active Rollout</div>
-            <div class="card-subtitle" id="camp-sub">Phased campaign progress toward the current target version</div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="progress-steps" id="camp-steps"></div>
-          <div class="divider"></div>
-          <div class="setting-row">
-            <div>
-              <div class="setting-row-label">Forced vs. User-Consented</div>
-              <div class="setting-row-desc">Critical/security updates install automatically; feature updates wait for consent or a maintenance window</div>
-            </div>
-            <label class="toggle"><input type="checkbox" id="camp-forced" onchange="showToast(this.checked ? 'Campaign set to Forced install' : 'Campaign set to User-Consented', 'info')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="setting-row">
-            <div>
-              <div class="setting-row-label">Automatic Rollout Halt</div>
-              <div class="setting-row-desc">Auto-pause this campaign if failure rate crosses 5%</div>
-            </div>
-            <label class="toggle"><input type="checkbox" checked onchange="showToast(this.checked ? 'Auto-halt armed at 5% failure rate' : 'Auto-halt disabled', 'info')"><span class="toggle-slider"></span></label>
-          </div>
-          <div class="setting-row">
-            <div>
-              <div class="setting-row-label">Update Preconditions</div>
-              <div class="setting-row-desc">Robot must satisfy all before install is allowed</div>
-            </div>
-            <div style="display:flex;gap:6px">
-              <span class="stat-badge badge-green">Battery ≥ 20%</span>
-              <span class="stat-badge badge-green">Docked</span>
-              <span class="stat-badge badge-green">Idle</span>
-            </div>
-          </div>
-          <div class="divider"></div>
-          <button class="btn btn-danger-ghost" onclick="triggerRollback()">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-            Rollback Campaign
-          </button>
-        </div>
-      </div>
-      <div class="layout-grid" style="grid-template-columns:1fr 1fr">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Release Channels</div></div>
-          <div class="card-body" id="channels-body"><div class="empty">No data yet</div></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">OTA Quality Scorecard</div></div>
-          <div class="card-body">
-            <div class="chart-bar-row"><div class="chart-bar-label">Adoption</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:78%"></div></div><div class="chart-bar-count">78%</div></div>
-            <div class="chart-bar-row"><div class="chart-bar-label">Success Rate</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:96%"></div></div><div class="chart-bar-count">96%</div></div>
-            <div class="chart-bar-row"><div class="chart-bar-label">Rollback Rate</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:2%"></div></div><div class="chart-bar-count">2%</div></div>
-            <div class="chart-bar-row"><div class="chart-bar-label">Crash Δ post-update</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:4%"></div></div><div class="chart-bar-count">-4%</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div id="section-campaigns" style="display:none"><div id="campaign-visual"></div></div>
 
-    <!-- ===== REMOTE OPS SECTION ===== -->
+    <!-- ===== REMOTE DIAGNOSTICS & DEBUGGING SECTION ===== -->
     <div id="section-remoteops" style="display:none">
       <div class="layout-grid">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Send Remote Command</div>
-              <div class="card-subtitle">Command status is tracked sent → acked → executed</div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <!-- Command Dispatcher Card -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Remote Diagnostics &amp; Engineering Debug</div>
+                <div class="card-subtitle">Dispatch diagnostic signals and inspect MCU/CAN response telemetry</div>
+              </div>
+              <span id="remoteops-robot-status-badge" class="stat-badge badge-green">Online</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Target Base Chassis</label>
+                <select class="form-input" id="remoteops-robot" onchange="onRemoteOpsRobotChange()"></select>
+              </div>
+
+              <!-- Robot Metadata Summary Strip -->
+              <div id="remoteops-robot-meta-strip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;font-size:11.5px">
+                <div><span style="color:var(--text3)">Chassis:</span> <strong id="remote-meta-model" style="color:var(--text)">—</strong></div>
+                <div><span style="color:var(--text3)">HW Rev:</span> <strong id="remote-meta-hwrev" style="font-family:monospace;color:var(--text)">—</strong></div>
+                <div><span style="color:var(--text3)">Firmware:</span> <strong id="remote-meta-fw" style="font-family:monospace;color:var(--text)">—</strong></div>
+                <div><span style="color:var(--text3)">Tool:</span> <strong id="remote-meta-tool" style="color:var(--text)">—</strong></div>
+              </div>
+
+              <label class="form-label" style="margin-bottom:8px">Diagnostic &amp; Operational Routines</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+                <button class="btn btn-ghost" id="self-test-btn" onclick="sendCommand('selftest', 'Hardware Self-Test')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  Hardware Self-Test
+                </button>
+                <button class="btn btn-ghost" id="safe-reboot-btn" onclick="sendCommand('reboot', 'Safe Reboot (OTA Prep)')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Safe Reboot (OTA Prep)
+                </button>
+                <button class="btn btn-ghost" id="query-can-btn" onclick="sendCommand('can_query', 'Query CAN Bus Status')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                  Query CAN Bus
+                </button>
+                <button class="btn btn-ghost" id="fetch-logs-btn" onclick="sendCommand('fetch_logs', 'Fetch Crash Logs')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  Fetch Crash Logs
+                </button>
+                <button class="btn btn-ghost" id="blink-led-btn" onclick="sendCommand('blink_led', 'Blink Status LED (Identify)')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  Blink LED (Identify)
+                </button>
+                <button class="btn btn-ghost" id="dock-btn" onclick="sendCommand('dock', 'Return to Dock')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  Return to Dock
+                </button>
+                <button class="btn btn-danger-ghost" id="partition-reset-btn" style="grid-column:span 2" onclick="sendCommand('partition_reset', 'Factory Partition Reset')">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Emergency Partition Reset (Golden Slot)
+                </button>
+              </div>
+              <div class="divider"></div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-row-label">High-Verbosity Telemetry Capture</div>
+                  <div class="setting-row-desc">Increases CAN bus &amp; MCU telemetry capture frequency to 5s for diagnostic tracing</div>
+                </div>
+                <label class="toggle"><input type="checkbox" id="diag-mode-toggle" onchange="toggleHighVerbosity(this.checked)"><span class="toggle-slider"></span></label>
+              </div>
             </div>
           </div>
-          <div class="card-body">
-            <div class="form-group">
-              <label class="form-label">Target Robot</label>
-              <select class="form-input" id="remoteops-robot"></select>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-              <button class="btn btn-ghost" onclick="sendCommand('Reboot')">Reboot</button>
-              <button class="btn btn-ghost" onclick="sendCommand('Return to Dock')">Return to Dock</button>
-              <button class="btn btn-ghost" onclick="sendCommand('Stop Chore')">Stop Chore</button>
-              <button class="btn btn-ghost" id="self-test-btn" onclick="sendCommand('Run Self-Test')">Run Self-Test</button>
-              <button class="btn btn-ghost" onclick="sendCommand('Blink LED (Identify)')">Blink LED</button>
-              <button class="btn btn-danger-ghost" onclick="sendCommand('Factory Reset')">Factory Reset</button>
-            </div>
-            <div class="divider"></div>
-            <div class="setting-row">
+
+          <!-- Live Engineering Diagnostic Console / Terminal Card -->
+          <div class="card">
+            <div class="card-header">
               <div>
-                <div class="setting-row-label">Remote Diagnostics Mode</div>
-                <div class="setting-row-desc">Raises telemetry/log verbosity; auto-reverts after 4 hours</div>
+                <div class="card-title" style="display:flex;align-items:center;gap:8px">
+                  <svg width="15" height="15" fill="none" stroke="#F7941D" stroke-width="2" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                  Engineering Diagnostic Terminal
+                </div>
+                <div class="card-subtitle">Real-time device diagnostic stream &amp; CAN frame monitor</div>
               </div>
-              <label class="toggle"><input type="checkbox" id="diag-mode-toggle" onchange="showToast(this.checked ? 'Diagnostics mode enabled — auto-revert in 4h' : 'Diagnostics mode disabled', 'info')"><span class="toggle-slider"></span></label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="btn btn-ghost btn-sm" onclick="clearDiagTerminal()">Clear</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+                <div style="font-size:11px;color:var(--text2)">Subsystems Health:</div>
+                <div style="display:flex;flex-wrap:wrap;gap:5px" id="terminal-subsystems-pills">
+                  <span class="subsystem-pill ok" id="subsys-mcu">MCU: OK</span>
+                  <span class="subsystem-pill ok" id="subsys-can">CAN: OK</span>
+                  <span class="subsystem-pill ok" id="subsys-imu">IMU: OK</span>
+                  <span class="subsystem-pill ok" id="subsys-motor">DRIVE: OK</span>
+                  <span class="subsystem-pill ok" id="subsys-bms">BMS: OK</span>
+                </div>
+              </div>
+              <div class="diag-terminal" id="diag-terminal-output">
+                <div class="diag-terminal-line"><span class="log-time">[00:00:00]</span><span class="log-tag">[SYSTEM]</span> Diagnostic console ready. Select a target unit and dispatch routine.</div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Right Column -->
         <div class="panel-stack">
           <div class="card">
-            <div class="card-header"><div class="card-title">Remote Configuration</div></div>
+            <div class="card-header"><div class="card-title">Telemetry &amp; Crash Capture Config</div></div>
             <div class="card-body">
-              <div class="form-group"><label class="form-label">Default Cleaning Schedule</label><input class="form-input" value="Daily · 09:00" readonly></div>
-              <div class="form-group"><label class="form-label">Log Verbosity</label>
-                <select class="form-input"><option>Normal</option><option>Verbose</option><option>Debug</option></select>
+              <div class="form-group">
+                <label class="form-label">Telemetry Ingestion Interval</label>
+                <select class="form-input" id="policy-telemetry-interval">
+                  <option value="Standard (60s)">Standard (60s)</option>
+                  <option value="High-Rate Debug (5s)">High-Rate Debug (5s)</option>
+                  <option value="Power Save (5min)">Power Save (5min)</option>
+                </select>
               </div>
-              <div class="form-group"><label class="form-label">Telemetry Rate</label>
-                <select class="form-input"><option>Standard (60s)</option><option>Reduced (5min)</option><option>High-Rate (5s)</option></select>
+              <div class="form-group">
+                <label class="form-label">CAN Bus Logging Level</label>
+                <select class="form-input" id="policy-can-level">
+                  <option value="Errors &amp; Faults Only">Errors &amp; Faults Only</option>
+                  <option value="Full Bus Frame Trace">Full Bus Frame Trace</option>
+                  <option value="Debug Verbose">Debug Verbose</option>
+                </select>
               </div>
-              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="showToast('Configuration saved (demo)', 'success')">Save Configuration</button>
+              <div class="form-group">
+                <label class="form-label">Crash Dump Policy</label>
+                <select class="form-input" id="policy-crash-dump">
+                  <option value="Automatic Upload on Panic">Automatic Upload on Panic</option>
+                  <option value="Manual Request Only">Manual Request Only</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="pushDiagnosticPolicy()">Push Diagnostic Policy</button>
             </div>
           </div>
+
           <div class="card">
-            <div class="card-header"><div class="card-title">Command History</div></div>
-            <div class="card-body" id="command-history"><div class="empty">No commands sent yet</div></div>
+            <div class="card-header">
+              <div class="card-title">Diagnostic Signal History</div>
+              <button class="btn btn-ghost btn-sm" onclick="fetchCommandHistory()">Refresh</button>
+            </div>
+            <div class="card-body" id="command-history" style="max-height:480px;overflow-y:auto">
+              <div class="empty">No diagnostic commands dispatched yet</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1569,37 +2036,65 @@
     <!-- ===== ACCESS & AUDIT SECTION ===== -->
     <div id="section-access" style="display:none">
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-label">Environment</div><div class="stat-value" style="font-size:18px;color:var(--blue)">Local / Dev</div><div class="stat-sub">This instance</div></div>
-        <div class="stat-card"><div class="stat-label">Active Users</div><div class="stat-value orange">4</div><div class="stat-sub">Internal team</div></div>
-        <div class="stat-card"><div class="stat-label">Roles Defined</div><div class="stat-value" style="color:var(--green)">4</div><div class="stat-sub">Admin/Engineer/Support/Read-only</div></div>
-        <div class="stat-card"><div class="stat-label">API</div><div class="stat-value" style="font-size:16px;color:var(--gold)"><a href="/docs" target="_blank" style="color:inherit">/docs ↗</a></div><div class="stat-sub">Live FastAPI schema</div></div>
+        <div class="stat-card"><div class="stat-label">Current Role</div><div class="stat-value" id="access-stat-role" style="font-size:18px;color:var(--orange)">...</div><div class="stat-sub" id="access-stat-org">...</div></div>
+        <div class="stat-card"><div class="stat-label">Active Permissions</div><div class="stat-value" id="access-stat-perms" style="color:var(--blue)">0</div><div class="stat-sub">Granted scopes</div></div>
+        <div class="stat-card"><div class="stat-label">Audit Log Count</div><div class="stat-value" id="access-stat-audits" style="color:var(--green)">0</div><div class="stat-sub">Events logged</div></div>
+        <div class="stat-card"><div class="stat-label">API Documentation</div><div class="stat-value" style="font-size:16px;color:var(--gold)"><a href="/docs" target="_blank" style="color:inherit">/docs ↗</a></div><div class="stat-sub">Live FastAPI schema</div></div>
       </div>
-      <div class="layout-grid">
+      <div class="layout-grid" style="grid-template-columns:1.5fr 1fr">
         <div class="card">
-          <div class="card-header"><div class="card-title">Audit Log</div><div class="card-subtitle">Every action taken this session</div></div>
-          <div class="card-body" id="audit-log"><div class="empty">No actions yet this session</div></div>
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="card-title">Live Security Audit Log</div>
+              <div class="card-subtitle">Immutable append-only trail of mutating actions, OTA triggers, and logins</div>
+            </div>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="fetchAndRenderAuditLogs()">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+              Refresh
+            </button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="fleet-table" id="audit-table">
+              <thead>
+                <tr>
+                  <th>Time</th><th>Actor</th><th>Action</th><th>Resource</th><th>Status</th><th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="audit-tbody">
+                <tr><td colspan="6" class="empty">Loading audit logs...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
         <div class="panel-stack">
           <div class="card">
-            <div class="card-header"><div class="card-title">User Accounts</div></div>
-            <div class="card-body" style="padding:0">
-              <table class="mini-table">
-                <thead><tr><th>Name</th><th>Role</th></tr></thead>
-                <tbody>
-                  <tr><td>Jaysh</td><td><span class="stat-badge badge-orange">Admin</span></td></tr>
-                  <tr><td>M. Alvarez</td><td><span class="stat-badge badge-blue">Engineer</span></td></tr>
-                  <tr><td>R. Chen</td><td><span class="stat-badge badge-green">Support</span></td></tr>
-                  <tr><td>S. Patel</td><td><span class="stat-badge badge-gray">Read-only</span></td></tr>
-                </tbody>
-              </table>
+            <div class="card-header"><div class="card-title">Active Session &amp; Permissions</div></div>
+            <div class="card-body">
+              <div style="margin-bottom:12px">
+                <div style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:700">Authenticated Actor</div>
+                <div id="session-actor-name" style="font-size:15px;font-weight:700;color:var(--text);margin-top:2px">...</div>
+                <div id="session-actor-email" style="font-size:12px;color:var(--text2);font-family:monospace">...</div>
+              </div>
+              <div style="margin-bottom:14px">
+                <div style="font-size:11px;color:var(--text3);text-transform:uppercase;font-weight:700;margin-bottom:6px">Granted Scopes</div>
+                <div id="session-perms-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+              </div>
+              <a href="/login" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:12px">Switch Persona / Change Role</a>
             </div>
           </div>
           <div class="card">
-            <div class="card-header"><div class="card-title">Security &amp; Compliance</div></div>
-            <div class="card-body">
-              <div class="setting-row"><div class="setting-row-label">Telemetry anonymization</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
-              <div class="setting-row"><div class="setting-row-label">Device cert auto-rotation</div><label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label></div>
-              <div class="setting-row"><div class="setting-row-label">Emergency security-patch fast-track</div><label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label></div>
+            <div class="card-header"><div class="card-title">Pre-Seeded Roles Directory</div></div>
+            <div class="card-body" style="padding:0">
+              <table class="mini-table">
+                <thead><tr><th>Persona</th><th>Role</th><th>Org</th></tr></thead>
+                <tbody>
+                  <tr><td>Alex Vance</td><td><span class="stat-badge badge-orange">Super Admin</span></td><td>Global</td></tr>
+                  <tr><td>Sarah Chen</td><td><span class="stat-badge badge-purple" style="background:rgba(139,92,246,.15);color:#8B5CF6">Release Eng</span></td><td>Global</td></tr>
+                  <tr><td>Marcus Brody</td><td><span class="stat-badge badge-blue">Fleet Manager</span></td><td>GreenTurf</td></tr>
+                  <tr><td>Dave Miller</td><td><span class="stat-badge badge-green">Field Tech</span></td><td>GreenTurf</td></tr>
+                  <tr><td>Elena Rostova</td><td><span class="stat-badge badge-gray">Auditor/Viewer</span></td><td>GreenTurf</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1756,6 +2251,8 @@
   </div>
 </div>
 
+<script src="/static/deployment.js"></script>
+<script src="/static/campaigns.js"></script>
 <script>
 // ---- State ----
 let fleet = {};
@@ -1895,6 +2392,9 @@ function handleMessage(msg) {
     if (document.getElementById('section-flywheel').style.display !== 'none') {
       renderFlywheel();
     }
+    if (document.getElementById('section-devices').style.display !== 'none') {
+      renderDeviceRegistry();
+    }
     renderRolloutProgress();
   } else if (msg.type === 'versions_update') {
     versions = msg.versions;
@@ -1922,6 +2422,10 @@ function handleMessage(msg) {
     addLog(msg.message);
   } else if (msg.type === 'demo_stage') {
     handleDemoStage(msg);
+  } else if (msg.type === 'command_update') {
+    handleCommandUpdate(msg.command);
+  } else if (msg.type === 'diagnostic_policy') {
+    handleDiagnosticPolicyUpdate(msg.policy);
   }
 }
 
@@ -2386,24 +2890,24 @@ function handleDemoStage(msg) {
 // ---- Navigation ----
 const sections = ['fleet', 'analytics', 'devices', 'connectivity', 'deploy', 'campaigns', 'uploads', 'remoteops', 'telemetry', 'faults', 'predictive', 'alerts', 'support', 'automation', 'access', 'enterprise', 'flywheel', 'activity'];
 const titles = {
-  fleet: ['Fleet Overview', 'Monitor and manage your robot fleet'],
-  analytics: ['Fleet Analytics', 'Rollout, hardware, and tenure insights'],
-  devices: ['Device Registry', 'Identity, hardware revision, and lifecycle per device'],
-  connectivity: ['Connectivity', 'Device shadow and connection diagnostics'],
-  deploy: ['Deploy Updates', 'Push firmware to selected robots and attachments'],
-  campaigns: ['Campaigns', 'Rollout phases, channels, and OTA quality'],
-  uploads: ['Upload Firmware', 'Manage firmware packages'],
-  remoteops: ['Remote Operations', 'Send commands and manage configuration'],
-  telemetry: ['Telemetry', 'Time-series health metrics and event log'],
-  faults: ['Fault Codes', 'Fleet-wide fault frequency and severity'],
-  predictive: ['Predictive Maintenance', 'Health scoring and failure risk'],
-  alerts: ['Alerts', 'Rules, channels, and live fleet alerts'],
-  support: ['Support Console', 'Look up robots and manage cases'],
-  automation: ['Automation', 'Rules, feature flags, and A/B cohorts'],
-  access: ['Access & Audit', 'Users, roles, and the audit trail'],
-  enterprise: ['Enterprise & Ecosystem', 'B2B portal, partners, and integrations'],
-  flywheel: ['Data Flywheel', 'Telemetry in, better robots out'],
-  activity: ['Activity Log', 'System events and update history'],
+  fleet: ['Fleet Telemetry Overview', 'Global reachability and multi-channel firmware versions across deployed population'],
+  analytics: ['Fleet & OTA Analytics', 'Rollout compliance, hardware revision distribution, and reliability insights'],
+  devices: ['Hardware & CAN Bus Registry', 'Chassis hardware spec, revisions, Jetson modules, and auto-detected CAN tools'],
+  connectivity: ['Device Connectivity & Shadow', 'Reported MCU state vs desired firmware target and link diagnostics'],
+  deploy: ['Deploy Firmware Releases', 'Multi-channel OTA deployment for Base Controller, Jetson AI, and CAN attachments'],
+  campaigns: ['Canary Campaigns & Waves', 'Staged rollout waves, automated failure halt, and rollback guards'],
+  uploads: ['Firmware Catalog & Signing', 'Manage verified firmware packages across MCU and compute channels'],
+  remoteops: ['Remote Diagnostics & Debug', 'Hardware self-tests, CAN bus query, telemetry sampling, and crash log dumps'],
+  telemetry: ['Field Telemetry Streams', 'Real-time sensor voltage, motor currents, thermals, and vibration streams'],
+  faults: ['DTC Fault Code Monitor', 'Fleet-wide Diagnostic Trouble Codes, error severity, and anomaly clusters'],
+  predictive: ['Reliability & Predictive Wear', 'Component degradation estimation and preemptive failure risk scoring'],
+  alerts: ['Engineering Alerts', 'Threshold-based telemetry alerts, anomaly notifications, and incident routing'],
+  support: ['Depot Support Console', 'Device lookup, diagnostic history, and hardware inspection drawer'],
+  automation: ['OTA Automation Rules', 'Automated canary progression, feature flags, and A/B cohort rules'],
+  access: ['Access Control & Audit Trail', 'OEM engineering roles, RBAC permissions, and security audit log'],
+  enterprise: ['B2B Ecosystem & Integrations', 'Partner APIs, tenant isolation, and enterprise diagnostic webhooks'],
+  flywheel: ['Data Flywheel', 'Field telemetry in, optimized autonomous AI firmware models out'],
+  activity: ['System Activity Log', 'Firmware deployment logs and platform administrative events'],
 };
 
 function showSection(name) {
@@ -2416,6 +2920,7 @@ function showSection(name) {
   document.getElementById('page-title').textContent = titles[name][0];
   document.getElementById('page-sub').textContent = titles[name][1];
   if (name === 'deploy') renderDeployPage();
+  if (name === 'uploads') { renderUploadsList(); renderJetsonUploadsList(); }
   if (name === 'analytics') renderAnalytics();
   if (name === 'devices') renderDeviceRegistry();
   if (name === 'connectivity') renderConnectivity();
@@ -2529,34 +3034,495 @@ function sparkline(values, color) {
   return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
-// ---- Device Registry ----
-const HW_REVS = ['A', 'B', 'C'];
-const GROUPS = ['beta-channel', 'region:us-west', 'cohort:pilot-2026', 'hw-rev:b', 'warranty:active'];
+// ---- Device & Attachment Registry Engine ----
+let deviceFilterState = { search: '', lifecycle: '', hw: '', tag: '' };
+let compatMatrixCache = null;
+let selectedPairingAttachment = null;
+let currentDevicesData = { robots: [], attachments: [], tags: [], kpi: {} };
+
+async function fetchAndRenderDeviceRegistry() {
+  const tbody = document.getElementById('devices-tbody');
+  const attTbody = document.getElementById('attachments-tbody');
+  if (!tbody || !attTbody) return;
+
+  try {
+    const params = new URLSearchParams();
+    if (deviceFilterState.search) params.append('q', deviceFilterState.search);
+    if (deviceFilterState.lifecycle) params.append('lifecycle', deviceFilterState.lifecycle);
+    if (deviceFilterState.hw) params.append('hw_rev', deviceFilterState.hw);
+    if (deviceFilterState.tag) params.append('tag', deviceFilterState.tag);
+
+    const [devRes, compatRes] = await Promise.all([
+      fetch(`/api/devices?${params.toString()}`),
+      fetch('/api/devices/compatibility')
+    ]);
+
+    if (!devRes.ok) return;
+    const data = await devRes.json();
+    currentDevicesData = data;
+
+    if (compatRes.ok) {
+      const compatData = await compatRes.json();
+      compatMatrixCache = compatData;
+      renderCompatibilityMatrix(compatData.matrix || []);
+    }
+
+    renderDeviceKPI(data.kpi || {});
+    renderRobotDevicesTable(data.robots || []);
+    renderAttachmentDevicesTable(data.attachments || []);
+    renderTagDirectory(data.tags || [], data.robots || []);
+  } catch (err) {
+    console.warn('Failed to load device registry:', err);
+  }
+}
 
 function renderDeviceRegistry() {
+  fetchAndRenderDeviceRegistry();
+}
+
+function renderDeviceKPI(kpi) {
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v !== undefined ? v : 0; };
+  setTxt('dev-kpi-total', kpi.total_robots);
+  setTxt('dev-kpi-active', kpi.active_robots);
+  setTxt('dev-kpi-maint', kpi.maintenance_robots);
+  setTxt('dev-kpi-decom', kpi.decommissioned_robots);
+  setTxt('dev-kpi-att-total', kpi.total_attachments);
+  setTxt('dev-kpi-att-inv', kpi.inventory_attachments);
+}
+
+function renderRobotDevicesTable(robotList) {
   const tbody = document.getElementById('devices-tbody');
-  const entries = Object.entries(fleet);
-  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">No data yet</td></tr>'; return; }
-  tbody.innerHTML = entries.map(([id, r]) => {
-    const hw = r.hw_rev || HW_REVS[Math.floor(hashStr(id) * HW_REVS.length)];
-    const serial = r.serial || id;
-    const att = findAttachmentForRobot(id);
-    const attHtml = att ? `<span class="chip badge-gray">⚙ ${att.type} · ${att.serial}</span>` : `<span style="color:var(--text3);font-size:12px">None</span>`;
-    const mfg = new Date(new Date(r.first_seen).getTime() - 30 * 86400000).toLocaleDateString();
-    const health = robotHealth(r);
-    const lifecycle = health === 'offline' ? 'Active (Unreachable)' : (health === 'outdated' ? 'Active (Update Due)' : 'Active');
-    const group = GROUPS[Math.floor(hashStr(id + 'g') * GROUPS.length)];
-    return `<tr class="robot-row" onclick="openDrawer('${id}')">
-      <td><div class="robot-name">${r.name}</div><div class="robot-id">${id}</div></td>
-      <td style="font-family:monospace;font-size:12px;font-weight:700">${serial}</td>
-      <td>Rev ${hw}</td>
-      <td style="font-size:12px;color:var(--text2)">${mfg}</td>
-      <td><span class="stat-badge ${health === 'offline' ? 'badge-gray' : 'badge-green'}">${lifecycle}</span></td>
-      <td style="font-size:12px">${attHtml}</td>
-      <td><span class="chip badge-gray">${group}</span></td>
-    </tr>`;
+  if (!tbody) return;
+
+  if (!robotList.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">No matching robot base units found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = robotList.map(r => {
+    const isOnline = r.status === 'online';
+    const lifecycle = r.lifecycle || 'active';
+    let lifeBadgeCls = 'badge-green';
+    if (lifecycle === 'maintenance') lifeBadgeCls = 'badge-yellow';
+    if (lifecycle === 'decommissioned') lifeBadgeCls = 'badge-red';
+    if (lifecycle === 'provisioning') lifeBadgeCls = 'badge-blue';
+
+    const att = findAttachmentForRobot(r.robot_id);
+    let attHtml = `<span style="color:var(--text3);font-size:12px">None (Chassis Only)</span>`;
+    if (att) {
+      const rule = compatMatrixCache && compatMatrixCache.rules ? compatMatrixCache.rules[att.type_code] : null;
+      const robotHw = (r.hw_rev || 'A').toUpperCase();
+      const isCompat = rule ? rule.supported_hw_revs.includes(robotHw) : true;
+
+      if (isCompat) {
+        attHtml = `
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="chip badge-blue" style="font-size:11px">⚙ ${att.type}</span>
+            <span style="color:var(--green);font-size:11px;font-weight:600" title="CAN Bus Hardware Verified">✓ Rev ${robotHw} OK</span>
+          </div>
+        `;
+      } else {
+        attHtml = `
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="chip badge-red" style="font-size:11px">⚠️ ${att.type}</span>
+            <span style="color:var(--red);font-size:11px;font-weight:600" title="Chassis revision mismatch">Requires Rev ${rule.supported_hw_revs.join('/')}</span>
+          </div>
+        `;
+      }
+    }
+
+    const tagsHtml = (r.tags || []).map(t =>
+      `<span class="tag-pill-interactive">
+        <span>${t}</span>
+        <span class="tag-remove-btn" onclick="removeTag('${r.robot_id}', '${t}')" title="Remove tag">&times;</span>
+      </span>`
+    ).join(' ') + ` <button class="tag-add-btn" onclick="promptAddTag('${r.robot_id}')" title="Add Tag">+ Tag</button>`;
+
+    const mfg = r.manufactured_date || '2026-01-15';
+    const carrier = r.carrier_rev ? `Carrier v${r.carrier_rev}` : 'Carrier v1.2';
+    const jetsonSerial = r.jetson_serial || `NV-JET-${r.robot_id.slice(-5)}`;
+
+    return `
+      <tr>
+        <td>
+          <div class="robot-name" style="cursor:pointer" onclick="openDrawer('${r.robot_id}')">${r.name}</div>
+          <div class="robot-id">${r.robot_id} · <span style="color:var(--text3)">${r.model || 'ChoreBot X1'}</span></div>
+        </td>
+        <td>
+          <div style="font-family:monospace;font-size:12px;font-weight:700">${r.serial || r.robot_id}</div>
+          <div style="font-size:11px;font-family:monospace;color:var(--text3)">${jetsonSerial}</div>
+        </td>
+        <td>
+          <div style="font-weight:600;font-size:12px">Chassis Rev ${r.hw_rev || 'A'}</div>
+          <div style="font-size:11px;color:var(--text2)">${carrier}</div>
+        </td>
+        <td>
+          <div style="font-size:12px;font-weight:500">${r.location || 'Main Depot'}</div>
+          <div style="font-size:11px;color:var(--text3)">Mfg: ${mfg}</div>
+        </td>
+        <td>
+          <span class="stat-badge ${lifeBadgeCls}">
+            <span class="status-dot ${isOnline ? 'dot-online' : 'dot-offline'}"></span>
+            ${lifecycle.charAt(0).toUpperCase() + lifecycle.slice(1)}
+          </span>
+        </td>
+        <td>${attHtml}</td>
+        <td><div style="display:flex;flex-wrap:wrap;gap:4px;max-width:240px">${tagsHtml}</div></td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn-action-sm" onclick="openEditRobotModal('${r.robot_id}')" title="Edit Metadata">Edit</button>
+            ${lifecycle !== 'decommissioned' ? `<button class="btn-action-sm btn-danger-sm" onclick="decommissionDevice('${r.robot_id}', 'robot')" title="Decommission Device">Decom</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
   }).join('');
-  renderAttachmentRegistry();
+}
+
+function renderAttachmentDevicesTable(attachmentList) {
+  const tbody = document.getElementById('attachments-tbody');
+  if (!tbody) return;
+
+  if (!attachmentList.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">No tool modules reported in fleet</td></tr>';
+    return;
+  }
+
+  const icons = { 'SP': '❄️', 'LM': '🌿', 'SR': '🚜', 'LC': '🍂' };
+
+  tbody.innerHTML = attachmentList.map(a => {
+    const isAttached = !!a.attached_to;
+    const robot = isAttached ? fleet[a.attached_to] : null;
+    const robotName = robot ? robot.name : a.attached_to;
+    const icon = icons[a.type_code] || '⚙️';
+
+    let attachedHtml = `<span style="color:var(--text3);font-size:12px">Unconnected (No Active CAN Bus Link)</span>`;
+    if (isAttached) {
+      attachedHtml = `
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-weight:600;font-size:12px">${robotName}</span>
+          <span style="font-size:11px;font-family:monospace;color:var(--text3)">(${a.attached_to})</span>
+        </div>
+      `;
+    }
+
+    let statusBadge = `<span class="stat-badge badge-gray"><span class="status-dot dot-offline"></span>Unconnected</span>`;
+    if (isAttached && a.status === 'online') {
+      statusBadge = `<span class="stat-badge badge-green"><span class="status-dot dot-online"></span>CAN Link Active</span>`;
+    } else if (isAttached) {
+      statusBadge = `<span class="stat-badge badge-gray"><span class="status-dot dot-offline"></span>Chassis Offline</span>`;
+    }
+
+    let actionsHtml = '';
+    if (a.lifecycle !== 'decommissioned') {
+      actionsHtml = `<button class="btn-action-sm btn-danger-sm" style="padding:4px 8px" onclick="decommissionDevice('${a.serial}', 'attachment')" title="Decommission Module">Decom</button>`;
+    } else {
+      actionsHtml = `<span style="color:var(--text3);font-size:11px">Retired</span>`;
+    }
+
+    return `
+      <tr>
+        <td style="font-family:monospace;font-size:12px;font-weight:700">${a.serial}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px">
+            <span>${icon}</span>
+            <span>${a.type}</span>
+          </div>
+        </td>
+        <td style="font-family:monospace;font-size:12px">v${a.current_version}</td>
+        <td>${attachedHtml}</td>
+        <td>${statusBadge}</td>
+        <td>${attachmentUpdateCell(a)}</td>
+        <td><div style="display:flex;gap:6px;align-items:center">${actionsHtml}</div></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderCompatibilityMatrix(matrixList) {
+  const tbody = document.getElementById('compatibility-tbody');
+  if (!tbody) return;
+
+  if (!matrixList.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No compatibility rules defined</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = matrixList.map(m => `
+    <tr>
+      <td style="font-weight:600">${m.type} (${m.type_code})</td>
+      <td style="font-family:monospace">v${m.min_fw}+</td>
+      <td>${m.rev_A ? '✅ Verified' : '<span style="color:var(--red)">❌ Blocked</span>'}</td>
+      <td>${m.rev_B ? '✅ Verified' : '<span style="color:var(--red)">❌ Blocked</span>'}</td>
+      <td>${m.rev_C ? '✅ Verified' : '<span style="color:var(--red)">❌ Blocked</span>'}</td>
+      <td style="font-size:11px;color:var(--text2)">${m.description}</td>
+    </tr>
+  `).join('');
+}
+
+function renderTagDirectory(tagList, robotList) {
+  const container = document.getElementById('dev-tag-directory');
+  if (!container) return;
+
+  if (!tagList.length) {
+    container.innerHTML = '<span style="color:var(--text3);font-size:12px">No tags configured</span>';
+    return;
+  }
+
+  container.innerHTML = tagList.map(tag => {
+    const count = robotList.filter(r => (r.tags || []).includes(tag)).length;
+    const isSelected = deviceFilterState.tag === tag;
+    return `
+      <span class="chip ${isSelected ? 'badge-orange' : 'badge-blue'}" style="cursor:pointer;font-family:monospace;font-size:11px" onclick="filterByTag('${tag}')">
+        ${tag} <strong style="margin-left:4px;opacity:0.8">(${count})</strong>
+      </span>
+    `;
+  }).join('');
+}
+
+// ---- Filter & Search Handlers ----
+function onDeviceFilterChange() {
+  const search = document.getElementById('dev-search-input').value.trim();
+  const lifecycle = document.getElementById('dev-filter-lifecycle').value;
+  const hw = document.getElementById('dev-filter-hw').value;
+
+  deviceFilterState.search = search;
+  deviceFilterState.lifecycle = lifecycle;
+  deviceFilterState.hw = hw;
+  fetchAndRenderDeviceRegistry();
+}
+
+function filterByTag(tag) {
+  deviceFilterState.tag = tag;
+  const tagFilterEl = document.getElementById('dev-active-tag-filter');
+  const tagNameEl = document.getElementById('dev-active-tag-name');
+  if (tagFilterEl && tagNameEl) {
+    tagNameEl.textContent = `Tag: ${tag}`;
+    tagFilterEl.style.display = 'inline-flex';
+  }
+  fetchAndRenderDeviceRegistry();
+}
+
+function clearTagFilter() {
+  deviceFilterState.tag = '';
+  const tagFilterEl = document.getElementById('dev-active-tag-filter');
+  if (tagFilterEl) tagFilterEl.style.display = 'none';
+  fetchAndRenderDeviceRegistry();
+}
+
+// ---- Modals & Actions ----
+function openPairModal(attachmentId) {
+  selectedPairingAttachment = attachments[attachmentId] || (currentDevicesData.attachments || []).find(a => a.serial === attachmentId);
+  if (!selectedPairingAttachment) {
+    showToast('Tool module not found', 'error');
+    return;
+  }
+
+  document.getElementById('pair-modal-att-name').textContent = selectedPairingAttachment.type;
+  document.getElementById('pair-modal-att-serial').textContent = `${selectedPairingAttachment.serial} · Firmware v${selectedPairingAttachment.current_version}`;
+
+  const select = document.getElementById('pair-modal-robot-select');
+  select.innerHTML = '';
+
+  const activeRobots = Object.values(fleet).filter(r => r.lifecycle !== 'decommissioned');
+  if (!activeRobots.length) {
+    select.innerHTML = '<option value="">No available base chassis in fleet</option>';
+  } else {
+    activeRobots.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.robot_id || r.serial;
+      const currentAtt = findAttachmentForRobot(r.robot_id || r.serial);
+      const attStatus = currentAtt ? ` [Mounted: ${currentAtt.type}]` : ' [Available / Unmounted]';
+      opt.textContent = `${r.name} (${r.robot_id || r.serial}) — Rev ${r.hw_rev || 'A'}${attStatus}`;
+      select.appendChild(opt);
+    });
+  }
+
+  document.getElementById('modal-pair-attachment').style.display = 'flex';
+  onPairRobotSelectChange();
+}
+
+function closePairModal() {
+  document.getElementById('modal-pair-attachment').style.display = 'none';
+  selectedPairingAttachment = null;
+}
+
+function onPairRobotSelectChange() {
+  const select = document.getElementById('pair-modal-robot-select');
+  const feedback = document.getElementById('pair-modal-compat-feedback');
+  const submitBtn = document.getElementById('pair-modal-submit-btn');
+  const robotId = select.value;
+
+  if (!robotId || !selectedPairingAttachment || !compatMatrixCache) {
+    feedback.innerHTML = '';
+    return;
+  }
+
+  const robot = fleet[robotId] || (currentDevicesData.robots || []).find(r => (r.robot_id === robotId || r.serial === robotId));
+  const robotHw = (robot ? (robot.hw_rev || 'A') : 'A').toUpperCase();
+  const rule = (compatMatrixCache.rules || {})[selectedPairingAttachment.type_code];
+
+  if (rule) {
+    const isCompat = rule.supported_hw_revs.includes(robotHw);
+    if (isCompat) {
+      feedback.innerHTML = `
+        <div style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:var(--green);padding:10px 14px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px">
+          <span>✓</span>
+          <span><strong>CAN Bus Hardware Compatible:</strong> ${selectedPairingAttachment.type} is verified for Base Chassis Rev ${robotHw}.</span>
+        </div>
+      `;
+      submitBtn.disabled = false;
+    } else {
+      feedback.innerHTML = `
+        <div style="background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:var(--red);padding:10px 14px;border-radius:8px;font-size:12px;display:flex;align-items:center;gap:8px">
+          <span>✕</span>
+          <span><strong>Hardware Revision Incompatible:</strong> ${selectedPairingAttachment.type} requires Chassis Rev ${rule.supported_hw_revs.join('/')}, but ${robot.name} has Rev ${robotHw} bus.</span>
+        </div>
+      `;
+      submitBtn.disabled = true;
+    }
+  }
+}
+
+async function submitPairAttachment() {
+  if (!selectedPairingAttachment) return;
+  const select = document.getElementById('pair-modal-robot-select');
+  const robotId = select.value;
+  if (!robotId) return;
+
+  try {
+    const res = await fetch(`/api/attachment/${selectedPairingAttachment.serial}/pair`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ robot_id: robotId, force: false })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.detail || 'Mounting failed', 'error');
+      return;
+    }
+
+    closePairModal();
+    showToast(`Mounted ${selectedPairingAttachment.type} onto ${robotId}`, 'success');
+    fetchAndRenderDeviceRegistry();
+  } catch (err) {
+    showToast('Failed to mount tool module', 'error');
+  }
+}
+
+async function unpairAttachment(attachmentId) {
+  try {
+    const res = await fetch(`/api/attachment/${attachmentId}/unpair`, { method: 'POST' });
+    if (!res.ok) {
+      const data = await res.json();
+      showToast(data.detail || 'Unmount failed', 'error');
+      return;
+    }
+    showToast('Tool module returned to depot inventory', 'info');
+    fetchAndRenderDeviceRegistry();
+  } catch (err) {
+    showToast('Failed to unmount tool module', 'error');
+  }
+}
+
+function openEditRobotModal(robotId) {
+  const robot = fleet[robotId] || (currentDevicesData.robots || []).find(r => r.robot_id === robotId);
+  if (!robot) return;
+
+  document.getElementById('edit-robot-id').value = robotId;
+  document.getElementById('edit-robot-name').value = robot.name || '';
+  document.getElementById('edit-robot-lifecycle').value = robot.lifecycle || 'active';
+  document.getElementById('edit-robot-location').value = robot.location || 'Main Depot';
+  document.getElementById('edit-robot-notes').value = robot.notes || '';
+
+  document.getElementById('modal-edit-robot').style.display = 'flex';
+}
+
+function closeEditRobotModal() {
+  document.getElementById('modal-edit-robot').style.display = 'none';
+}
+
+async function submitEditRobot() {
+  const robotId = document.getElementById('edit-robot-id').value;
+  const name = document.getElementById('edit-robot-name').value.trim();
+  const lifecycle = document.getElementById('edit-robot-lifecycle').value;
+  const location = document.getElementById('edit-robot-location').value.trim();
+  const notes = document.getElementById('edit-robot-notes').value.trim();
+
+  try {
+    const res = await fetch(`/api/robot/${robotId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, lifecycle, location, notes })
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      showToast(data.detail || 'Update failed', 'error');
+      return;
+    }
+
+    closeEditRobotModal();
+    showToast(`Updated ${name || robotId}`, 'success');
+    fetchAndRenderDeviceRegistry();
+  } catch (err) {
+    showToast('Failed to update robot', 'error');
+  }
+}
+
+async function promptAddTag(robotId) {
+  const tag = prompt('Enter new tag for robot (e.g. region:us-east, beta-fleet, warranty:2027):');
+  if (!tag || !tag.trim()) return;
+
+  try {
+    const res = await fetch(`/api/robot/${robotId}/tags`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tag: tag.trim() })
+    });
+    if (res.ok) {
+      showToast(`Added tag '${tag.trim()}' to ${robotId}`, 'success');
+      fetchAndRenderDeviceRegistry();
+    }
+  } catch (err) {
+    showToast('Failed to add tag', 'error');
+  }
+}
+
+async function removeTag(robotId, tag) {
+  try {
+    const res = await fetch(`/api/robot/${robotId}/tags/${encodeURIComponent(tag)}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast(`Removed tag '${tag}'`, 'info');
+      fetchAndRenderDeviceRegistry();
+    }
+  } catch (err) {
+    showToast('Failed to remove tag', 'error');
+  }
+}
+
+async function decommissionDevice(deviceId, type) {
+  if (!confirm(`Are you sure you want to decommission ${type} ${deviceId}? This will retire the unit and detach all tooling.`)) return;
+
+  try {
+    const res = await fetch(`/api/devices/${deviceId}/decommission`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: 'Operator decommissioned from dashboard' })
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      showToast(data.detail || 'Decommission failed', 'error');
+      return;
+    }
+
+    showToast(`Decommissioned ${deviceId}`, 'success');
+    fetchAndRenderDeviceRegistry();
+  } catch (err) {
+    showToast('Failed to decommission device', 'error');
+  }
 }
 
 function attachmentUpdateCell(a) {
@@ -2575,22 +3541,7 @@ function attachmentStatusBadge(a) {
 }
 
 function renderAttachmentRegistry() {
-  const tbody = document.getElementById('attachments-tbody');
-  if (!tbody) return;
-  const entries = Object.values(attachments);
-  if (!entries.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">No data yet</td></tr>'; return; }
-  tbody.innerHTML = entries.map(a => {
-    const robot = a.attached_to ? fleet[a.attached_to] : null;
-    const attachedTo = a.attached_to ? (robot ? robot.name : a.attached_to) : '<span style="color:var(--text3)">In inventory</span>';
-    return `<tr>
-      <td style="font-family:monospace;font-size:12px;font-weight:700">${a.serial}</td>
-      <td>${a.type}</td>
-      <td style="font-family:monospace">v${a.current_version}</td>
-      <td style="font-size:12px">${attachedTo}</td>
-      <td>${attachmentStatusBadge(a)}</td>
-      <td style="min-width:160px">${attachmentUpdateCell(a)}</td>
-    </tr>`;
-  }).join('');
+  fetchAndRenderDeviceRegistry();
 }
 
 // ---- Connectivity ----
@@ -2628,79 +3579,353 @@ function renderConnectivity() {
 }
 
 // ---- Campaigns ----
-function renderCampaigns() {
-  const robots = Object.values(fleet);
-  const total = robots.length;
-  const onTarget = targetVersion ? robots.filter(r => r.current_version === targetVersion).length : 0;
-  const pct = total ? Math.round(onTarget / total * 100) : 0;
-  const stages = [1, 10, 50, 100];
-  document.getElementById('camp-steps').innerHTML = stages.map((s, i) => {
-    let cls = '';
-    if (pct >= s) cls = 'done';
-    else if (pct > 0 && (i === 0 || pct >= stages[i - 1])) cls = 'active';
-    return `<div class="progress-step ${cls}"><div class="progress-step-dot">${s}%</div><div class="progress-step-label">${s}% Rollout</div></div>`;
-  }).join('');
-  document.getElementById('camp-sub').textContent = targetVersion
-    ? `v${targetVersion} — ${onTarget}/${total} robots (${pct}%) on target`
-    : 'No active campaign — deploy a version to start one';
+function renderCampaigns() { renderCampaignVisual(); }
 
-  const channelsEl = document.getElementById('channels-body');
-  if (!total) { channelsEl.innerHTML = '<div class="empty">No data yet</div>'; return; }
-  const channels = { dev: 0, beta: 0, stable: 0 };
-  const names = { dev: 'Dev', beta: 'Beta', stable: 'Stable' };
-  Object.keys(fleet).forEach(id => { channels[['dev', 'beta', 'stable'][Math.floor(hashStr(id + 'ch') * 3)]]++; });
-  channelsEl.innerHTML = Object.entries(channels).map(([k, c]) => {
-    const pctc = total ? Math.round(c / total * 100) : 0;
-    return `<div class="chart-bar-row"><div class="chart-bar-label">${names[k]}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pctc}%"></div></div><div class="chart-bar-count">${c} · ${pctc}%</div></div>`;
-  }).join('');
-}
-
-function triggerRollback() {
-  if (!confirm('Roll back the active campaign to the previous stable version?')) return;
-  showToast('Rollback triggered — robots will revert to the last known-good version', 'info');
-  addLog('Campaign rollback triggered');
-}
-
-// ---- Remote Operations ----
+// ---- Remote Operations & Diagnostics Command Engine ----
 let commandHistory = [];
+let activeInspectedCommandId = null;
+const commandTypeMap = {
+  'Hardware Self-Test': 'selftest',
+  'Safe Reboot (OTA Prep)': 'reboot',
+  'Safe Reboot': 'reboot',
+  'Query CAN Bus Status': 'can_query',
+  'Query CAN Bus': 'can_query',
+  'Fetch Crash Logs': 'fetch_logs',
+  'Blink Status LED (Identify)': 'blink_led',
+  'Blink LED (Identify)': 'blink_led',
+  'Return to Dock': 'dock',
+  'Factory Partition Reset': 'partition_reset',
+  'Partition Reset': 'partition_reset'
+};
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function fetchCommandHistory() {
+  try {
+    const res = await fetch('/api/commands/history');
+    if (res.ok) {
+      const data = await res.json();
+      commandHistory = data.commands || [];
+      renderCommandHistory();
+      if (data.diagnostic_policy) {
+        handleDiagnosticPolicyUpdate(data.diagnostic_policy);
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to fetch command history:', err);
+  }
+}
+
 function renderRemoteOps() {
   const sel = document.getElementById('remoteops-robot');
+  if (!sel) return;
   const entries = Object.entries(fleet);
   const prev = sel.value;
   sel.innerHTML = entries.map(([id, r]) => `<option value="${id}">${r.name} (${id})</option>`).join('') || '<option value="">No robots</option>';
   if (entries.some(([id]) => id === prev)) sel.value = prev;
-  renderCommandHistory();
+  onRemoteOpsRobotChange();
+  fetchCommandHistory();
 }
 
-function sendCommand(cmd) {
+function onRemoteOpsRobotChange() {
   const sel = document.getElementById('remoteops-robot');
-  const id = sel.value;
+  const id = sel ? sel.value : null;
   const r = fleet[id];
+  const badge = document.getElementById('remoteops-robot-status-badge');
+  const modelEl = document.getElementById('remote-meta-model');
+  const hwEl = document.getElementById('remote-meta-hwrev');
+  const fwEl = document.getElementById('remote-meta-fw');
+  const toolEl = document.getElementById('remote-meta-tool');
+
+  if (!r) {
+    if (badge) { badge.className = 'stat-badge badge-gray'; badge.textContent = 'None'; }
+    if (modelEl) modelEl.textContent = '—';
+    if (hwEl) hwEl.textContent = '—';
+    if (fwEl) fwEl.textContent = '—';
+    if (toolEl) toolEl.textContent = '—';
+    return;
+  }
+
+  const isOnline = r.status !== 'offline';
+  if (badge) {
+    badge.className = `stat-badge ${isOnline ? 'badge-green' : 'badge-gray'}`;
+    badge.textContent = isOnline ? 'Online' : 'Offline';
+  }
+  if (modelEl) modelEl.textContent = r.model || 'ChoreBot X1';
+  if (hwEl) hwEl.textContent = `Rev ${r.hw_rev || 'A'}`;
+  if (fwEl) fwEl.textContent = `v${r.current_version || '1.0.0'}`;
+
+  const tool = findAttachmentForRobot(id);
+  if (toolEl) toolEl.textContent = tool ? `${tool.type || tool.type_code} (v${tool.current_version})` : 'None (In inventory)';
+}
+
+async function sendCommand(cmdKeyOrLabel, displayLabel) {
+  const sel = document.getElementById('remoteops-robot');
+  const robotId = sel ? sel.value : null;
+  const r = fleet[robotId];
   if (!r) { showToast('Select a robot first', 'error'); return; }
-  const entry = { time: new Date().toLocaleTimeString(), robot: r.name, cmd, status: 'sent' };
-  commandHistory.unshift(entry);
-  if (commandHistory.length > 20) commandHistory.pop();
+
+  // Resolve command key and display label
+  const cmdKey = commandTypeMap[cmdKeyOrLabel] || cmdKeyOrLabel;
+  const label = displayLabel || cmdKeyOrLabel;
+
+  const timeStr = new Date().toLocaleTimeString();
+  appendDiagTerminalLine(`[${timeStr}]`, '[DISPATCH]', `Sending ${label} to ${r.name}...`, 'warn');
+
+  // Enforce RBAC in UI if user is viewer
+  if (currentUser && currentUser.role === 'viewer') {
+    showToast('Access Denied: Viewer role cannot execute remote operations', 'error');
+    appendDiagTerminalLine(`[${timeStr}]`, '[AUTH_DENIED]', `Permission denied for ${label} (Viewer role)`, 'err');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/robot/${robotId}/command`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ command: cmdKey })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.detail || 'Command dispatch failed', 'error');
+      appendDiagTerminalLine(`[${timeStr}]`, '[ERROR]', `Dispatch rejected: ${err.detail || res.statusText}`, 'err');
+      return;
+    }
+
+    const data = await res.json();
+    const cmd = data.command;
+    activeInspectedCommandId = cmd.command_id;
+
+    // Add or update in local history
+    const existingIdx = commandHistory.findIndex(c => c.command_id === cmd.command_id);
+    if (existingIdx >= 0) commandHistory[existingIdx] = cmd;
+    else commandHistory.unshift(cmd);
+    if (commandHistory.length > 50) commandHistory.pop();
+
+    renderCommandHistory();
+    addLog(`Remote command "${label}" dispatched to ${r.name}`);
+
+    // Simulation fallback for quick standalone virtual cursor demo runs
+    if (typeof vcScale === 'function' && (!ws || ws.readyState !== WebSocket.OPEN || Object.keys(fleet).length === 0)) {
+      const ackedMs = vcScale(900, 100);
+      const executedMs = vcScale(1900, 150);
+      setTimeout(() => {
+        cmd.status = 'executing';
+        cmd.progress = 50;
+        renderCommandHistory();
+      }, ackedMs);
+      setTimeout(() => {
+        cmd.status = 'completed';
+        cmd.progress = 100;
+        renderCommandHistory();
+      }, executedMs);
+    }
+  } catch (err) {
+    const entry = {
+      command_id: 'cmd_local_' + Date.now(),
+      robot_id: robotId,
+      robot_name: r.name,
+      command: cmdKey,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      logs: [`[${timeStr}] Dispatched ${label} to ${r.name}`]
+    };
+    commandHistory.unshift(entry);
+    renderCommandHistory();
+    const ackedMs = typeof vcScale === 'function' ? vcScale(900, 100) : 900;
+    const executedMs = typeof vcScale === 'function' ? vcScale(1900, 150) : 1900;
+    setTimeout(() => { entry.status = 'executing'; renderCommandHistory(); }, ackedMs);
+    setTimeout(() => { entry.status = 'completed'; renderCommandHistory(); }, executedMs);
+  }
+}
+
+function handleCommandUpdate(cmd) {
+  if (!cmd) return;
+  const idx = commandHistory.findIndex(c => c.command_id === cmd.command_id);
+  if (idx >= 0) commandHistory[idx] = cmd;
+  else commandHistory.unshift(cmd);
+  if (commandHistory.length > 50) commandHistory.pop();
   renderCommandHistory();
-  // No toast here — the Command History panel already shows sent → acked → executed.
-  addLog(`Remote command "${cmd}" sent to ${r.name}`);
-  // vcScale reads vcTempo synchronously, right here — so the delay below is fixed
-  // at call time and a later tempo change can't retroactively alter a transition
-  // that's already been scheduled.
-  const ackedMs = vcScale(900, 100);
-  const executedMs = vcScale(1900, 150);
-  setTimeout(() => { entry.status = 'acked'; renderCommandHistory(); }, ackedMs);
-  setTimeout(() => { entry.status = 'executed'; renderCommandHistory(); }, executedMs);
+
+  // If this command is being inspected in the terminal, stream logs
+  if (!activeInspectedCommandId || activeInspectedCommandId === cmd.command_id) {
+    activeInspectedCommandId = cmd.command_id;
+    renderTerminalLogs(cmd);
+  }
 }
 
 function renderCommandHistory() {
   const el = document.getElementById('command-history');
-  if (!commandHistory.length) { el.innerHTML = '<div class="empty">No commands sent yet</div>'; return; }
-  const statusCls = { sent: 'badge-gray', acked: 'badge-blue', executed: 'badge-green' };
-  el.innerHTML = commandHistory.map(e => `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div><div style="font-weight:600;font-size:12px">${e.cmd}</div><div style="font-size:11px;color:var(--text2)">${e.robot} · ${e.time}</div></div>
-      <span class="stat-badge ${statusCls[e.status]}">${e.status}</span>
-    </div>`).join('');
+  if (!el) return;
+  if (!commandHistory.length) {
+    el.innerHTML = '<div class="empty">No diagnostic commands dispatched yet</div>';
+    return;
+  }
+
+  el.innerHTML = commandHistory.map(c => {
+    const timeStr = c.created_at ? new Date(c.created_at).toLocaleTimeString() : '';
+    const rName = c.robot_name || (fleet[c.robot_id] ? fleet[c.robot_id].name : c.robot_id);
+    const cmdLabel = Object.keys(commandTypeMap).find(k => commandTypeMap[k] === c.command) || c.command;
+
+    let statusBadge = '<span class="stat-badge badge-gray">PENDING</span>';
+    let progressBar = '';
+    if (c.status === 'delivering' || c.status === 'executing' || c.status === 'sent' || c.status === 'acked') {
+      const prog = c.progress || (c.status === 'acked' ? 50 : 25);
+      statusBadge = `<span class="stat-badge badge-blue"><span class="status-dot dot-updating"></span>${c.status.toUpperCase()} ${prog}%</span>`;
+      progressBar = `<div class="cmd-progress-bar"><div class="cmd-progress-fill" style="width:${prog}%"></div></div>`;
+    } else if (c.status === 'completed' || c.status === 'executed') {
+      statusBadge = '<span class="stat-badge badge-green">COMPLETED</span>';
+    } else if (c.status === 'failed') {
+      statusBadge = '<span class="stat-badge badge-red" style="background:#fee2e2;color:#b91c1c">FAILED</span>';
+    }
+
+    const isInspected = activeInspectedCommandId === c.command_id;
+
+    return `
+      <div style="padding:10px 12px;background:${isInspected ? 'var(--bg)' : 'transparent'};border:1px solid ${isInspected ? 'var(--orange)' : 'var(--border)'};border-radius:8px;margin-bottom:8px;cursor:pointer" onclick="inspectCommandLogs('${c.command_id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:700;font-size:12px;color:var(--text)">${cmdLabel}</div>
+            <div style="font-size:11px;color:var(--text2);margin-top:2px">${rName} · <span style="font-family:monospace">${timeStr}</span></div>
+          </div>
+          <div>${statusBadge}</div>
+        </div>
+        ${progressBar}
+        ${c.issued_by ? `<div style="font-size:10px;color:var(--text3);margin-top:4px">Issued by: ${c.issued_by} (${c.issued_by_role || 'Operator'})</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function inspectCommandLogs(cmdId) {
+  activeInspectedCommandId = cmdId;
+  const cmd = commandHistory.find(c => c.command_id === cmdId);
+  if (cmd) renderTerminalLogs(cmd);
+  renderCommandHistory();
+}
+
+function renderTerminalLogs(cmd) {
+  const terminal = document.getElementById('diag-terminal-output');
+  if (!terminal) return;
+
+  const logs = cmd.logs || [];
+  if (!logs.length) {
+    terminal.innerHTML = `<div class="diag-terminal-line"><span class="log-time">[${new Date().toLocaleTimeString()}]</span><span class="log-tag">[DISPATCH]</span> Command '${cmd.command}' queued for ${cmd.robot_name || cmd.robot_id}. Awaiting execution acknowledgment...</div>`;
+    return;
+  }
+
+  terminal.innerHTML = logs.map(line => {
+    let cls = '';
+    if (line.includes('PASSED') || line.includes('OK') || line.includes('nominal') || line.includes('ready') || line.includes('HEALTHY')) cls = 'log-pass';
+    else if (line.includes('WARN') || line.includes('tolerance') || line.includes('warning')) cls = 'log-warn';
+    else if (line.includes('ERR') || line.includes('FAIL') || line.includes('panic')) cls = 'log-err';
+    return `<div class="diag-terminal-line"><span class="${cls}">${escapeHtml(line)}</span></div>`;
+  }).join('');
+
+  terminal.scrollTop = terminal.scrollHeight;
+
+  // Update subsystem health indicators if selftest result exists
+  if (cmd.result && cmd.result.subsystems) {
+    const sub = cmd.result.subsystems;
+    updateSubsystemPill('subsys-mcu', 'MCU: ' + (sub.mcu ? sub.mcu.status : 'OK'), sub.mcu && sub.mcu.status === 'OK');
+    updateSubsystemPill('subsys-can', 'CAN: ' + (sub.can_bus ? sub.can_bus.status : 'OK'), sub.can_bus && sub.can_bus.status === 'OK');
+    updateSubsystemPill('subsys-imu', 'IMU: ' + (sub.imu ? sub.imu.status : 'OK'), sub.imu && sub.imu.status === 'OK');
+    updateSubsystemPill('subsys-motor', 'DRIVE: ' + (sub.motor_drivers ? sub.motor_drivers.status : 'OK'), sub.motor_drivers && sub.motor_drivers.status === 'OK');
+    updateSubsystemPill('subsys-bms', 'BMS: ' + (sub.bms ? sub.bms.status : 'OK'), sub.bms && sub.bms.status === 'OK');
+  }
+}
+
+function updateSubsystemPill(id, text, isOk) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.className = `subsystem-pill ${isOk ? 'ok' : 'err'}`;
+}
+
+function appendDiagTerminalLine(time, tag, msg, kind = 'info') {
+  const terminal = document.getElementById('diag-terminal-output');
+  if (!terminal) return;
+  const line = document.createElement('div');
+  line.className = 'diag-terminal-line';
+  const tagCls = kind === 'err' ? 'log-err' : (kind === 'warn' ? 'log-warn' : 'log-tag');
+  line.innerHTML = `<span class="log-time">${time}</span> <span class="${tagCls}">${tag}</span> ${escapeHtml(msg)}`;
+  terminal.appendChild(line);
+  terminal.scrollTop = terminal.scrollHeight;
+}
+
+function clearDiagTerminal() {
+  const terminal = document.getElementById('diag-terminal-output');
+  if (terminal) {
+    terminal.innerHTML = `<div class="diag-terminal-line"><span class="log-time">[${new Date().toLocaleTimeString()}]</span><span class="log-tag">[SYSTEM]</span> Console cleared.</div>`;
+  }
+}
+
+async function pushDiagnosticPolicy() {
+  const interval = document.getElementById('policy-telemetry-interval').value;
+  const canLevel = document.getElementById('policy-can-level').value;
+  const crashDump = document.getElementById('policy-crash-dump').value;
+
+  try {
+    const res = await fetch('/api/diagnostic/policy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telemetry_interval: interval,
+        can_log_level: canLevel,
+        crash_dump_policy: crashDump
+      })
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      showToast(data.detail || 'Policy push failed', 'error');
+      return;
+    }
+
+    showToast('Diagnostic policy pushed to fleet successfully', 'success');
+    appendDiagTerminalLine(`[${new Date().toLocaleTimeString()}]`, '[POLICY]', `Fleet diagnostic policy updated: Interval=${interval}, CAN=${canLevel}`, 'pass');
+  } catch (err) {
+    showToast('Failed to push diagnostic policy', 'error');
+  }
+}
+
+async function toggleHighVerbosity(enabled) {
+  try {
+    await fetch('/api/diagnostic/policy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telemetry_interval: enabled ? 'High-Rate Debug (5s)' : 'Standard (60s)'
+      })
+    });
+    const intervalSelect = document.getElementById('policy-telemetry-interval');
+    if (intervalSelect) intervalSelect.value = enabled ? 'High-Rate Debug (5s)' : 'Standard (60s)';
+    showToast(enabled ? 'High-rate diagnostic capture enabled (5s sample window)' : 'Diagnostic capture returned to standard 60s rate', 'info');
+  } catch (_) {
+    showToast(enabled ? 'High-rate diagnostic capture enabled (4h window)' : 'Diagnostic capture returned to standard rate', 'info');
+  }
+}
+
+function handleDiagnosticPolicyUpdate(policy) {
+  if (!policy) return;
+  const intervalSelect = document.getElementById('policy-telemetry-interval');
+  const canSelect = document.getElementById('policy-can-level');
+  const crashSelect = document.getElementById('policy-crash-dump');
+  const toggle = document.getElementById('diag-mode-toggle');
+
+  if (intervalSelect && policy.telemetry_interval) intervalSelect.value = policy.telemetry_interval;
+  if (canSelect && policy.can_log_level) canSelect.value = policy.can_log_level;
+  if (crashSelect && policy.crash_dump_policy) crashSelect.value = policy.crash_dump_policy;
+  if (toggle && policy.telemetry_interval) toggle.checked = policy.telemetry_interval.includes('5s');
 }
 
 // ---- Telemetry ----
@@ -3071,6 +4296,8 @@ function renderAll() {
   document.getElementById('target-version-chip').textContent = targetVersion ? `Target: v${targetVersion}` : 'No target set';
   document.getElementById('current-target-display').textContent = targetVersion ? `v${targetVersion}` : 'none';
   renderRolloutProgress();
+  if (document.getElementById('section-devices').style.display !== 'none') renderDeviceRegistry();
+  if (document.getElementById('section-deploy').style.display !== 'none') renderDeployPage();
 }
 
 // ---- Charts ----
@@ -3399,7 +4626,10 @@ function renderVersions() {
 }
 
 function renderUploadsList() {
+  const countEl = document.getElementById('upload-count-robot');
+  if (countEl) countEl.textContent = versions.length;
   const el = document.getElementById('uploads-list');
+  if (!el) return;
   if (!versions.length) { el.innerHTML = '<div class="empty">No firmware uploaded yet</div>'; return; }
   el.innerHTML = versions.map(v => `
     <div class="version-item">
@@ -3417,7 +4647,8 @@ function renderUploadsList() {
 
 function goDeployWith(version) {
   showSection('deploy');
-  setTimeout(() => { document.getElementById('deploy-version-select').value = version; }, 0);
+  switchDeployChannel('robot');
+  setTimeout(() => { document.getElementById('deploy-version-select').value = version; renderDeployRobotList(); }, 0);
 }
 
 function renderDeployPage() {
@@ -3450,7 +4681,7 @@ function renderJetsonVersionOptions() {
 function renderDeployJetsonVersionsSidebar() {
   const el = document.getElementById('deploy-jetson-versions-sidebar');
   if (!el) return;
-  if (!jetsonVersions.length) { el.innerHTML = '<div class="empty">No Jetson firmware uploaded yet</div>'; return; }
+  if (!jetsonVersions.length) { el.innerHTML = '<div class="empty">No Jetson firmware uploaded yet<br><a onclick="showSection(\'uploads\');switchUploadChannel(\'jetson\')" style="color:var(--orange);cursor:pointer">Upload Jetson firmware →</a></div>'; return; }
   el.innerHTML = jetsonVersions.map(v => `
     <div class="version-item">
       <div>
@@ -3462,52 +4693,15 @@ function renderDeployJetsonVersionsSidebar() {
 }
 
 function renderDeployJetsonRobotList() {
-  const el = document.getElementById('deploy-jetson-robot-list');
-  if (!el) return;
-  const entries = Object.entries(fleet);
-  if (!entries.length) { el.innerHTML = '<div class="empty">No robots connected yet</div>'; return; }
-  el.innerHTML = entries.map(([id, r]) => {
-    const canUpdate = r.status !== 'offline' && (r.jetson_update_status || 'idle') === 'idle';
-    return `<div class="deploy-target" style="${!canUpdate ? 'opacity:.5' : ''}">
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="jchk-${id}" ${canUpdate ? '' : 'disabled'} ${canUpdate ? 'checked' : ''}>
-        <label for="jchk-${id}" style="cursor:pointer">
-          <div style="font-weight:600;font-size:13px">${r.name}</div>
-          <div style="font-size:11px;color:var(--text2)">${id} · Jetson v${r.jetson_version || '1.0.0'} · ${r.status}</div>
-        </label>
-      </div>
-      ${statusBadge(r)}
-    </div>`;
-  }).join('');
+  renderDeploymentTargets('jetson');
 }
 
 function selectAllJetsonRobots(val) {
-  document.querySelectorAll('[id^="jchk-"]').forEach(cb => {
-    if (!cb.disabled) cb.checked = val;
-  });
+  selectDeploymentTargets('jetson', val);
 }
 
 async function deployJetsonUpdate() {
-  const version = document.getElementById('deploy-jetson-version-select').value;
-  if (!version) { showToast('Select a Jetson firmware version to deploy', 'error'); return; }
-  const checked = [...document.querySelectorAll('[id^="jchk-"]')]
-    .filter(cb => cb.checked && !cb.disabled)
-    .map(cb => cb.id.replace('jchk-', ''));
-  if (!checked.length) { showToast('Select at least one robot', 'error'); return; }
-  const res = await fetch('/deploy/jetson', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ version, robot_ids: checked })
-  });
-  const data = await res.json();
-  const ids = (data && data.targets && data.targets.length) ? data.targets : checked;
-  showToast(`Jetson module update v${version} queued for ${ids.length} robot(s)`, 'success');
-  addLog(`Jetson deployment queued: v${version} → ${ids.length} robot(s)`);
-  rolloutTrackers.jetson = {
-    version, label: 'Jetson modules',
-    targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null,
-  };
-  renderRolloutProgress();
+  return submitDeployment('jetson');
 }
 
 // ---- Attachment deploy ----
@@ -3539,33 +4733,11 @@ function renderAttachmentVersionOptions() {
 }
 
 function renderDeployAttachmentList() {
-  const el = document.getElementById('deploy-attachment-list');
-  if (!el) return;
-  const type = document.getElementById('deploy-attachment-type').value;
-  if (!type) { el.innerHTML = '<div class="empty">Select an attachment type above</div>'; return; }
-  const entries = Object.values(attachments).filter(a => a.type_code === type);
-  if (!entries.length) { el.innerHTML = '<div class="empty">No attachments of this type</div>'; return; }
-  el.innerHTML = entries.map(a => {
-    const canUpdate = a.status !== 'offline' && a.update_status === 'idle';
-    const robot = a.attached_to ? fleet[a.attached_to] : null;
-    const where = a.attached_to ? (robot ? robot.name : a.attached_to) : 'In inventory';
-    return `<div class="deploy-target" style="${!canUpdate ? 'opacity:.5' : ''}">
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="achk-${a.serial}" ${canUpdate ? '' : 'disabled'} ${canUpdate ? 'checked' : ''}>
-        <label for="achk-${a.serial}" style="cursor:pointer">
-          <div style="font-weight:600;font-size:13px">${a.serial}</div>
-          <div style="font-size:11px;color:var(--text2)">${where} · v${a.current_version} · ${a.status}</div>
-        </label>
-      </div>
-      ${attachmentStatusBadge(a)}
-    </div>`;
-  }).join('');
+  renderDeploymentTargets('attachment');
 }
 
 function selectAllAttachments(val) {
-  document.querySelectorAll('[id^="achk-"]').forEach(cb => {
-    if (!cb.disabled) cb.checked = val;
-  });
+  selectDeploymentTargets('attachment', val);
 }
 
 function renderAttachmentTargetsList() {
@@ -3584,30 +4756,7 @@ function renderAttachmentTargetsList() {
 }
 
 async function deployAttachmentUpdate() {
-  const type = document.getElementById('deploy-attachment-type').value;
-  const version = document.getElementById('deploy-attachment-version').value;
-  if (!type) { showToast('Select an attachment type', 'error'); return; }
-  if (!version) { showToast('Select a version to deploy', 'error'); return; }
-  const checked = [...document.querySelectorAll('[id^="achk-"]')]
-    .filter(cb => cb.checked && !cb.disabled)
-    .map(cb => cb.id.replace('achk-', ''));
-  if (!checked.length) { showToast('Select at least one attachment', 'error'); return; }
-  const res = await fetch('/deploy/attachment', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ version, type_code: type, attachment_ids: checked })
-  });
-  const data = await res.json();
-  // Prefer server-confirmed target ids for the rollout cohort; fall back to the UI selection.
-  const ids = (data && data.targets && data.targets.length) ? data.targets : checked;
-  const typeName = ATTACHMENT_TYPE_NAME[type] || type;
-  showToast(`Update v${version} queued for ${ids.length} ${typeName}(s)`, 'success');
-  addLog(`Attachment deployment queued: ${typeName} v${version} → ${ids.length} attachment(s)`);
-  rolloutTrackers.attachment = {
-    version, label: `${typeName}s`, typeCode: type,
-    targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null,
-  };
-  renderRolloutProgress();
+  return submitDeployment('attachment');
 }
 
 // ---- Active Rollout progress card (§6.4) ----
@@ -3724,25 +4873,7 @@ function renderRolloutProgress() {
 }
 
 function renderDeployRobotList() {
-  const el = document.getElementById('deploy-robot-list');
-  const entries = Object.entries(fleet);
-  if (!entries.length) {
-    el.innerHTML = '<div class="empty">No robots connected yet</div>';
-    return;
-  }
-  el.innerHTML = entries.map(([id, r]) => {
-    const canUpdate = r.status !== 'offline' && r.update_status === 'idle';
-    return `<div class="deploy-target" style="${!canUpdate ? 'opacity:.5' : ''}">
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="checkbox" id="chk-${id}" ${canUpdate ? '' : 'disabled'} ${canUpdate ? 'checked' : ''}>
-        <label for="chk-${id}" style="cursor:pointer">
-          <div style="font-weight:600;font-size:13px">${r.name}</div>
-          <div style="font-size:11px;color:var(--text2)">${id} · v${r.current_version} · ${r.status}</div>
-        </label>
-      </div>
-      ${statusBadge(r)}
-    </div>`;
-  }).join('');
+  renderDeploymentTargets('robot');
 }
 
 function renderDeployStatus() {
@@ -3787,62 +4918,15 @@ function renderDeploySidebar() {
 
 // ---- Actions ----
 async function uploadFile() {
-  const file = document.getElementById('fileInput').files[0];
-  const version = document.getElementById('versionInput').value.trim();
-  if (!file) { showToast('Please select a file', 'error'); return; }
-  if (!version) { showToast('Please enter a version number', 'error'); return; }
-  const formData = new FormData();
-  formData.append('file', file);
-  showToast(`Uploading v${version}...`, 'info');
-  const res = await fetch(`/upload?version=${version}`, { method: 'POST', body: formData });
-  if (res.ok) {
-    showToast(`v${version} uploaded successfully`, 'success');
-    addLog(`Uploaded firmware v${version}`);
-    document.getElementById('versionInput').value = '';
-    document.getElementById('file-name').textContent = '';
-  } else {
-    showToast('Upload failed', 'error');
-  }
+  return uploadFirmware('robot');
 }
 
 async function deployUpdate() {
-  const version = document.getElementById('deploy-version-select').value;
-  if (!version) { showToast('Select a version to deploy', 'error'); return; }
-  const checked = [...document.querySelectorAll('[id^="chk-"]')]
-    .filter(cb => cb.checked && !cb.disabled)
-    .map(cb => cb.id.replace('chk-', ''));
-  if (!checked.length) { showToast('Select at least one robot', 'error'); return; }
-  const res = await fetch('/deploy', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ version, robot_ids: checked })
-  });
-  const data = await res.json();
-  // Prefer server-confirmed target ids for the rollout cohort; fall back to the UI selection.
-  const ids = (data && data.targets && data.targets.length) ? data.targets : checked;
-  showToast(`Update v${version} queued for ${ids.length} robot(s)`, 'success');
-  addLog(`Deployment queued: v${version} → ${ids.length} robot(s)`);
-  rolloutTrackers.robot = {
-    version, label: 'robots',
-    targetIds: new Set(ids), startedAt: Date.now(), completed: false, collapseAt: null,
-  };
-  renderRolloutProgress();
+  return submitDeployment('robot');
 }
 
 async function deploySingle(robotId) {
-  if (!targetVersion) { showToast('Deploy a version to the fleet first', 'error'); return; }
-  const res = await fetch('/deploy', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ version: targetVersion, robot_ids: [robotId] })
-  });
-  const data = await res.json();
-  if (data.targets.length) {
-    showToast(`Update queued for ${fleet[robotId]?.name}`, 'info');
-    addLog(`Manual update queued: ${fleet[robotId]?.name}`);
-  } else {
-    showToast('Robot already up to date or unavailable', 'error');
-  }
+  return submitDeployment('robot', [robotId], targetVersion);
 }
 
 async function clearDatabase() {
@@ -3851,9 +4935,7 @@ async function clearDatabase() {
 }
 
 function selectAllRobots(val) {
-  document.querySelectorAll('[id^="chk-"]').forEach(cb => {
-    if (!cb.disabled) cb.checked = val;
-  });
+  selectDeploymentTargets('robot', val);
 }
 
 function refreshFleet() {
@@ -3889,6 +4971,8 @@ function handleDrop(e) {
 
 // ---- Jetson upload UX ----
 function renderJetsonUploadsList() {
+  const countEl = document.getElementById('upload-count-jetson');
+  if (countEl) countEl.textContent = jetsonVersions.length;
   const el = document.getElementById('jetson-uploads-list');
   if (!el) return;
   if (!jetsonVersions.length) { el.innerHTML = '<div class="empty">No Jetson firmware uploaded yet</div>'; return; }
@@ -3908,26 +4992,12 @@ function renderJetsonUploadsList() {
 
 function goDeployJetsonWith(version) {
   showSection('deploy');
-  setTimeout(() => { document.getElementById('deploy-jetson-version-select').value = version; }, 0);
+  switchDeployChannel('jetson');
+  setTimeout(() => { document.getElementById('deploy-jetson-version-select').value = version; renderDeployJetsonRobotList(); }, 0);
 }
 
 async function uploadJetsonFile() {
-  const file = document.getElementById('jetsonFileInput').files[0];
-  const version = document.getElementById('jetsonVersionInput').value.trim();
-  if (!file) { showToast('Please select a file', 'error'); return; }
-  if (!version) { showToast('Please enter a version number', 'error'); return; }
-  const formData = new FormData();
-  formData.append('file', file);
-  showToast(`Uploading Jetson v${version}...`, 'info');
-  const res = await fetch(`/upload/jetson?version=${version}`, { method: 'POST', body: formData });
-  if (res.ok) {
-    showToast(`Jetson v${version} uploaded successfully`, 'success');
-    addLog(`Uploaded Jetson firmware v${version}`);
-    document.getElementById('jetsonVersionInput').value = '';
-    document.getElementById('jetson-file-name').textContent = '';
-  } else {
-    showToast('Upload failed', 'error');
-  }
+  return uploadFirmware('jetson');
 }
 
 function jetsonFileSelected(input) {
@@ -3975,12 +5045,191 @@ function showToast(msg, kind = 'info') {
   const icons = {
     success: '✓', error: '✕', info: 'ℹ'
   };
-  el.innerHTML = `<span style="font-size:16px">${icons[kind]||'ℹ'}</span><span>${msg}</span>`;
+  el.innerHTML = `<span style="font-size:16px">${icons[kind]||'ℹ'}</span><span>${escapeHtml(msg)}</span>`;
   container.appendChild(el);
   setTimeout(() => el.remove(), 4000);
 }
 
+// ---- Authentication & RBAC Engine ----
+let currentUser = null;
+
+async function checkAuth() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) {
+      window.location.href = '/login';
+      return false;
+    }
+    const data = await res.json();
+    currentUser = data.user;
+    renderUserPill();
+    enforceRBAC();
+    Object.keys(deploymentChannels).forEach(scheduleDeploymentPreview);
+    fetchAndRenderAuditLogs();
+    return true;
+  } catch (err) {
+    console.warn('Auth verification failed:', err);
+    window.location.href = '/login';
+    return false;
+  }
+}
+
+function renderUserPill() {
+  if (!currentUser) return;
+  const nameEl = document.getElementById('user-display-name');
+  const roleEl = document.getElementById('user-display-role');
+  const avatarEl = document.getElementById('user-avatar');
+
+  if (nameEl) nameEl.textContent = currentUser.name || currentUser.email;
+  if (roleEl) {
+    roleEl.textContent = currentUser.role_title || currentUser.role;
+    roleEl.style.color = currentUser.role_color || '#F7941D';
+  }
+  if (avatarEl) {
+    const initials = (currentUser.name || currentUser.email).split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    avatarEl.textContent = initials || 'CR';
+    avatarEl.style.background = currentUser.role_color || '#F7941D';
+  }
+
+  // Update Access section profile card
+  const statRole = document.getElementById('access-stat-role');
+  const statOrg = document.getElementById('access-stat-org');
+  const statPerms = document.getElementById('access-stat-perms');
+  const actorName = document.getElementById('session-actor-name');
+  const actorEmail = document.getElementById('session-actor-email');
+  const permsList = document.getElementById('session-perms-list');
+
+  if (statRole) statRole.textContent = currentUser.role_title || currentUser.role;
+  if (statOrg) statOrg.textContent = currentUser.org_name || 'ChoreRobotics';
+  if (statPerms) statPerms.textContent = currentUser.permissions.includes('*') ? 'All (*)' : currentUser.permissions.length;
+  if (actorName) actorName.textContent = currentUser.name;
+  if (actorEmail) actorEmail.textContent = `${currentUser.email} • Org: ${currentUser.org_name}`;
+
+  if (permsList) {
+    permsList.innerHTML = currentUser.permissions.map(p =>
+      `<span class="chip badge-blue" style="font-family:monospace;font-size:11px">${p}</span>`
+    ).join('') || '<span style="color:var(--text3)">None</span>';
+  }
+}
+
+function enforceRBAC() {
+  if (!currentUser) return;
+  const perms = currentUser.permissions || [];
+  const isSuper = perms.includes('*') || currentUser.role === 'super_admin';
+  ['upload-robot-btn', 'upload-jetson-btn'].forEach(id => {
+    const button = document.getElementById(id);
+    button.disabled = !isSuper && !perms.includes('firmware:upload');
+    button.title = button.disabled ? 'Firmware upload permission required' : '';
+  });
+
+  // 1. Guard Clear Database button (requires super_admin / system:manage)
+  const clearBtn = document.getElementById('btn-clear-db');
+  if (clearBtn) {
+    if (!isSuper && !perms.includes('system:manage')) {
+      clearBtn.style.opacity = '0.4';
+      clearBtn.style.cursor = 'not-allowed';
+      clearBtn.title = 'Super Admin permission required to clear database';
+      clearBtn.onclick = (e) => {
+        e.stopPropagation();
+        showToast('Access Denied: Only Super Admins can clear database', 'error');
+      };
+    }
+  }
+
+  Object.keys(deploymentChannels).forEach(channel => {
+    document.getElementById(deploymentChannels[channel].button).disabled = !canTriggerDeployment();
+  });
+
+  // 2. Guard Push Update / Deploy buttons
+  const pushBtn = document.getElementById('btn-push-update');
+  if (pushBtn) {
+    if (!isSuper && !perms.includes('deploy:trigger')) {
+      pushBtn.style.opacity = '0.5';
+      pushBtn.style.cursor = 'not-allowed';
+      pushBtn.title = 'deploy:trigger permission required';
+    }
+  }
+
+  // 3. Guard Viewer Role (Disable active operational controls)
+  if (currentUser.role === 'viewer') {
+    const deployBtns = document.querySelectorAll('.deploy-btn, .action-btn');
+    deployBtns.forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.title = 'Read-only mode (Viewer)';
+    });
+
+    const remoteBtns = document.querySelectorAll('#section-remoteops button:not([onclick*="fetchCommandHistory"]):not([onclick*="clearDiagTerminal"]):not([onclick*="inspectCommandLogs"])');
+    remoteBtns.forEach(btn => {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.title = 'Read-only mode (Viewer): Remote operations disabled';
+    });
+  } else {
+    const partitionResetBtn = document.getElementById('partition-reset-btn');
+    if (partitionResetBtn && !isSuper && !perms.includes('system:manage')) {
+      partitionResetBtn.disabled = true;
+      partitionResetBtn.style.opacity = '0.4';
+      partitionResetBtn.title = 'Super Admin permission required for partition reset';
+    }
+  }
+}
+
+async function logout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST' });
+  } catch (_) {}
+  localStorage.removeItem('cr_token');
+  localStorage.removeItem('cr_user');
+  window.location.href = '/login';
+}
+
+async function fetchAndRenderAuditLogs() {
+  const tbody = document.getElementById('audit-tbody');
+  const countEl = document.getElementById('access-stat-audits');
+  if (!tbody) return;
+
+  try {
+    const res = await fetch('/api/audit/logs');
+    if (!res.ok) return;
+    const data = await res.json();
+    const logs = data.logs || [];
+
+    if (countEl) countEl.textContent = logs.length;
+
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">No audit events recorded</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const timeStr = new Date(l.timestamp).toLocaleTimeString();
+      const statusBadge = l.status === 'SUCCESS'
+        ? '<span class="stat-badge badge-green">SUCCESS</span>'
+        : (l.status === 'DENIED' ? '<span class="stat-badge badge-red" style="background:#fee2e2;color:#ef4444">DENIED</span>' : '<span class="stat-badge badge-orange">FAILED</span>');
+      return `
+        <tr>
+          <td style="font-size:12px;color:var(--text2);white-space:nowrap">${timeStr}</td>
+          <td><div style="font-weight:600;font-size:13px">${l.actor_name || 'System'}</div><div style="font-size:11px;color:var(--text3)">${l.actor_role}</div></td>
+          <td><span class="chip badge-blue" style="font-family:monospace;font-size:11px">${l.action}</span></td>
+          <td style="font-family:monospace;font-size:12px">${l.resource_id || '—'}</td>
+          <td>${statusBadge}</td>
+          <td style="font-size:12px;color:var(--text2)">${l.details || '—'}</td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    console.warn('Failed to load audit logs:', err);
+  }
+}
+
 // ---- Init ----
+window.addEventListener('hashchange', () => {
+  const section = window.location.hash.slice(1);
+  if (sections.includes(section)) showSection(section);
+});
+if (sections.includes(window.location.hash.slice(1))) showSection(window.location.hash.slice(1));
+checkAuth();
 connectWS();
 
 // Refresh time-ago labels every 15s

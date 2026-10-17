@@ -24,6 +24,12 @@ Open http://localhost:8000 in a clean browser window (hide bookmarks bar, full
 screen, 100% zoom). With an empty DB you'll see sample data — that's fine; the
 simulator replaces it the moment Act 1 starts.
 
+Sign in with a role that can deploy firmware. The simulator reuses catalog
+releases already on the server. If its three demo versions are missing, upload
+them from the dashboard first, or set `CHORE_OPERATOR_TOKEN` in the simulator
+environment to a firmware uploader's access token. Existing release versions
+are immutable and will not be overwritten on repeated demo runs.
+
 ## Recording
 
 1. Start your screen recorder (QuickTime / OBS) on the browser window.

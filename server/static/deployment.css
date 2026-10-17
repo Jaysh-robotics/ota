@@ -1,0 +1,64 @@
+/* Extend the existing fleet dashboard tokens and component rhythm. */
+.deployment-readiness {
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 13px;
+}
+.deployment-readiness[data-state="ready"] { border-inline-start: 3px solid var(--green); }
+.deployment-readiness[data-state="blocked"] { border-inline-start: 3px solid var(--red); }
+.readiness-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.readiness-heading span, .deployment-readiness p { color: var(--text2); font-size: 12px; }
+.deployment-readiness p { margin-top: 4px; }
+.deployment-readiness ul { margin: 8px 0 0; padding-inline-start: 18px; overflow-wrap: anywhere; }
+.deployment-readiness li + li { margin-top: 4px; }
+.deployment-target-label { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.deployment-target-label label { cursor: pointer; min-width: 0; padding-block: 4px; }
+.deployment-target-name { display: block; font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
+.deployment-target-meta { display: block; font-size: 12px; color: var(--text2); overflow-wrap: anywhere; }
+.target-unavailable input, .target-unavailable label { cursor: not-allowed; }
+.btn-primary { color: var(--text); }
+.nav-item.active { color: var(--gold); }
+#section-deploy input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--orange-dark); }
+#section-deploy :is(button, select, input):focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+#section-deploy .deploy-target { gap: 12px; }
+.main, #section-deploy .card, #section-deploy .panel-stack { min-width: 0; }
+@media (max-width: 900px) {
+  #section-deploy .layout-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 1100px) {
+  .topbar { height: auto; min-height: 60px; flex-wrap: wrap; gap: 12px; padding-block: 12px; }
+  .topbar-right { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  body { display: block; }
+  .sidebar { position: static; width: 100%; }
+  .sidebar-logo { padding: 12px 16px; }
+  .sidebar-logo img { width: 130px; }
+  .sidebar-nav { display: flex; overflow-x: auto; padding: 8px; }
+  .sidebar-section { display: none; }
+  .sidebar-nav .nav-item { flex: 0 0 auto; white-space: nowrap; margin: 0 4px; }
+  .sidebar-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; }
+  .main { margin-left: 0; width: 100%; }
+  .topbar { position: static; height: auto; padding: 16px; flex-wrap: wrap; gap: 12px; }
+  .topbar > div:first-child { min-width: 0; width: 100%; }
+  .topbar-right { flex-wrap: wrap; gap: 8px; }
+  .content { padding: 12px; }
+  #section-deploy .card-body { padding: 16px; }
+  #section-deploy .deploy-target { align-items: flex-start; flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #section-deploy .btn { transition: none; }
+}
+
+/* Focus one firmware channel at a time; retain the existing deploy controls. */
+.dp-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.dp-eyebrow{font-size:10px;letter-spacing:1.5px;font-weight:700;color:var(--text2)}.dp-header h2{font-size:27px;letter-spacing:-.8px;margin:7px 0 0}.dp-header a{text-decoration:none}.dp-channel-switch{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:22px}.dp-channel{display:flex;align-items:center;gap:12px;text-align:left;border:1px solid var(--border);background:var(--surface);padding:17px 16px;border-radius:11px;color:var(--text);cursor:pointer;font:inherit;font-size:13px;font-weight:650;box-shadow:0 2px 3px #00000003}.dp-channel.active{border-color:var(--orange);background:var(--orange-light);box-shadow:inset 0 -2px var(--orange)}.dp-channel-icon{display:grid;place-items:center;width:33px;height:33px;border-radius:8px;background:var(--surface2);color:var(--text2);font-size:11px;flex-shrink:0}.dp-channel.active .dp-channel-icon{background:var(--orange);color:var(--text)}.dp-channel small{display:block;color:var(--text2);font-size:10px;font-weight:400;margin-top:5px}.dp-channel b{margin-left:auto;border:1px solid var(--border);padding:3px 7px;border-radius:5px;font-size:11px}.dp-channel-panel[hidden],.deploy-target[hidden]{display:none!important}#section-deploy .dp-channel-panel{grid-template-columns:minmax(0,1.65fr) minmax(250px,1fr);align-items:start}#section-deploy .dp-channel-panel>.card{border-top:3px solid var(--orange)}#section-deploy .dp-channel-panel>.card>.card-header{padding:18px 22px}.dp-channel-panel .card-subtitle:empty{display:none}#section-deploy .dp-channel-panel .form-label,.dp-review-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:var(--text2)}.dp-review-label{margin-bottom:12px}.dp-target-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}.dp-target-tools input{max-width:58%;font-size:12px}.dp-target-tools>span{font-size:10px;color:var(--text2);text-align:right}.dp-devices{max-height:340px;overflow-y:auto;padding:2px}.dp-devices .deploy-target{background:var(--surface);border-radius:8px;padding:12px;transition:border-color .15s}.dp-devices .deploy-target:has(input:checked){background:#fffaf0;border-color:#edc77e}.dp-devices .target-unavailable{background:var(--surface2)}.dp-devices .deployment-target-meta{font-size:10px;margin-top:4px;line-height:1.5}.dp-devices .deployment-target-name{font-size:12px}.deployment-readiness[data-state="ready"]{background:#f0fdf4}.deployment-readiness[data-state="blocked"]{background:#fff7f7}.dp-channel-panel .divider{margin:20px 0}.dp-channel-panel .panel-stack .card-header{background:var(--surface2)}.dp-channel-panel .version-item:last-child{border-bottom:0}.dp-channel-panel .panel-stack .card{box-shadow:none}.dp-channel-panel .empty{font-size:12px;padding:24px 12px}.dp-channel-panel .btn-primary:disabled{opacity:.5;cursor:not-allowed}@media(max-width:1000px){#section-deploy .dp-channel-panel{grid-template-columns:minmax(0,1fr)}.dp-channel{padding:13px 10px;gap:8px}.dp-channel small{display:none}.dp-channel-icon{width:25px;height:25px}.dp-channel b{padding:2px 5px}.dp-channel-panel .panel-stack{display:grid;grid-template-columns:1fr 1fr;gap:14px}}@media(max-width:600px){.dp-header{align-items:flex-start;flex-direction:column}.dp-header h2{font-size:24px}.dp-channel-switch{gap:7px}.dp-channel{flex-wrap:wrap;font-size:11px;padding:12px 9px}.dp-channel-icon{display:none}.dp-channel b{margin-left:0}.dp-channel-panel .panel-stack{grid-template-columns:1fr}.dp-target-tools{align-items:flex-start}.dp-target-tools input{max-width:62%}.dp-channel-panel .card-header{padding:16px!important}}@media(prefers-reduced-motion:reduce){.dp-devices .deploy-target{transition:none}}
+#section-deploy #rollout-progress-card .card-header{padding:12px 20px}#section-deploy #rollout-progress-card .card-subtitle{display:none}#section-deploy #rollout-progress-card .card-body{padding:14px 20px}.dp-channel-panel .deployment-readiness{font-size:12px}.dp-channel-panel .deployment-readiness p{font-size:11px}
+#section-uploads .dp-channel-switch{grid-template-columns:repeat(2,minmax(0,1fr))}
+#section-uploads .dp-channel-panel{grid-template-columns:minmax(0,1.65fr) minmax(250px,1fr);align-items:start}
+#section-uploads .dp-channel-panel>.card{border-top:3px solid var(--orange)}
+#section-uploads .dp-channel-panel>.card>.card-header{padding:18px 22px}
+@media(max-width:1000px){#section-uploads .dp-channel-panel{grid-template-columns:minmax(0,1fr)}}

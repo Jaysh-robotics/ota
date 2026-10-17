@@ -1,0 +1,4 @@
+-r server/requirements.txt
+-r simulator/requirements.txt
+pytest
+httpx

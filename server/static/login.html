@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Chore Robotics Fleet Control Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #F7941D;
+      --orange-light: #FFF3E0;
+      --orange-dark: #d97c10;
+      --orange-glow: rgba(247, 148, 29, 0.35);
+      --bg: #090D16;
+      --surface-card: #111827;
+      --surface-hover: #1E293B;
+      --border: #1F293D;
+      --border-focus: #F7941D;
+      --text: #F9FAFB;
+      --text2: #94A3B8;
+      --text3: #64748B;
+      --green: #10B981;
+      --red: #EF4444;
+      --purple: #8B5CF6;
+      --blue: #3B82F6;
+      --radius-sm: 8px;
+      --radius: 14px;
+      --shadow: 0 20px 40px -15px rgba(0,0,0,0.7), 0 0 1px 1px rgba(255,255,255,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glow */
+    .ambient-glow {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(247, 148, 29, 0.12) 0%, rgba(9, 13, 22, 0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Login Wrapper */
+    .login-wrapper {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Brand Header */
+    .brand-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .brand-logo-img {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+    }
+    .brand-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .brand-subtitle {
+      font-size: 13px;
+      color: var(--text2);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* Login Card */
+    .login-card {
+      width: 100%;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 24px; right: 24px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    }
+
+    /* Three-dot Button in Card Corner */
+    .btn-three-dots {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text3);
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 20;
+    }
+    .btn-three-dots:hover, .btn-three-dots.active {
+      background: var(--surface-hover);
+      color: var(--orange);
+      border-color: var(--border);
+    }
+
+    /* Hidden Dropdown / Popup Menu for Personas */
+    .personas-dropdown {
+      position: absolute;
+      top: 54px;
+      right: 16px;
+      width: 320px;
+      background: #162032;
+      border: 1px solid #2A3B57;
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.6), 0 0 1px 1px rgba(255,255,255,0.1);
+      z-index: 30;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px) scale(0.96);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .personas-dropdown.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .personas-dropdown-header {
+      padding: 12px 14px;
+      background: rgba(11, 15, 25, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text2);
+    }
+    .personas-dropdown-header span.tag {
+      color: var(--orange);
+    }
+
+    .personas-dropdown-list {
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .persona-menu-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .persona-menu-item:hover {
+      background: var(--surface-hover);
+    }
+    .persona-menu-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .persona-menu-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+    .persona-menu-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .persona-menu-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .persona-menu-role {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .badge-super_admin { background: rgba(247, 148, 29, 0.2); color: #FDBA74; }
+    .badge-release_engineer { background: rgba(139, 92, 246, 0.2); color: #C4B5FD; }
+    .badge-fleet_manager { background: rgba(59, 130, 246, 0.2); color: #93C5FD; }
+    .badge-field_tech { background: rgba(16, 185, 129, 0.2); color: #6EE7B7; }
+    .badge-viewer { background: rgba(148, 163, 184, 0.2); color: #CBD5E1; }
+
+    .persona-menu-email {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text3);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-input-wrap {
+      position: relative;
+    }
+    .form-input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text3);
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(9, 13, 22, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px 12px 42px;
+      font-size: 14px;
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: var(--border-focus);
+      background: rgba(9, 13, 22, 0.95);
+      box-shadow: 0 0 0 3px var(--orange-glow);
+    }
+    .form-input::placeholder {
+      color: var(--text3);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+    .remember-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .remember-checkbox {
+      accent-color: var(--orange);
+      cursor: pointer;
+    }
+
+    .btn-login {
+      width: 100%;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 13px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(247, 148, 29, 0.35);
+    }
+    .btn-login:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(247, 148, 29, 0.45);
+      background: linear-gradient(135deg, #fb923c, var(--orange));
+    }
+    .btn-login:active {
+      transform: translateY(0);
+    }
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+      font-size: 13px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Security Badge */
+    .security-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 24px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    .security-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      margin-top: 32px;
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow"></div>
+  <div class="ambient-grid"></div>
+
+  <div class="login-wrapper">
+
+    <!-- Brand Header with High-Contrast Logo -->
+    <div class="brand-box">
+      <img src="/static/logo-dark.png" alt="Chore Robotics Logo" class="brand-logo-img">
+      <h1 class="brand-title">Fleet Control Platform</h1>
+      <p class="brand-subtitle">Autonomous Fleet Management &amp; Secure OTA Deployment</p>
+    </div>
+
+    <!-- Login Form Card -->
+    <div class="login-card">
+
+      <!-- Discreet 3-dot button for Quick Personas Menu -->
+      <button type="button" class="btn-three-dots" id="btn-personas-toggle" onclick="togglePersonasMenu(event)" title="Demo Quick Roles">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+          <circle cx="12" cy="5" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="12" cy="19" r="2"/>
+        </svg>
+      </button>
+
+      <!-- Popup Personas Menu (shown only on click) -->
+      <div class="personas-dropdown" id="personas-dropdown" onclick="event.stopPropagation()">
+        <div class="personas-dropdown-header">
+          <span>Demo Role Selector</span>
+          <span class="tag">Auto-Fill</span>
+        </div>
+        <div class="personas-dropdown-list">
+
+          <div class="persona-menu-item" onclick="quickFill('admin@chorerobotics.com', 'admin123')">
+            <div class="persona-menu-icon" style="background:rgba(247,148,29,0.15);color:var(--orange)">👑</div>
+            <div class="persona-menu-info">
+              <div class="persona-menu-top">
+                <span class="persona-menu-name">Alex Vance</span>
+                <span class="persona-menu-role badge-super_admin">Super Admin</span>
+              </div>
+              <span class="persona-menu-email">admin@chorerobotics.com</span>
+            </div>
+          </div>
+
+          <div class="persona-menu-item" onclick="quickFill('release@chorerobotics.com', 'release123')">
+            <div class="persona-menu-icon" style="background:rgba(139,92,246,0.15);color:var(--purple)">🚀</div>
+            <div class="persona-menu-info">
+              <div class="persona-menu-top">
+                <span class="persona-menu-name">Sarah Chen</span>
+                <span class="persona-menu-role badge-release_engineer">Release Eng</span>
+              </div>
+              <span class="persona-menu-email">release@chorerobotics.com</span>
+            </div>
+          </div>
+
+          <div class="persona-menu-item" onclick="quickFill('firmware@chorerobotics.com', 'firmware123')">
+            <div class="persona-menu-icon" style="background:rgba(59,130,246,0.15);color:var(--blue)">⚡</div>
+            <div class="persona-menu-info">
+              <div class="persona-menu-top">
+                <span class="persona-menu-name">Marcus Brody</span>
+                <span class="persona-menu-role badge-fleet_manager" style="color:var(--blue)">Firmware Eng</span>
+              </div>
+              <span class="persona-menu-email">firmware@chorerobotics.com</span>
+            </div>
+          </div>
+
+          <div class="persona-menu-item" onclick="quickFill('diagnostics@chorerobotics.com', 'diag123')">
+            <div class="persona-menu-icon" style="background:rgba(16,185,129,0.15);color:var(--green)">🔍</div>
+            <div class="persona-menu-info">
+              <div class="persona-menu-top">
+                <span class="persona-menu-name">Dave Miller</span>
+                <span class="persona-menu-role badge-field_tech" style="color:var(--green)">Diagnostics Eng</span>
+              </div>
+              <span class="persona-menu-email">diagnostics@chorerobotics.com</span>
+            </div>
+          </div>
+
+          <div class="persona-menu-item" onclick="quickFill('qa@chorerobotics.com', 'qa123')">
+            <div class="persona-menu-icon" style="background:rgba(148,163,184,0.15);color:var(--text2)">🛡️</div>
+            <div class="persona-menu-info">
+              <div class="persona-menu-top">
+                <span class="persona-menu-name">Elena Rostova</span>
+                <span class="persona-menu-role badge-viewer">QA Auditor</span>
+              </div>
+              <span class="persona-menu-email">qa@chorerobotics.com</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="error-msg" id="error-msg">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="error-text">Invalid credentials</span>
+      </div>
+
+      <form id="login-form" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="email">Work Email</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input type="email" id="email" class="form-input" placeholder="name@company.com" required autocomplete="username" autofocus>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <div class="form-input-wrap">
+            <span class="form-input-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input type="password" id="password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-label">
+            <input type="checkbox" class="remember-checkbox" checked>
+            <span>Remember session</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-login" id="submit-btn">
+          <span class="spinner" id="login-spinner"></span>
+          <span id="btn-text">Sign In to Fleet Control</span>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Security Indicator -->
+    <div class="security-badge">
+      <span class="security-dot"></span>
+      Protected by ChoreRobotics IAM &amp; Role-Based Access Control
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      Chore Robotics &copy; 2026 &bull; Secure Fleet Operations Engine
+    </footer>
+
+  </div>
+
+  <script>
+    function togglePersonasMenu(e) {
+      if (e) e.stopPropagation();
+      const menu = document.getElementById('personas-dropdown');
+      const btn = document.getElementById('btn-personas-toggle');
+      menu.classList.toggle('open');
+      btn.classList.toggle('active');
+    }
+
+    // Close menu when clicking anywhere else
+    document.addEventListener('click', () => {
+      const menu = document.getElementById('personas-dropdown');
+      const btn = document.getElementById('btn-personas-toggle');
+      if (menu) menu.classList.remove('open');
+      if (btn) btn.classList.remove('active');
+    });
+
+    function quickFill(email, password) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = password;
+      togglePersonasMenu();
+      doLogin(email, password);
+    }
+
+    async function doLogin(email, password) {
+      const errorMsg = document.getElementById('error-msg');
+      const errorText = document.getElementById('error-text');
+      const spinner = document.getElementById('login-spinner');
+      const btnText = document.getElementById('btn-text');
+      const submitBtn = document.getElementById('submit-btn');
+
+      errorMsg.style.display = 'none';
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Authenticating...';
+      submitBtn.disabled = true;
+
+      try {
+        const resp = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(data.detail || 'Authentication failed');
+        }
+
+        localStorage.setItem('cr_token', data.access_token);
+        localStorage.setItem('cr_user', JSON.stringify(data.user));
+
+        btnText.textContent = 'Redirecting...';
+        window.location.href = '/';
+      } catch (err) {
+        errorText.textContent = err.message;
+        errorMsg.style.display = 'flex';
+        spinner.style.display = 'none';
+        btnText.textContent = 'Sign In to Fleet Control';
+        submitBtn.disabled = false;
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      doLogin(email, password);
+    }
+
+    // If already authenticated, redirect straight to dashboard
+    (async function checkExistingAuth() {
+      try {
+        const resp = await fetch('/api/auth/me');
+        if (resp.ok) {
+          window.location.href = '/';
+        }
+      } catch (_) {}
+    })();
+  </script>
+</body>
+</html>

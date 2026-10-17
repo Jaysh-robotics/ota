@@ -139,13 +139,23 @@ def make_firmware_blob(version: str) -> bytes:
 
 
 def upload_firmware_catalog():
-    log("Uploading robot firmware catalog to the OTA server...")
-    for v in ROBOT_FIRMWARE_VERSIONS:
+    existing = {release["version"] for release in api_get("/api/versions", {}).get("versions", [])}
+    missing = [version for version in ROBOT_FIRMWARE_VERSIONS if version not in existing]
+    if not missing:
+        log("Robot firmware catalog is already available; reusing existing releases.")
+        return
+    token = os.environ.get("CHORE_OPERATOR_TOKEN", "").strip()
+    if not token:
+        raise RuntimeError("Catalog releases are missing. Upload them from the dashboard, or set "
+                           "CHORE_OPERATOR_TOKEN to an authenticated firmware uploader's access token.")
+    log("Uploading missing robot firmware releases to the OTA server...")
+    for v in missing:
         blob = make_firmware_blob(v)
         resp = requests.post(
             f"{SERVER}/upload",
             params={"version": v},
             files={"file": (f"update_{v}.tar.gz", blob, "application/gzip")},
+            headers={"Authorization": f"Bearer {token}"},
             timeout=60,
         )
         resp.raise_for_status()
@@ -239,6 +249,16 @@ class RobotAgent:
         if data.get("update_available"):
             self._install(data["target_version"])
 
+        # Process any pending remote operations / diagnostics commands
+        pending_cmds = data.get("pending_commands", [])
+        for cmd in pending_cmds:
+            threading.Thread(
+                target=self._execute_command,
+                args=(cmd,),
+                name=f"cmd-{self.robot_id}-{cmd['command_id']}",
+                daemon=True
+            ).start()
+
     def _install(self, target: str):
         api_post("/api/robot/ack", {"robot_id": self.robot_id, "status": "triggered"})
         log(f"  ⚡ {self.name} received OTA trigger -> installing v{target}")
@@ -246,6 +266,206 @@ class RobotAgent:
         api_post("/api/robot/ack", {"robot_id": self.robot_id, "status": "idle", "version": target})
         self.version = target
         log(f"  ✓ {self.name} now running v{target}")
+
+    def _execute_command(self, cmd: dict):
+        cmd_id = cmd["command_id"]
+        cmd_type = cmd["command"]
+        log(f"  🔧 {self.name} executing remote command: '{cmd_type}' ({cmd_id})")
+
+        # Initial acknowledgment: executing state
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "executing",
+            "progress": 15,
+            "logs": [f"[{time.strftime('%H:%M:%S')}] Received dispatch for '{cmd_type}' — initializing subsystem handler"]
+        })
+
+        if cmd_type == "selftest":
+            self._handle_selftest(cmd_id)
+        elif cmd_type == "reboot":
+            self._handle_reboot(cmd_id)
+        elif cmd_type == "can_query":
+            self._handle_can_query(cmd_id)
+        elif cmd_type == "fetch_logs":
+            self._handle_fetch_logs(cmd_id)
+        elif cmd_type == "blink_led":
+            self._handle_blink_led(cmd_id)
+        elif cmd_type == "dock":
+            self._handle_dock(cmd_id)
+        elif cmd_type == "partition_reset":
+            self._handle_partition_reset(cmd_id)
+        else:
+            wait(1.5)
+            api_post(f"/api/robot/commands/{cmd_id}/ack", {
+                "robot_id": self.robot_id,
+                "status": "completed",
+                "progress": 100,
+                "result": {"status": "OK", "detail": f"Command {cmd_type} executed"},
+                "logs": [f"[{time.strftime('%H:%M:%S')}] Command '{cmd_type}' finished successfully"]
+            })
+
+    def _handle_selftest(self, cmd_id: str):
+        wait(0.8)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "executing",
+            "progress": 45,
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] [MCU] Querying mainboard MCU at CAN 0x10... ACK (3.3V rail: 3.31V, Core Temp: 38.5°C)",
+                f"[{time.strftime('%H:%M:%S')}] [CAN] Scanning CAN 2.0B bus topology... 3 active nodes discovered (0 drop frames)"
+            ]
+        })
+        wait(0.8)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "executing",
+            "progress": 80,
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] [IMU] 6-DOF IMU self-test: Accelerometer & Gyro calibrated (Drift: 0.02 deg/s)",
+                f"[{time.strftime('%H:%M:%S')}] [MOTOR] PWM short-pulse test: Left=1.42A, Right=1.39A (within nominal limits)"
+            ]
+        })
+        wait(0.6)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {
+                "overall": "PASSED",
+                "subsystems": {
+                    "mcu": {"status": "OK", "voltage_v": 3.31, "temp_c": 38.5},
+                    "can_bus": {"status": "OK", "nodes_discovered": 3, "bus_load_pct": 14.2},
+                    "imu": {"status": "OK", "drift_rate_deg_s": 0.02, "calibrated": True},
+                    "motor_drivers": {"status": "OK", "left_draw_a": 1.42, "right_draw_a": 1.39},
+                    "bms": {"status": "OK", "cell_balance_mv": 11, "soc_pct": 89}
+                }
+            },
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] [BMS] Battery Management System: 89% SoC, cell differential 11mV (nominal)",
+                f"[{time.strftime('%H:%M:%S')}] [DIAG_DONE] Hardware Self-Test finished: All 5 subsystems operational (PASSED)"
+            ]
+        })
+        log(f"  ✓ {self.name} Hardware Self-Test PASSED")
+
+    def _handle_reboot(self, cmd_id: str):
+        wait(0.6)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "executing",
+            "progress": 50,
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Syncing storage buffers & terminating active ROS2 nodes...",
+                f"[{time.strftime('%H:%M:%S')}] Flushing NVRAM, trigger watchdog reboot sequence"
+            ]
+        })
+        self.pause()
+        wait(2.2)
+        self.resume()
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {"status": "REBOOTED", "uptime_sec": 4, "kernel": "5.15-tegra-cr"},
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Power cycle complete — Kernel 5.15-tegra-cr, Base MCU ready",
+                f"[{time.strftime('%H:%M:%S')}] System services online"
+            ]
+        })
+        log(f"  ✓ {self.name} reboot completed")
+
+    def _handle_can_query(self, cmd_id: str):
+        wait(0.8)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {
+                "active_nodes": 3,
+                "bus_speed": "1Mbps",
+                "bitrate_utilization": "12.8%",
+                "rx_errors": 0,
+                "tx_errors": 0,
+                "nodes": [
+                    {"node_id": "0x10", "name": f"Base Chassis MCU (Rev {self.hw_rev})", "rtt_ms": 1.2, "status": "HEALTHY"},
+                    {"node_id": "0x20", "name": "Jetson Orin Compute Carrier", "rtt_ms": 0.8, "status": "HEALTHY"},
+                    {"node_id": "0x30", "name": "Tool Attachment CAN Interface", "rtt_ms": 1.5, "status": "ACTIVE"}
+                ]
+            },
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Initiating CAN Bus 1Mbps frame broadcast ping...",
+                f"[{time.strftime('%H:%M:%S')}] [Node 0x10] Base Chassis MCU (ChoreBot X1 Rev {self.hw_rev}) -> RTT: 1.2ms, status: HEALTHY",
+                f"[{time.strftime('%H:%M:%S')}] [Node 0x20] Jetson Orin Compute Carrier -> RTT: 0.8ms, status: HEALTHY",
+                f"[{time.strftime('%H:%M:%S')}] [Node 0x30] Tool Attachment Interface -> RTT: 1.5ms, status: ACTIVE",
+                f"[{time.strftime('%H:%M:%S')}] CAN bus diagnostic query complete: 3 nodes responding, 0 error frames"
+            ]
+        })
+        log(f"  ✓ {self.name} CAN Bus query complete (3 active nodes)")
+
+    def _handle_fetch_logs(self, cmd_id: str):
+        wait(0.7)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {
+                "bundle_size_kb": 124,
+                "entries_scanned": 820,
+                "critical_panics": 0,
+                "warnings": 2,
+                "log_archive": f"/var/log/cr_dump_{cmd_id}.tar.gz"
+            },
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Capturing journalctl -u chorerobot-agent -n 50...",
+                f"[{time.strftime('%H:%M:%S')}] Dumping kernel ring buffer (dmesg | tail -n 30)...",
+                f"[{time.strftime('%H:%M:%S')}] Packaged 124KB diagnostic bundle: /var/log/cr_dump_{cmd_id}.tar.gz",
+                f"[{time.strftime('%H:%M:%S')}] Diagnostic logs successfully retrieved"
+            ]
+        })
+        log(f"  ✓ {self.name} crash & diagnostic logs packaged")
+
+    def _handle_blink_led(self, cmd_id: str):
+        wait(0.5)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {"gpio_pin": 18, "pattern": "identification_pulse_2hz", "duration_sec": 10},
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] GPIO pin 18 (Beacon LED) pulsing at 2Hz for 10s pattern",
+                f"[{time.strftime('%H:%M:%S')}] Chassis beacon active"
+            ]
+        })
+        log(f"  ✓ {self.name} Beacon LED pattern initiated")
+
+    def _handle_dock(self, cmd_id: str):
+        wait(0.9)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {"dock_id": "BAY-03", "charging": True, "battery_v": 52.4, "current_a": 9.8},
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Aborting active chore waypoint navigation...",
+                f"[{time.strftime('%H:%M:%S')}] Computing path to charging station Bay #03...",
+                f"[{time.strftime('%H:%M:%S')}] Aligning IR dock fiducials... Docked and charging engaged (48V 10A)"
+            ]
+        })
+        log(f"  ✓ {self.name} docked at Bay #03")
+
+    def _handle_partition_reset(self, cmd_id: str):
+        wait(1.0)
+        api_post(f"/api/robot/commands/{cmd_id}/ack", {
+            "robot_id": self.robot_id,
+            "status": "completed",
+            "progress": 100,
+            "result": {"active_partition": "SLOT_B_GOLDEN", "sha256": "e3b0c44298fc1c149afbf4c8996fb924", "status": "RESET_COMPLETE"},
+            "logs": [
+                f"[{time.strftime('%H:%M:%S')}] Switching active A/B slot to Golden Recovery Partition B...",
+                f"[{time.strftime('%H:%M:%S')}] Factory partition verified (SHA256 valid). Restarting...",
+                f"[{time.strftime('%H:%M:%S')}] Golden recovery partition loaded successfully"
+            ]
+        })
+        log(f"  ✓ {self.name} Partition Reset to Golden Slot B complete")
 
 
 class AttachmentAgent:

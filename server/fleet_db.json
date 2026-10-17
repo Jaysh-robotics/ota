@@ -5,132 +5,312 @@
       "model": "ChoreBot X1",
       "serial": "CR-2026-00001",
       "hw_rev": "A",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00001",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:36.785325",
-      "last_seen": "2026-07-19T10:51:49.231818"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-1",
+        "depot:san-jose"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-08-29T19:57:27.979649",
+      "last_seen": "2026-09-01T20:52:03.137414"
     },
     "CR-2026-00002": {
       "name": "Chorerobot-00002",
       "model": "ChoreBot X2",
       "serial": "CR-2026-00002",
       "hw_rev": "B",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00002",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:36.926673",
-      "last_seen": "2026-07-19T10:51:49.229392"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2",
+        "depot:san-jose"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-08-29T20:00:04.741114",
+      "last_seen": "2026-09-01T20:52:02.810703"
     },
     "CR-2026-00003": {
       "name": "Chorerobot-00003",
       "model": "ChoreBot X2 Pro",
       "serial": "CR-2026-00003",
       "hw_rev": "C",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00003",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.093739",
-      "last_seen": "2026-07-19T10:51:48.698407"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-3",
+        "depot:san-jose"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-08-29T20:00:04.741985",
+      "last_seen": "2026-09-01T20:52:01.961481"
+    },
+    "CR-2026-TEST01": {
+      "name": "TestBot-01",
+      "model": "ChoreBot X1",
+      "serial": "CR-2026-TEST01",
+      "hw_rev": "B",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-EST01",
+      "current_version": "1.3.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:b"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:25:04.489146",
+      "last_seen": "2026-09-01T20:25:04.491838"
     },
     "CR-2026-00004": {
       "name": "Chorerobot-00004",
       "model": "ChoreBot X1",
       "serial": "CR-2026-00004",
       "hw_rev": "A",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00004",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.250325",
-      "last_seen": "2026-07-19T10:51:49.167378"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:a"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:45.150399",
+      "last_seen": "2026-09-01T20:52:02.732954"
     },
     "CR-2026-00005": {
       "name": "Chorerobot-00005",
       "model": "ChoreBot X2",
       "serial": "CR-2026-00005",
       "hw_rev": "B",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00005",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.422242",
-      "last_seen": "2026-07-19T10:51:48.997189"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:b"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:45.485582",
+      "last_seen": "2026-09-01T20:52:03.180261"
     },
     "CR-2026-00006": {
       "name": "Chorerobot-00006",
       "model": "ChoreBot X2 Pro",
       "serial": "CR-2026-00006",
       "hw_rev": "C",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00006",
+      "current_version": "1.3.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.636401",
-      "last_seen": "2026-07-19T10:51:49.351191"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:c"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:45.811364",
+      "last_seen": "2026-09-01T20:52:02.427584"
     },
     "CR-2026-00007": {
       "name": "Chorerobot-00007",
       "model": "ChoreBot X1",
       "serial": "CR-2026-00007",
       "hw_rev": "A",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00007",
+      "current_version": "1.2.4",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.803443",
-      "last_seen": "2026-07-19T10:51:48.705904"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:a"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:46.160135",
+      "last_seen": "2026-09-01T20:52:02.996475"
     },
     "CR-2026-00008": {
       "name": "Chorerobot-00008",
       "model": "ChoreBot X2",
       "serial": "CR-2026-00008",
       "hw_rev": "B",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00008",
+      "current_version": "1.2.4",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.036300",
-      "last_seen": "2026-07-19T10:51:48.898240"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:b"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:46.503630",
+      "last_seen": "2026-09-01T20:52:02.578420"
     },
     "CR-2026-00009": {
       "name": "Chorerobot-00009",
       "model": "ChoreBot X2 Pro",
       "serial": "CR-2026-00009",
       "hw_rev": "C",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00009",
+      "current_version": "1.2.4",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.245992",
-      "last_seen": "2026-07-19T10:51:48.998534"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:c"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:46.776950",
+      "last_seen": "2026-09-01T20:52:02.811960"
     },
     "CR-2026-00010": {
       "name": "Chorerobot-00010",
       "model": "ChoreBot X1",
       "serial": "CR-2026-00010",
       "hw_rev": "A",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00010",
+      "current_version": "1.2.4",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.342531",
-      "last_seen": "2026-07-19T10:51:49.298509"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:a"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:46.884284",
+      "last_seen": "2026-09-01T20:52:02.115313"
     },
     "CR-2026-00011": {
       "name": "Chorerobot-00011",
       "model": "ChoreBot X2",
       "serial": "CR-2026-00011",
       "hw_rev": "B",
-      "current_version": "1.3.1",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00011",
+      "current_version": "1.2.4",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.528540",
-      "last_seen": "2026-07-19T10:51:48.478770"
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:b"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:47.157901",
+      "last_seen": "2026-09-01T20:52:02.802608"
     },
     "CR-2026-00012": {
       "name": "Chorerobot-00012",
       "model": "ChoreBot X2 Pro",
       "serial": "CR-2026-00012",
       "hw_rev": "C",
+      "carrier_rev": "1.2",
+      "jetson_serial": "NV-JET-2026-00012",
       "current_version": "1.3.1",
-      "pending_version": "1.3.1",
-      "update_status": "pending",
-      "first_seen": "2026-07-16T23:18:39.418722",
-      "last_seen": "2026-07-19T10:51:48.866140"
+      "pending_version": null,
+      "update_status": "idle",
+      "jetson_version": "1.0.0",
+      "jetson_pending_version": null,
+      "jetson_update_status": "idle",
+      "lifecycle": "active",
+      "tags": [
+        "region:us-west",
+        "cohort:pilot-2026",
+        "hw-rev:c"
+      ],
+      "location": "Main Depot",
+      "notes": "",
+      "first_seen": "2026-09-01T20:48:50.844121",
+      "last_seen": "2026-09-01T20:52:02.038583"
     }
   },
   "attachments": {
@@ -142,63 +322,17 @@
       "current_version": "1.1.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:36.854706",
-      "last_seen": "2026-07-19T10:51:49.185024"
-    },
-    "AT-SP-2026-00002": {
-      "type": "Snow Plower",
-      "type_code": "SP",
-      "serial": "AT-SP-2026-00002",
-      "attached_to": "CR-2026-00002",
-      "current_version": "1.1.0",
-      "pending_version": null,
-      "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.020209",
-      "last_seen": "2026-07-19T10:51:48.738050"
-    },
-    "AT-LM-2026-00001": {
-      "type": "Lawn Mower",
-      "type_code": "LM",
-      "serial": "AT-LM-2026-00001",
-      "attached_to": "CR-2026-00003",
-      "current_version": "2.4.1",
-      "pending_version": null,
-      "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.165905",
-      "last_seen": "2026-07-19T10:51:49.522822"
-    },
-    "AT-LM-2026-00002": {
-      "type": "Lawn Mower",
-      "type_code": "LM",
-      "serial": "AT-LM-2026-00002",
-      "attached_to": "CR-2026-00004",
-      "current_version": "2.4.1",
-      "pending_version": null,
-      "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.344317",
-      "last_seen": "2026-07-19T10:51:49.127328"
-    },
-    "AT-LM-2026-00003": {
-      "type": "Lawn Mower",
-      "type_code": "LM",
-      "serial": "AT-LM-2026-00003",
-      "attached_to": "CR-2026-00005",
-      "current_version": "2.4.1",
-      "pending_version": null,
-      "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.518527",
-      "last_seen": "2026-07-19T10:51:48.464310"
-    },
-    "AT-LM-2026-00004": {
-      "type": "Lawn Mower",
-      "type_code": "LM",
-      "serial": "AT-LM-2026-00004",
-      "attached_to": "CR-2026-00006",
-      "current_version": "2.4.1",
-      "pending_version": null,
-      "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.734033",
-      "last_seen": "2026-07-19T10:51:49.042338"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00001",
+          "paired_at": "2026-08-29T19:57:27.982750",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-08-29T19:57:27.980711",
+      "last_seen": "2026-09-01T20:52:02.519231"
     },
     "AT-SR-2026-00001": {
       "type": "Snow Remover",
@@ -208,19 +342,42 @@
       "current_version": "1.0.2",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:37.913475",
-      "last_seen": "2026-07-19T10:51:48.739460"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00002",
+          "paired_at": "2026-08-29T20:00:04.752178",
+          "unpaired_at": "2026-08-29T20:00:04.753455"
+        },
+        {
+          "robot_id": "CR-2026-00007",
+          "paired_at": "2026-09-01T20:48:46.321788",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-08-29T19:57:27.983453",
+      "last_seen": "2026-09-01T20:52:02.417473"
     },
-    "AT-SR-2026-00002": {
-      "type": "Snow Remover",
-      "type_code": "SR",
-      "serial": "AT-SR-2026-00002",
-      "attached_to": "CR-2026-00008",
-      "current_version": "1.0.2",
+    "AT-LM-2026-00001": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00001",
+      "attached_to": "CR-2026-00003",
+      "current_version": "2.4.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.156139",
-      "last_seen": "2026-07-19T10:51:48.728463"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00003",
+          "paired_at": "2026-09-01T20:48:45.007188",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-08-29T20:00:04.743751",
+      "last_seen": "2026-09-01T20:52:02.532722"
     },
     "AT-LC-2026-00001": {
       "type": "Leaf Collector",
@@ -230,8 +387,117 @@
       "current_version": "3.0.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.432190",
-      "last_seen": "2026-07-19T10:51:48.946543"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00010",
+          "paired_at": "2026-09-01T20:48:47.061619",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-08-29T20:00:04.745263",
+      "last_seen": "2026-09-01T20:52:02.688905"
+    },
+    "AT-SP-2026-00002": {
+      "type": "Snow Plower",
+      "type_code": "SP",
+      "serial": "AT-SP-2026-00002",
+      "attached_to": "CR-2026-00002",
+      "current_version": "1.1.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00002",
+          "paired_at": "2026-09-01T20:48:44.729599",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:44.729599",
+      "last_seen": "2026-09-01T20:52:03.066634"
+    },
+    "AT-LM-2026-00002": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00002",
+      "attached_to": "CR-2026-00004",
+      "current_version": "2.4.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00004",
+          "paired_at": "2026-09-01T20:48:45.300478",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:45.300478",
+      "last_seen": "2026-09-01T20:52:02.568030"
+    },
+    "AT-LM-2026-00003": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00003",
+      "attached_to": "CR-2026-00005",
+      "current_version": "2.4.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00005",
+          "paired_at": "2026-09-01T20:48:45.624940",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:45.624940",
+      "last_seen": "2026-09-01T20:52:02.528527"
+    },
+    "AT-LM-2026-00004": {
+      "type": "Lawn Mower",
+      "type_code": "LM",
+      "serial": "AT-LM-2026-00004",
+      "attached_to": "CR-2026-00006",
+      "current_version": "2.4.0",
+      "pending_version": null,
+      "update_status": "idle",
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00006",
+          "paired_at": "2026-09-01T20:48:45.985622",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:45.985622",
+      "last_seen": "2026-09-01T20:52:02.196755"
+    },
+    "AT-SR-2026-00002": {
+      "type": "Snow Remover",
+      "type_code": "SR",
+      "serial": "AT-SR-2026-00002",
+      "attached_to": "CR-2026-00008",
+      "current_version": "1.0.2",
+      "pending_version": null,
+      "update_status": "idle",
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00008",
+          "paired_at": "2026-09-01T20:48:46.653221",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:46.653221",
+      "last_seen": "2026-09-01T20:52:02.892674"
     },
     "AT-SP-2026-00003": {
       "type": "Snow Plower",
@@ -241,8 +507,11 @@
       "current_version": "1.1.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.635708",
-      "last_seen": "2026-07-19T10:51:23.225886"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [],
+      "first_seen": "2026-09-01T20:48:47.314222",
+      "last_seen": "2026-09-01T20:48:47.314222"
     },
     "AT-LC-2026-00003": {
       "type": "Leaf Collector",
@@ -252,8 +521,11 @@
       "current_version": "3.0.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:38.735020",
-      "last_seen": "2026-07-19T10:51:23.342223"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [],
+      "first_seen": "2026-09-01T20:48:47.482195",
+      "last_seen": "2026-09-01T20:48:47.482195"
     },
     "AT-LC-2026-00002": {
       "type": "Leaf Collector",
@@ -263,8 +535,17 @@
       "current_version": "3.0.0",
       "pending_version": null,
       "update_status": "idle",
-      "first_seen": "2026-07-16T23:18:39.799796",
-      "last_seen": "2026-07-19T10:51:49.575344"
+      "lifecycle": "active",
+      "notes": "",
+      "paired_history": [
+        {
+          "robot_id": "CR-2026-00012",
+          "paired_at": "2026-09-01T20:48:51.261376",
+          "unpaired_at": null
+        }
+      ],
+      "first_seen": "2026-09-01T20:48:51.261376",
+      "last_seen": "2026-09-01T20:52:03.173791"
     }
   },
   "attachment_versions": [
@@ -304,7 +585,39 @@
       "uploaded_at": "2026-07-12T00:00:00"
     }
   ],
-  "attachment_targets": {
-    "LM": "2.4.1"
+  "attachment_targets": {},
+  "jetson_target_version": "",
+  "commands": [
+    {
+      "command_id": "cmd_27e6c29bfe",
+      "robot_id": "CR-2026-TEST01",
+      "robot_name": "TestBot-01",
+      "command": "selftest",
+      "parameters": {},
+      "status": "completed",
+      "progress": 100,
+      "created_at": "2026-09-01T20:25:04.490730",
+      "delivered_at": "2026-09-01T20:25:04.491841",
+      "completed_at": "2026-09-01T20:25:04.492964",
+      "issued_by": "Alex Vance",
+      "issued_by_role": "super_admin",
+      "result": {
+        "overall": "PASSED",
+        "subsystems": {
+          "mcu": {
+            "status": "OK"
+          }
+        }
+      },
+      "logs": [
+        "[20:25:04] Command 'selftest' queued by Alex Vance (super_admin)",
+        "[0.100] Self-test complete (PASSED)"
+      ]
+    }
+  ],
+  "diagnostic_policy": {
+    "telemetry_interval": "High-Rate Debug (5s)",
+    "can_log_level": "Debug Verbose",
+    "crash_dump_policy": "Automatic Upload on Panic"
   }
 }
